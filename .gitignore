@@ -3,3 +3,5 @@ dist
 .shots
 *.local
 .DS_Store
+scripts/check.mjs
+tsconfig.tsbuildinfo
