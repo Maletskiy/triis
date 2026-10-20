@@ -32,12 +32,12 @@ npm run deploy     # ручная выкладка на Vercel (нужен VERCE
 
 ## Деплой
 
-Прод выкатывается из GitHub: пуш в `main` запускает `.github/workflows/deploy.yml`,
-который ставит зависимости, прогоняет `npm run check`, собирает проект и делает
-`vercel deploy --prod`. Токен хранится в секрете репозитория `VERCEL_TOKEN`.
+Прод выкатывается самим Vercel: проект привязан к репозиторию `Maletskiy/triis`,
+пуш в `main` — деплой на прод, PR — превью-деплой. Сборка на стороне Vercel:
+`npm ci` → `npm run build` → `dist`.
 
-Нативная интеграция Vercel ↔ GitHub (деплой без Actions) потребует один раз
-подключить GitHub в настройках аккаунта Vercel — Login Connection.
+Параллельно `.github/workflows/checks.yml` на каждый пуш и PR прогоняет
+`npm run check` и сборку — это проверка, а не деплой.
 
 ## Допущения
 
