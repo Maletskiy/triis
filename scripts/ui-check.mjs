@@ -186,6 +186,25 @@ const metrics = (page) =>
   if (thumbColor !== "rgb(17, 17, 17)") fail(`плашка табов не чёрная: ${thumbColor}`);
   else ok(`плашка табов чёрная: ${thumbColor}, текст ${activeColor}`);
 
+  // печать: шапка с параметрами, скрытые контролы, развёрнутая таблица
+  await page.emulateMediaType("print");
+  await new Promise((r) => setTimeout(r, 250));
+  const printState = await page.evaluate(() => ({
+    head: getComputedStyle(document.querySelector(".print-head")).display,
+    inputs: getComputedStyle(document.querySelector(".inputs")).display,
+    table: getComputedStyle(document.querySelector(".section__body-wrap")).gridTemplateRows,
+  }));
+  await page.emulateMediaType("screen");
+  if (printState.head !== "flex" || printState.inputs !== "none" || printState.table !== "1fr") {
+    fail(`печать: ${JSON.stringify(printState)}`);
+  } else ok("печать: шапка с параметрами, таблица развёрнута");
+
+  const pdfButton = await page.evaluate(() =>
+    [...document.querySelectorAll(".actions .btn")].some((el) => el.textContent?.includes("Скачать PDF")),
+  );
+  if (!pdfButton) fail("кнопки «Скачать PDF» нет");
+  else ok("кнопка «Скачать PDF» на месте");
+
   const fontFamily = await page.$eval("body", (el) => getComputedStyle(el).fontFamily);
   if (!fontFamily.includes("SB Sans")) fail(`шрифт не применился: ${fontFamily}`);
   else ok(`шрифт примитивов: ${fontFamily.split(",")[0]}`);

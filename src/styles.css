@@ -59,7 +59,7 @@ a {
 .app {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 0 24px 32px;
+  padding: 0 28px 40px;
 }
 
 .topbar {
@@ -67,7 +67,7 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 28px 0 20px;
+  padding: 32px 0 24px;
 }
 
 .topbar__brand {
@@ -112,8 +112,8 @@ a {
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 400px;
-  gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 416px;
+  gap: 28px;
   align-items: start;
 }
 
@@ -130,7 +130,7 @@ a {
   top: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   min-width: 0;
 }
 
@@ -151,7 +151,7 @@ a {
   position: relative;
   color: var(--primary);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .footer__author::after {
@@ -313,8 +313,8 @@ a {
   background: var(--background);
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-22);
-  padding: 20px 22px 24px;
-  margin-bottom: 12px;
+  padding: 24px 26px 28px;
+  margin-bottom: 16px;
 }
 
 .section__head {
@@ -325,19 +325,19 @@ a {
 }
 
 .section__title {
-  font-family: var(--font-caps);
-  font-size: var(--caption-size);
-  line-height: var(--caption-line);
-  font-weight: 400;
-  letter-spacing: 0.08em;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--primary-40);
 }
 
 .section__hint {
-  margin: 8px 0 18px;
-  font-size: var(--subtitle-size);
-  line-height: var(--subtitle-line);
+  margin: 10px 0 22px;
+  font-size: var(--body-size);
+  line-height: 24px;
   color: var(--primary-50);
   max-width: 620px;
 }
@@ -402,14 +402,14 @@ a {
 
 .params {
   display: grid;
-  gap: 8px;
+  gap: 12px;
 }
 
 .param {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 14px 16px 16px;
+  gap: 8px;
+  padding: 18px 20px 20px;
   border-radius: var(--radius-16);
   background: var(--surface);
   border: 1px solid transparent;
@@ -462,8 +462,8 @@ a {
 }
 
 .param__hint {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 14px;
+  line-height: 18px;
   color: var(--primary-40);
 }
 
@@ -653,7 +653,7 @@ a {
   background: var(--background);
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-22);
-  padding: 22px 22px 20px;
+  padding: 26px 26px 24px;
 }
 
 .summary__hero {
@@ -694,8 +694,8 @@ a {
 .stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px 16px;
-  margin: 20px 0 0;
+  gap: 22px 20px;
+  margin: 24px 0 0;
 }
 
 .stat {
@@ -730,17 +730,17 @@ a {
 }
 
 .stat__sub {
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 14px;
+  line-height: 18px;
   color: var(--primary-40);
 }
 
 .summary__meta {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-top: 18px;
-  padding-top: 16px;
+  gap: 6px;
+  margin-top: 22px;
+  padding-top: 18px;
   border-top: 1px solid var(--primary-10);
   font-size: var(--subtitle-size);
   line-height: var(--subtitle-line);
@@ -793,7 +793,7 @@ a {
   background: var(--background);
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-22);
-  padding: 20px 20px 16px;
+  padding: 24px 24px 18px;
 }
 
 .chart--empty {
@@ -1014,7 +1014,7 @@ a {
   background: var(--background);
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-22);
-  padding: 22px;
+  padding: 26px;
 }
 
 .compare__lead {
@@ -1026,16 +1026,16 @@ a {
 
 .compare__list {
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .card {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   text-align: left;
-  padding: 16px 18px;
+  padding: 18px 20px;
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-20);
   background: var(--background);
@@ -1183,7 +1183,7 @@ a {
   background: var(--background);
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-22);
-  padding: 22px;
+  padding: 26px;
   font-size: var(--body-size);
   line-height: var(--body-line);
 }
@@ -1662,5 +1662,137 @@ a {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Печать и PDF                                                       */
+/* ------------------------------------------------------------------ */
+
+.print-head {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  html {
+    font-size: 13px;
+  }
+
+  body {
+    background: #ffffff;
+    color: #111111;
+  }
+
+  *,
+  *::before,
+  *::after {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .app {
+    max-width: none;
+    padding: 0;
+  }
+
+  .topbar__actions,
+  .tabs,
+  .inputs,
+  .actions,
+  .bar,
+  .toast,
+  .sheet,
+  .footer {
+    display: none !important;
+  }
+
+  .print-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #dddddd;
+    font-size: 11px;
+    line-height: 15px;
+    color: #666666;
+  }
+
+  .print-head strong {
+    display: block;
+    font-size: 15px;
+    line-height: 20px;
+    color: #111111;
+  }
+
+  .print-head__params {
+    text-align: right;
+    max-width: 55%;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .layout__aside {
+    position: static;
+    display: block;
+  }
+
+  .layout__summary-mobile {
+    display: none !important;
+  }
+
+  .layout__summary-desktop {
+    display: block;
+  }
+
+  .summary,
+  .chart,
+  .section {
+    break-inside: avoid;
+    border-color: #e2e2e2;
+    box-shadow: none;
+  }
+
+  .section {
+    margin-bottom: 14px;
+    padding: 16px 18px 18px;
+  }
+
+  .section.is-collapsed .section__body-wrap {
+    grid-template-rows: 1fr;
+  }
+
+  .section.is-collapsed .section__chevron {
+    display: none;
+  }
+
+  .chart__stage {
+    max-height: 260px;
+    overflow: hidden;
+  }
+
+  .table__wrap {
+    overflow: visible;
+  }
+
+  .table__hide-sm {
+    display: table-cell;
+  }
+
+  .table tbody tr:hover {
+    background: transparent;
+  }
+
+  .summary__hero-value {
+    font-size: 32px;
+    line-height: 34px;
   }
 }

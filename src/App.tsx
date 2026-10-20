@@ -8,7 +8,7 @@ import Rules from "./components/Rules";
 import { AutoHeight, CopyButton, Section, Sheet, useSlidingThumb } from "./components/ui";
 import { bestAccount, compare } from "./lib/calc";
 import type { AccountType, Scenario } from "./lib/calc";
-import { compactRub, rub } from "./lib/format";
+import { compactRub, rub, yearsWord } from "./lib/format";
 import { readState, writeState } from "./lib/url";
 import type { AppState } from "./lib/url";
 
@@ -96,6 +96,14 @@ export default function App() {
 
   const shareUrl = () => window.location.href;
 
+  const printParams = [
+    `${state.account === "iis3" ? "ИИС-3" : state.account === "iis1" ? "ИИС-1" : "ИИС-2"}, открыт в ${state.scenario.openYear}`,
+    `${rub(state.scenario.annualContribution)} в год`,
+    `${state.scenario.years} ${yearsWord(state.scenario.years)}`,
+    `доходность ${state.scenario.returnPct}%`,
+    `инфляция ${state.scenario.inflationPct}%`,
+  ].join(" · ");
+
   const downloadCsv = () => {
     const header = "Год;Взнос;Вычет;Доход за год;Капитал";
     const body = active.rows
@@ -137,6 +145,14 @@ export default function App() {
           </button>
         </div>
       </header>
+
+      <div className="print-head">
+        <div>
+          <strong>Triis — калькулятор ИИС</strong>
+          <span>Расчёт от {new Date().toLocaleDateString("ru-RU")}</span>
+        </div>
+        <div className="print-head__params">{printParams}</div>
+      </div>
 
       <main className="layout">
         <div className="layout__summary-mobile" ref={mobileSummaryRef}>
@@ -219,8 +235,21 @@ export default function App() {
                 if (!ok) flash("Браузер не дал скопировать — выделите адрес вручную");
               }}
             />
-            <button type="button" className="btn btn--ghost" onClick={downloadCsv}>
-              Скачать CSV
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={() => window.print()}
+              title="Откроется печать — выберите «Сохранить как PDF»"
+            >
+              Скачать PDF
+            </button>
+            <button
+              type="button"
+              className="btn btn--ghost"
+              onClick={downloadCsv}
+              title="Таблица по годам в CSV"
+            >
+              CSV
             </button>
           </div>
 
