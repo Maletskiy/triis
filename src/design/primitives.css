@@ -1,0 +1,159 @@
+/* ---------------------------------------------------------------------------
+   Примитивы deslop (mishanaer/deslop/primitives): цвета, типографика, радиусы.
+   Взято подмножество, нужное интерфейсу; шрифты сконвертированы в woff2.
+--------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "SB Sans Interface";
+  src: url("/fonts/sbsans-ui-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SB Sans Interface";
+  src: url("/fonts/sbsans-ui-semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SB Sans Interface";
+  src: url("/fonts/sbsans-ui-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SB Sans Interface Caps";
+  src: url("/fonts/sbsans-ui-caps.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* базовые поверхности */
+  --white: #ffffff;
+  --black: #111111;
+  --surface: #f5f5f5;
+  --background: #ffffff;
+  --elevation-1: #ffffff;
+  --elevation-2: #ffffff;
+
+  /* текст: чёрный с лестницей альф */
+  --primary: #111111;
+  --primary-90: #111111e6;
+  --primary-80: #111111cc;
+  --primary-70: #111111b3;
+  --primary-60: #11111199;
+  --primary-50: #11111180;
+  --primary-40: #11111166;
+  --primary-30: #1111114d;
+  --primary-20: #11111133;
+  --primary-10: #1111111a;
+  --primary-8: #11111114;
+  --primary-5: #1111110d;
+  --primary-4: #1111110a;
+
+  /* акцентные пары */
+  --accent-red: #e36c5a;
+  --accent-red-background: #fef1ee;
+  --accent-green: #5ec257;
+  --accent-green-background: #eff7ee;
+  --accent-blue: #4c92de;
+  --accent-blue-background: #edf5fe;
+  --accent-yellow: #e6bd1f;
+  --accent-yellow-background: #fdf7e4;
+
+  /* шрифты и шкала */
+  --font-ui: "SB Sans Interface", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-caps: "SB Sans Interface Caps", "SB Sans Interface", system-ui, sans-serif;
+  --font-mono: "SB Sans Text Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --title-40-size: 40px;
+  --title-40-line: 40px;
+  --title-32-size: 32px;
+  --title-32-line: 32px;
+  --title-24-size: 24px;
+  --title-24-line: 28px;
+  --title-20-size: 20px;
+  --title-20-line: 24px;
+  --body-size: 16px;
+  --body-line: 20px;
+  --subtitle-size: 13px;
+  --subtitle-line: 18px;
+  --caption-size: 11px;
+  --caption-line: 13px;
+
+  /* сетка */
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+
+  --radius-8: 8px;
+  --radius-10: 10px;
+  --radius-12: 12px;
+  --radius-14: 14px;
+  --radius-16: 16px;
+  --radius-20: 20px;
+  --radius-22: 22px;
+  --radius-full: 9999px;
+}
+
+/* классы типографики из примитивов */
+.t-title-40 {
+  font-family: var(--font-ui);
+  font-size: var(--title-40-size);
+  line-height: var(--title-40-line);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.t-title-32 {
+  font-family: var(--font-ui);
+  font-size: var(--title-32-size);
+  line-height: var(--title-32-line);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.t-title-24 {
+  font-family: var(--font-ui);
+  font-size: var(--title-24-size);
+  line-height: var(--title-24-line);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.t-body {
+  font-family: var(--font-ui);
+  font-size: var(--body-size);
+  line-height: var(--body-line);
+  font-weight: 400;
+}
+
+.t-subtitle {
+  font-family: var(--font-ui);
+  font-size: var(--subtitle-size);
+  line-height: var(--subtitle-line);
+  font-weight: 400;
+}
+
+.t-caption {
+  font-family: var(--font-caps);
+  font-size: var(--caption-size);
+  line-height: var(--caption-line);
+  font-weight: 400;
+  text-transform: uppercase;
+}

@@ -183,8 +183,12 @@ const metrics = (page) =>
   // плашка табов чёрная, без синего
   const thumbColor = await page.$eval(".tabs .segmented__thumb", (el) => getComputedStyle(el).backgroundColor);
   const activeColor = await page.$eval(".tabs .segmented__item.is-active", (el) => getComputedStyle(el).color);
-  if (thumbColor !== "rgb(11, 24, 50)") fail(`плашка табов не чёрная: ${thumbColor}`);
+  if (thumbColor !== "rgb(17, 17, 17)") fail(`плашка табов не чёрная: ${thumbColor}`);
   else ok(`плашка табов чёрная: ${thumbColor}, текст ${activeColor}`);
+
+  const fontFamily = await page.$eval("body", (el) => getComputedStyle(el).fontFamily);
+  if (!fontFamily.includes("SB Sans")) fail(`шрифт не применился: ${fontFamily}`);
+  else ok(`шрифт примитивов: ${fontFamily.split(",")[0]}`);
 
   if (errors.length) fail(`ошибки в консоли: ${errors.slice(0, 3).join(" | ")}`);
   else ok("консоль без ошибок");
