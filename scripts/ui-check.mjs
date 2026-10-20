@@ -199,6 +199,26 @@ const metrics = (page) =>
     fail(`печать: ${JSON.stringify(printState)}`);
   } else ok("печать: шапка с параметрами, таблица развёрнута");
 
+  const gridCheck = await page.evaluate(() => {
+    const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
+    const wrap = document.querySelector(".actions");
+    const buttons = [...document.querySelectorAll(".actions .btn")];
+    const wrapBox = wrap.getBoundingClientRect();
+    const primary = box(".actions .btn--primary");
+    const others = buttons.filter((b) => !b.classList.contains("btn--primary")).map((b) => b.getBoundingClientRect());
+    return {
+      overflow: buttons.some((b) => b.getBoundingClientRect().right > wrapBox.right + 1 || b.getBoundingClientRect().left < wrapBox.left - 1),
+      primaryFull: Math.abs(primary.width - wrapBox.width) < 2,
+      othersTwo: others.length === 2 && Math.abs(others[0].width - others[1].width) < 2,
+      sameRow: Math.abs(others[0].top - others[1].top) < 1,
+      underPrimary: others[0].top > primary.bottom - 1,
+    };
+  });
+  if (!gridCheck.primaryFull || !gridCheck.othersTwo || !gridCheck.sameRow || !gridCheck.underPrimary) {
+    fail(`сетка выгрузок: ${JSON.stringify(gridCheck)}`);
+  } else ok("выгрузки: чёрная на всю ширину, PDF и CSV по половине во второй строке");
+  if (gridCheck.overflow) fail("кнопки выходят за контейнер выгрузок");
+
   const pdfButton = await page.evaluate(() =>
     [...document.querySelectorAll(".actions .btn")].some((el) => el.textContent?.includes("Скачать PDF")),
   );

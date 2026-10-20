@@ -776,13 +776,21 @@ a {
   margin: 0;
 }
 
+/* сетка выгрузок: основная кнопка на всю ширину, две вторичные — по половине */
 .actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
 .actions .btn {
-  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 0 12px;
+}
+
+.actions .btn--primary {
+  grid-column: 1 / -1;
 }
 
 /* ------------------------------------------------------------------ */
