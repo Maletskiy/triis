@@ -27,8 +27,17 @@ npm run dev        # локальная разработка
 npm run build      # прод-сборка в dist/
 npm run check      # проверки движка на контрольных примерах
 npm run ui-check   # проверки интерфейса в headless Chrome (нужен Chrome)
-npm run deploy     # сборка и выкладка на Vercel (нужен VERCEL_TOKEN)
+npm run deploy     # ручная выкладка на Vercel (нужен VERCEL_TOKEN)
 ```
+
+## Деплой
+
+Прод выкатывается из GitHub: пуш в `main` запускает `.github/workflows/deploy.yml`,
+который ставит зависимости, прогоняет `npm run check`, собирает проект и делает
+`vercel deploy --prod`. Токен хранится в секрете репозитория `VERCEL_TOKEN`.
+
+Нативная интеграция Vercel ↔ GitHub (деплой без Actions) потребует один раз
+подключить GitHub в настройках аккаунта Vercel — Login Connection.
 
 ## Допущения
 
