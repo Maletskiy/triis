@@ -1,0 +1,41 @@
+name: deploy
+
+# Деплой на Vercel из GitHub: пуш в main собирает и выкатывает сайт в прод.
+# Токен лежит в секрете репозитория VERCEL_TOKEN (Settings → Secrets → Actions).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: team_r0ZuEXB6A6fjKxu0WSB9spR2
+      VERCEL_PROJECT_ID: prj_LrtK1RnPPdnrDZ3UZkIHp6el2xLH
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Установить зависимости
+        run: npm ci
+
+      - name: Проверить расчёты
+        run: npm run check
+
+      - name: Собрать
+        run: npm run build
+
+      - name: Выложить на Vercel
+        run: npx --yes vercel@latest deploy --prod --yes --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
