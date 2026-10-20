@@ -99,6 +99,41 @@ const metrics = (page) =>
   if (before === after) fail("переключение на ИИС-2 не изменило итог");
   else ok(`переключение счёта меняет итог: ${before} → ${after}`);
 
+  // год открытия: меняется минимальный срок владения
+  const metaText = () => page.$eval(".summary__meta", (el) => el.textContent ?? "");
+  const pickAccount = (name) =>
+    page.evaluate((n) => {
+      const items = [...document.querySelectorAll(".inputs .segmented__item")];
+      items.find((el) => el.textContent.trim() === n)?.click();
+    }, name);
+  const pickYear = (y) =>
+    page.evaluate((year) => {
+      const items = [...document.querySelectorAll(".inputs__year .segmented__item")];
+      items.find((el) => el.textContent.trim() === year)?.click();
+    }, y);
+
+  await pickAccount("ИИС-3");
+  await new Promise((r) => setTimeout(r, 450));
+  await pickYear("2032");
+  await new Promise((r) => setTimeout(r, 500));
+  if (!(await metaText()).includes("10 лет")) fail("год 2032 не поднял минимальный срок до 10 лет");
+  else ok("год открытия 2032 → минимальный срок 10 лет");
+
+  await pickYear("2026");
+  await new Promise((r) => setTimeout(r, 500));
+  if (!(await metaText()).includes("5 лет")) fail("год 2026 не вернул срок 5 лет");
+  else ok("год открытия 2026 → минимальный срок 5 лет");
+
+  // у старых счетов набор годов ограничен
+  await pickAccount("ИИС-2");
+  await new Promise((r) => setTimeout(r, 450));
+  const oldYears = await page.$$eval(".inputs__year .segmented__item", (els) =>
+    els.map((el) => el.textContent.trim()),
+  );
+  if (!oldYears.includes("2021") || oldYears.includes("2028")) {
+    fail(`годы для старого счёта: ${oldYears.join(",")}`);
+  } else ok(`годы для старого счёта ограничены: ${oldYears.join(", ")}`);
+
   // таб «Сравнение»
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".tabs .segmented__item")];

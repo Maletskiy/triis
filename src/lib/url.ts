@@ -60,7 +60,7 @@ export function readState(search: string): AppState {
     reinvestRefunds: params.get(PARAM_KEYS.reinvestRefunds) !== "0",
     openYear: Math.min(
       2035,
-      Math.max(2024, Math.round(readNumber(params, PARAM_KEYS.openYear, DEFAULTS.scenario.openYear))),
+      Math.max(2021, Math.round(readNumber(params, PARAM_KEYS.openYear, DEFAULTS.scenario.openYear))),
     ),
   };
 

@@ -114,6 +114,8 @@ function Param({
 
 const YEAR_MIN = 2024;
 const YEAR_MAX = 2032;
+/** ИИС-1 и ИИС-2 перестали открывать с 2024 года. */
+const OLD_ACCOUNT_YEARS = [2021, 2022, 2023];
 
 export default function Inputs({ scenario, onChange, account, onAccountChange }: Props) {
   const contributionLimit = account === "iis3" ? undefined : OLD_IIS_CONTRIBUTION_LIMIT;
@@ -129,6 +131,18 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
 
   const incomeTax = ndfl(scenario.officialIncome);
   const rate = Math.round(marginalRate(scenario.officialIncome) * 100);
+
+  // старый счёт не мог быть открыт в будущем: подтягиваем год к последнему доступному
+  useEffect(() => {
+    if (account !== "iis3" && scenario.openYear > 2023) {
+      onChange({ openYear: 2023 });
+    }
+  }, [account, scenario.openYear, onChange]);
+
+  const yearOptions =
+    account === "iis3"
+      ? Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => YEAR_MIN + i)
+      : OLD_ACCOUNT_YEARS;
 
   return (
     <div className="inputs">
@@ -148,11 +162,28 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             label="Год открытия"
             value={String(scenario.openYear)}
             onChange={(v) => onChange({ openYear: Number(v) })}
-            options={Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => ({
-              value: String(YEAR_MIN + i),
-              label: String(YEAR_MIN + i),
+            options={yearOptions.map((year) => ({
+              value: String(year),
+              label: String(year),
             }))}
           />
+          <p className="inputs__note">
+            {account === "iis3" ? (
+              <>
+                Год открытия влияет только на минимальный срок владения: для счёта{" "}
+                {scenario.openYear} года это{" "}
+                <b>
+                  {minHolding} {yearsWord(minHolding)}
+                </b>
+                . Суммы меняются, только если закрыть счёт раньше этого срока.
+              </>
+            ) : (
+              <>
+                С 2024 года новые ИИС-1 и ИИС-2 не открывают — остались только ИИС-3. Здесь
+                считается уже открытый старый счёт, его минимальный срок — 3 года.
+              </>
+            )}
+          </p>
         </div>
       </Section>
 
