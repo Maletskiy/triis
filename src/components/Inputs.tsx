@@ -131,6 +131,10 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
 
   const incomeTax = ndfl(scenario.officialIncome);
   const rate = Math.round(marginalRate(scenario.officialIncome) * 100);
+  const appliedRate = Math.round(
+    (scenario.manualRate ?? marginalRate(scenario.officialIncome)) * 100,
+  );
+  const periods = scenario.periodsPerYear ?? 1;
 
   // старый счёт не мог быть открыт в будущем: подтягиваем год к последнему доступному
   useEffect(() => {
@@ -249,6 +253,25 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             hint="на неё делим итог, чтобы показать деньги в сегодняшних ценах"
           />
 
+          <div className="param param--choice">
+            <span className="param__label">Частота реинвестирования</span>
+            <Segmented
+              label="Частота реинвестирования"
+              value={String(periods)}
+              onChange={(v) => onChange({ periodsPerYear: Number(v) })}
+              options={[
+                { value: "1", label: "Раз в год" },
+                { value: "4", label: "Раз в квартал" },
+                { value: "12", label: "Раз в месяц" },
+              ]}
+            />
+            <span className="param__hint">
+              {periods > 1
+                ? `доход капитализируется ${periods} раз в год — итог немного выше`
+                : "доход начисляется раз в год"}
+            </span>
+          </div>
+
           <Param
             label="Официальный доход за год"
             value={scenario.officialIncome}
@@ -261,6 +284,28 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             onChange={(v) => onChange({ officialIncome: v })}
             hint={`НДФЛ за год ≈ ${rub(incomeTax)} · предельная ставка ${rate}%`}
           />
+
+          <div className="param param--choice">
+            <span className="param__label">Ставка НДФЛ</span>
+            <Segmented
+              label="Ставка НДФЛ"
+              value={scenario.manualRate ? String(appliedRate) : "auto"}
+              onChange={(v) => onChange({ manualRate: v === "auto" ? null : Number(v) / 100 })}
+              options={[
+                { value: "auto", label: "По доходу" },
+                { value: "13", label: "13%" },
+                { value: "15", label: "15%" },
+                { value: "18", label: "18%" },
+                { value: "20", label: "20%" },
+                { value: "22", label: "22%" },
+              ]}
+            />
+            <span className="param__hint">
+              {scenario.manualRate
+                ? "ставка задана вручную — её применяем к вычету и налогу с прибыли"
+                : `сейчас берём предельную ставку по доходу — ${appliedRate}%`}
+            </span>
+          </div>
         </div>
 
         <Toggle

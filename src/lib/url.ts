@@ -15,6 +15,8 @@ export const DEFAULTS: AppState = {
     officialIncome: 1_200_000,
     reinvestRefunds: true,
     openYear: 2026,
+    periodsPerYear: 1,
+    manualRate: null,
   },
   account: "iis3",
 };
@@ -27,6 +29,8 @@ const PARAM_KEYS = {
   officialIncome: "d",
   reinvestRefunds: "rr",
   openYear: "o",
+  periodsPerYear: "m",
+  manualRate: "n",
 } as const;
 
 function readNumber(params: URLSearchParams, key: string, fallback: number): number {
@@ -62,6 +66,17 @@ export function readState(search: string): AppState {
       2035,
       Math.max(2021, Math.round(readNumber(params, PARAM_KEYS.openYear, DEFAULTS.scenario.openYear))),
     ),
+    periodsPerYear: [1, 4, 12].includes(
+      Math.round(readNumber(params, PARAM_KEYS.periodsPerYear, DEFAULTS.scenario.periodsPerYear ?? 1)),
+    )
+      ? Math.round(readNumber(params, PARAM_KEYS.periodsPerYear, DEFAULTS.scenario.periodsPerYear ?? 1))
+      : 1,
+    manualRate: (() => {
+      const raw = params.get(PARAM_KEYS.manualRate);
+      if (raw === null) return null;
+      const value = Number(raw);
+      return [0.13, 0.15, 0.18, 0.2, 0.22].includes(value) ? value : null;
+    })(),
   };
 
   return {
@@ -80,6 +95,8 @@ export function writeState(state: AppState): string {
   params.set(PARAM_KEYS.officialIncome, String(Math.round(scenario.officialIncome)));
   params.set(PARAM_KEYS.reinvestRefunds, scenario.reinvestRefunds ? "1" : "0");
   params.set(PARAM_KEYS.openYear, String(scenario.openYear));
+  params.set(PARAM_KEYS.periodsPerYear, String(scenario.periodsPerYear ?? 1));
+  if (scenario.manualRate) params.set(PARAM_KEYS.manualRate, String(scenario.manualRate));
   params.set("a", state.account);
   return `?${params.toString()}`;
 }

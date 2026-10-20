@@ -66,8 +66,9 @@ export function ndflOnTop(income: number, extra: number): number {
  * НДФЛ с прибыли от инвестиций считается по отдельной базе —
  * двухступенчатая шкала 13/15%, как у дивидендов.
  */
-export function taxOnGains(gain: number): number {
+export function taxOnGains(gain: number, manualRate?: number | null): number {
   if (gain <= 0) return 0;
+  if (manualRate && manualRate > 0) return gain * manualRate;
   const first = Math.min(gain, NDFL_BRACKETS[0].upTo) * NDFL_BRACKETS[0].rate;
   const rest = Math.max(0, gain - NDFL_BRACKETS[0].upTo) * NDFL_BRACKETS[1].rate;
   return first + rest;

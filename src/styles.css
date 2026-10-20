@@ -326,16 +326,14 @@ a {
 
 .section__title {
   font-family: var(--font-ui);
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 20px;
+  line-height: 24px;
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--primary-40);
+  color: var(--primary);
 }
 
 .section__hint {
-  margin: 10px 0 22px;
+  margin: 10px 0 0;
   font-size: var(--body-size);
   line-height: 24px;
   color: var(--primary-50);
@@ -408,7 +406,7 @@ a {
 .param {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   padding: 18px 20px 20px;
   border-radius: var(--radius-16);
   background: var(--surface);
@@ -424,8 +422,8 @@ a {
 }
 
 .param__label {
-  font-size: var(--subtitle-size);
-  line-height: var(--subtitle-line);
+  font-size: var(--body-size);
+  line-height: 24px;
   color: var(--primary-50);
 }
 
@@ -465,6 +463,19 @@ a {
   font-size: 14px;
   line-height: 18px;
   color: var(--primary-40);
+}
+
+.param--choice .segmented {
+  grid-auto-flow: row;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  height: auto;
+  gap: 4px;
+}
+
+.param--choice .segmented__item {
+  font-size: 14px;
+  line-height: 18px;
+  padding: 8px 6px;
 }
 
 .range {
@@ -558,8 +569,8 @@ a {
 
 .inputs__note {
   margin-top: 12px;
-  font-size: var(--subtitle-size);
-  line-height: var(--subtitle-line);
+  font-size: var(--body-size);
+  line-height: 24px;
   color: var(--primary-40);
 }
 

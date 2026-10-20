@@ -76,7 +76,7 @@
 
   --title-40-size: 40px;
   --title-40-line: 40px;
-  --title-32-size: 32px;
+  --title-32-size: 28px;
   --title-32-line: 32px;
   --title-24-size: 24px;
   --title-24-line: 28px;
@@ -86,8 +86,8 @@
   --body-line: 20px;
   --subtitle-size: 13px;
   --subtitle-line: 18px;
-  --caption-size: 11px;
-  --caption-line: 13px;
+  --caption-size: 14px;
+  --caption-line: 20px;
 
   /* сетка */
   --space-4: 4px;

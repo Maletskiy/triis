@@ -34,6 +34,10 @@ export type Scenario = {
   reinvestRefunds: boolean;
   /** Год открытия счёта */
   openYear: number;
+  /** Сколько раз в год реинвестируется доход: 1, 4 или 12 */
+  periodsPerYear: number;
+  /** Ставка НДФЛ вручную; null — считать по доходу */
+  manualRate: number | null;
 };
 
 export type YearRow = {
@@ -106,7 +110,12 @@ function simulateCore(type: AccountType, scenario: Scenario, years: number): Cor
   const horizon = Math.max(0, Math.floor(years));
   const income = nonNegative(scenario.officialIncome);
   const incomeTax = ndfl(income);
-  const baseRate = marginalRate(income);
+  const baseRate =
+    scenario.manualRate && scenario.manualRate > 0
+      ? scenario.manualRate
+      : marginalRate(income);
+  const periods = Math.min(12, Math.max(1, Math.round(scenario.periodsPerYear || 1)));
+  const ratePerPeriod = rate / periods;
 
   const rows: YearRow[] = [];
   let capital = 0;
@@ -123,7 +132,11 @@ function simulateCore(type: AccountType, scenario: Scenario, years: number): Cor
     pendingRefund = 0;
 
     const startCapital = capital;
-    capital = (capital + contribution) * (1 + rate);
+    capital += contribution;
+    // доход реинвестируется несколько раз в год — например, раз в месяц
+    for (let period = 0; period < periods; period += 1) {
+      capital *= 1 + ratePerPeriod;
+    }
     contributionsTotal += contribution;
     const growth = capital - startCapital - contribution;
 
@@ -154,14 +167,14 @@ function simulateCore(type: AccountType, scenario: Scenario, years: number): Cor
 
   if (earlyClose) {
     // Льготы сгорают: полученные вычеты возвращаются, прибыль облагается НДФЛ.
-    exitTax = taxOnGains(Math.max(0, profit));
+    exitTax = taxOnGains(Math.max(0, profit), scenario.manualRate);
     clawback = refundsTotal;
   } else if (type === "iis3") {
     // Освобождение прибыли с лимитом 30 млн ₽ за весь срок владения.
     const taxableProfit = Math.max(0, profit - IIS3_PROFIT_EXEMPT_LIMIT);
-    exitTax = taxOnGains(taxableProfit);
+    exitTax = taxOnGains(taxableProfit, scenario.manualRate);
   } else if (type === "iis1") {
-    exitTax = taxOnGains(Math.max(0, profit));
+    exitTax = taxOnGains(Math.max(0, profit), scenario.manualRate);
   } else {
     // ИИС-2: прибыль освобождена полностью.
     exitTax = 0;

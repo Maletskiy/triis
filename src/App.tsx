@@ -101,7 +101,17 @@ export default function App() {
     `${rub(state.scenario.annualContribution)} в год`,
     `${state.scenario.years} ${yearsWord(state.scenario.years)}`,
     `доходность ${state.scenario.returnPct}%`,
+    `реинвест ${
+      (state.scenario.periodsPerYear ?? 1) === 12
+        ? "раз в месяц"
+        : (state.scenario.periodsPerYear ?? 1) === 4
+          ? "раз в квартал"
+          : "раз в год"
+    }`,
     `инфляция ${state.scenario.inflationPct}%`,
+    state.scenario.manualRate
+      ? `НДФЛ ${Math.round(state.scenario.manualRate * 100)}%`
+      : "НДФЛ по доходу",
   ].join(" · ");
 
   const downloadCsv = () => {
@@ -249,7 +259,7 @@ export default function App() {
               onClick={downloadCsv}
               title="Таблица по годам в CSV"
             >
-              CSV
+              Скачать CSV
             </button>
           </div>
 

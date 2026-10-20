@@ -19,6 +19,8 @@ const base: Scenario = {
   officialIncome: 1_200_000,
   reinvestRefunds: false,
   openYear: 2026,
+  periodsPerYear: 1,
+  manualRate: null,
 };
 
 // 1. Аннуитет с взносом в начале года: 400 000 × Σ 1.1^k, k = 1..10
@@ -110,7 +112,23 @@ check(
   (annuity + 520_000) / Math.pow(1.06, 10),
 );
 
-// 11. Сравнение возвращает три счёта
+// 11. Частота реинвестирования: доход капитализируется несколько раз в год
+const monthly = simulate("iis3", { ...base, periodsPerYear: 12 });
+const monthlyFactor = Math.pow(1 + 0.1 / 12, 12);
+const monthlyCapital =
+  400_000 * ((Math.pow(monthlyFactor, 11) - monthlyFactor) / (monthlyFactor - 1));
+check("реинвест раз в месяц: капитал по эффективной ставке", monthly.grossCapital, monthlyCapital, 2);
+check("реинвест раз в месяц больше годового", Number(monthly.grossCapital > iis3.grossCapital), 1);
+
+// 12. Ручная ставка НДФЛ перекрывает расчёт по доходу
+const manual15 = simulate("iis3", { ...base, manualRate: 0.15 });
+check("ручная ставка 15%: вычет 60 000 за год", manual15.refunds, 600_000);
+check("ручная ставка применяется к прибыли (ИИС-1)",
+  simulate("iis1", { ...base, manualRate: 0.15 }).exitTax,
+  (annuity - 4_000_000) * 0.15,
+  2);
+
+// 13. Сравнение возвращает три счёта
 const all = compare(base);
 check("сравнение: три результата", Object.keys(all).length, 3);
 

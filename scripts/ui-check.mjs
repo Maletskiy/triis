@@ -62,7 +62,7 @@ const metrics = (page) =>
   else ok(`бренд: ${brand}`);
 
   const params = await page.$$eval(".params .param", (els) => els.length);
-  if (params !== 5) fail(`параметров ${params} вместо 5`);
+  if (params !== 7) fail(`параметров ${params} вместо 7`);
   else ok(`параметры в одном блоке: ${params} контролов`);
 
   const hero = await page.$eval(".summary__hero-value", (el) => el.textContent?.trim() ?? "");
@@ -98,6 +98,28 @@ const metrics = (page) =>
   const after = await page.$eval(".summary__hero-value", (el) => el.textContent);
   if (before === after) fail("переключение на ИИС-2 не изменило итог");
   else ok(`переключение счёта меняет итог: ${before} → ${after}`);
+
+  // частота реинвестирования и ставка НДФЛ меняют расчёт
+  const heroBefore = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  await page.evaluate(() => {
+    const items = [...document.querySelectorAll(".param--choice .segmented__item")];
+    items.find((el) => el.textContent.trim() === "Раз в месяц")?.click();
+  });
+  await new Promise((r) => setTimeout(r, 700));
+  const heroMonthly = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  if (heroBefore === heroMonthly) fail("частота реинвестирования не влияет на итог");
+  else ok(`частота реинвестирования меняет итог: ${heroBefore} → ${heroMonthly}`);
+
+  await page.evaluate(() => {
+    const items = [...document.querySelectorAll(".param--choice .segmented__item")];
+    items.find((el) => el.textContent.trim() === "15%")?.click();
+  });
+  await new Promise((r) => setTimeout(r, 700));
+  const rateHint = await page.evaluate(() =>
+    [...document.querySelectorAll(".param--choice .param__hint")].map((e) => e.textContent).join(" | "),
+  );
+  if (!rateHint.includes("вручную")) fail(`ручная ставка не применилась: ${rateHint}`);
+  else ok("ручная ставка НДФЛ применяется");
 
   // год открытия: меняется минимальный срок владения
   const metaText = () => page.$eval(".summary__meta", (el) => el.textContent ?? "");
