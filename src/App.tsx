@@ -14,19 +14,9 @@ import type { AppState } from "./lib/url";
 
 type Tab = "params" | "compare" | "rules";
 
-const THEME_KEY = "iis-calc-theme";
-type Theme = "light" | "dark";
-
-function readTheme(): Theme {
-  const saved = localStorage.getItem(THEME_KEY);
-  if (saved === "light" || saved === "dark") return saved;
-  return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 export default function App() {
   const [state, setState] = useState<AppState>(() => readState(window.location.search));
   const [tab, setTab] = useState<Tab>("params");
-  const [theme, setTheme] = useState<Theme>(readTheme);
   const [toast, setToast] = useState<{ text: string; visible: boolean } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [barVisible, setBarVisible] = useState(false);
@@ -47,11 +37,6 @@ export default function App() {
     const next = writeState(state);
     window.history.replaceState(null, "", window.location.pathname + next);
   }, [state]);
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem(THEME_KEY, theme);
-  }, [theme]);
 
   useEffect(() => {
     document.title = "Triis — калькулятор ИИС-3, ИИС-1 и ИИС-2";
@@ -147,15 +132,6 @@ export default function App() {
           </div>
         </div>
         <div className="topbar__actions">
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-            aria-label={theme === "light" ? "Тёмная тема" : "Светлая тема"}
-            title={theme === "light" ? "Тёмная тема" : "Светлая тема"}
-          >
-            {theme === "light" ? "◐" : "◑"}
-          </button>
           <button type="button" className="btn btn--ghost" onClick={reset}>
             Сбросить
           </button>

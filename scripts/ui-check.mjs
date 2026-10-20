@@ -180,21 +180,11 @@ const metrics = (page) =>
 
   await page.screenshot({ path: `${SHOTS}desktop.png`, fullPage: false });
 
-  // тёмная тема
-  await page.evaluate(() => {
-    const btn = [...document.querySelectorAll(".topbar .btn")].find((el) =>
-      el.textContent?.trim() === "◐",
-    );
-    btn?.click();
-  });
-  await new Promise((r) => setTimeout(r, 450));
-  const theme = await page.evaluate(() => ({
-    attr: document.documentElement.dataset.theme,
-    bg: getComputedStyle(document.body).backgroundColor,
-  }));
-  if (theme.attr !== "dark") fail(`тёмная тема не включилась: ${JSON.stringify(theme)}`);
-  else ok(`тёмная тема: ${theme.bg}`);
-  await page.screenshot({ path: `${SHOTS}desktop-dark.png`, fullPage: false });
+  // плашка табов чёрная, без синего
+  const thumbColor = await page.$eval(".tabs .segmented__thumb", (el) => getComputedStyle(el).backgroundColor);
+  const activeColor = await page.$eval(".tabs .segmented__item.is-active", (el) => getComputedStyle(el).color);
+  if (thumbColor !== "rgb(11, 24, 50)") fail(`плашка табов не чёрная: ${thumbColor}`);
+  else ok(`плашка табов чёрная: ${thumbColor}, текст ${activeColor}`);
 
   if (errors.length) fail(`ошибки в консоли: ${errors.slice(0, 3).join(" | ")}`);
   else ok("консоль без ошибок");

@@ -30,27 +30,6 @@
   --control-h: 2.75rem;
 }
 
-[data-theme="dark"] {
-  --bg: #060b17;
-  --panel: #0d1424;
-  --panel-2: #141d33;
-  --line: #1e2a45;
-  --line-strong: #2f4066;
-  --ink: #eef3fb;
-  --muted: #9dabc6;
-  --dim: #8593b0;
-  --accent: #4d7cff;
-  --accent-strong: #7297ff;
-  --accent-soft: rgba(77, 124, 255, 0.16);
-  --accent-ink: #040c1c;
-  --ok: #4ad19a;
-  --bad: #ff8f7a;
-  --bad-soft: rgba(255, 143, 122, 0.14);
-  --shadow: 0 26px 64px -30px rgba(0, 0, 0, 0.85);
-  --chart-capital: #7ea3ff;
-  --chart-contribution: rgba(77, 124, 255, 0.2);
-}
-
 *,
 *::before,
 *::after {
@@ -75,7 +54,6 @@ body {
   font-size: 1rem;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1,
@@ -306,8 +284,8 @@ a {
   top: 0;
   left: 0;
   border-radius: 0.6rem;
-  background: var(--accent);
-  box-shadow: 0 8px 22px -12px var(--accent);
+  background: var(--ink);
+  box-shadow: 0 8px 20px -12px rgba(11, 24, 50, 0.55);
   pointer-events: none;
   z-index: 0;
   will-change: width, transform;
@@ -346,7 +324,7 @@ a {
 }
 
 .segmented__item.is-active {
-  color: var(--accent-ink);
+  color: #ffffff;
   font-weight: 600;
 }
 
