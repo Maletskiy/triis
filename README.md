@@ -36,6 +36,9 @@ npm run deploy     # ручная выкладка на Vercel (нужен VERCE
 пуш в `main` — деплой на прод, PR — превью-деплой. Сборка на стороне Vercel:
 `npm ci` → `npm run build` → `dist`.
 
+Превью-деплои на PR публичные — ссылку можно отдать без логина в Vercel
+(защита Vercel Authentication для preview отключена).
+
 Параллельно `.github/workflows/checks.yml` на каждый пуш и PR прогоняет
 `npm run check` и сборку — это проверка, а не деплой.
 
