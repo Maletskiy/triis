@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { AccountType, Scenario } from "../lib/calc";
 import { compactRub, parseNumber, rub, yearsWord } from "../lib/format";
+import { addYears, formatHuman, yearOf } from "../lib/dates";
 import {
   DEDUCTION_BASE_LIMIT,
   OLD_IIS_CONTRIBUTION_LIMIT,
@@ -8,6 +9,7 @@ import {
   ndfl,
 } from "../lib/rules";
 import { Section, Segmented, Toggle } from "./ui";
+import DatePicker from "./DatePicker";
 
 type Props = {
   scenario: Scenario;
@@ -23,9 +25,7 @@ type ParamProps = {
   min: number;
   max: number;
   step: number;
-  /** как показать значение в поле ввода */
   format: (value: number) => string;
-  /** как прочитать то, что ввели */
   parse?: (raw: string) => number;
   suffix?: string;
   onChange: (value: number) => void;
@@ -33,7 +33,7 @@ type ParamProps = {
 
 /**
  * Параметр в духе БКС: подпись, крупное поле значения и слайдер — всё в одной
- * плашке, чтобы глаз читал их как один контрол, а не как два.
+ * плашке, чтобы глаз читал их как один контрол.
  */
 function Param({
   label,
@@ -60,9 +60,7 @@ function Param({
 
   const commit = (raw: string) => {
     setDraft(raw);
-    const next = parse
-      ? parse(raw)
-      : Number(raw.replace(/[^\d.,]/g, "").replace(",", "."));
+    const next = parse ? parse(raw) : Number(raw.replace(/[^\d.,]/g, "").replace(",", "."));
     if (!Number.isFinite(next)) return;
     onChange(Math.min(max, Math.max(min, next)));
   };
@@ -112,23 +110,16 @@ function Param({
   );
 }
 
-const YEAR_MIN = 2024;
-const YEAR_MAX = 2032;
-/** ИИС-1 и ИИС-2 перестали открывать с 2024 года. */
-const OLD_ACCOUNT_YEARS = [2021, 2022, 2023];
-
 export default function Inputs({ scenario, onChange, account, onAccountChange }: Props) {
   const contributionLimit = account === "iis3" ? undefined : OLD_IIS_CONTRIBUTION_LIMIT;
   const overLimit =
     contributionLimit !== undefined && scenario.annualContribution > contributionLimit;
 
+  const openYear = yearOf(scenario.openDate);
   const minHolding =
-    account === "iis3"
-      ? scenario.openYear <= 2026
-        ? 5
-        : Math.min(10, 5 + (scenario.openYear - 2026))
-      : 3;
+    account === "iis3" ? (openYear <= 2026 ? 5 : Math.min(10, 5 + (openYear - 2026))) : 3;
 
+  const monthlyIncome = Math.round(scenario.officialIncome / 12);
   const incomeTax = ndfl(scenario.officialIncome);
   const rate = Math.round(marginalRate(scenario.officialIncome) * 100);
   const appliedRate = Math.round(
@@ -136,55 +127,52 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
   );
   const periods = scenario.periodsPerYear ?? 1;
 
-  // старый счёт не мог быть открыт в будущем: подтягиваем год к последнему доступному
+  // старый счёт не мог быть открыт в будущем: подтягиваем дату к последнему доступному году
   useEffect(() => {
-    if (account !== "iis3" && scenario.openYear > 2023) {
-      onChange({ openYear: 2023 });
+    if (account !== "iis3" && openYear > 2023) {
+      onChange({ openDate: "2023-01-01" });
     }
-  }, [account, scenario.openYear, onChange]);
-
-  const yearOptions =
-    account === "iis3"
-      ? Array.from({ length: YEAR_MAX - YEAR_MIN + 1 }, (_, i) => YEAR_MIN + i)
-      : OLD_ACCOUNT_YEARS;
+  }, [account, openYear, onChange]);
 
   return (
     <div className="inputs">
-      <Section title="Счёт" hint="От типа счёта зависят льготы, срок владения и лимиты">
+      <Section title="Счёт">
         <Segmented
           label="Тип счёта"
           value={account}
           onChange={onAccountChange}
           options={[
-            { value: "iis3", label: "ИИС-3" },
-            { value: "iis1", label: "ИИС-1" },
-            { value: "iis2", label: "ИИС-2" },
+            { value: "iis3", label: "ИИС-3", title: "Оба вычета: взнос и доход" },
+            { value: "iis1", label: "Тип А", title: "Вычет на взнос, доход облагается" },
+            { value: "iis2", label: "Тип Б", title: "Доход без налога, вычета на взнос нет" },
           ]}
         />
-        <div className="inputs__year">
-          <Segmented
-            label="Год открытия"
-            value={String(scenario.openYear)}
-            onChange={(v) => onChange({ openYear: Number(v) })}
-            options={yearOptions.map((year) => ({
-              value: String(year),
-              label: String(year),
-            }))}
+        <p className="inputs__note">
+          {account === "iis3"
+            ? "ИИС-3 — оба вычета сразу: возврат НДФЛ за взносы и освобождение дохода от налога."
+            : account === "iis1"
+              ? "Тип А — возврат НДФЛ с взносов. Доход на счёте облагается налогом при закрытии."
+              : "Тип Б — доход освобождён от НДФЛ, но вычета на взнос нет."}
+        </p>
+
+        <div className="inputs__date">
+          <span className="param__label">Дата открытия</span>
+          <DatePicker
+            label="Дата открытия счёта"
+            value={scenario.openDate}
+            onChange={(iso) => onChange({ openDate: iso })}
           />
           <p className="inputs__note">
             {account === "iis3" ? (
               <>
-                Год открытия влияет только на минимальный срок владения: для счёта{" "}
-                {scenario.openYear} года это{" "}
-                <b>
-                  {minHolding} {yearsWord(minHolding)}
-                </b>
-                . Суммы меняются, только если закрыть счёт раньше этого срока.
+                Срок владения для этого счёта — <b>{minHolding} {yearsWord(minHolding)}</b>,
+                закрыть без потери льгот можно с{" "}
+                <b>{formatHuman(addYears(scenario.openDate, minHolding))}</b>.
               </>
             ) : (
               <>
-                С 2024 года новые ИИС-1 и ИИС-2 не открывают — остались только ИИС-3. Здесь
-                считается уже открытый старый счёт, его минимальный срок — 3 года.
+                С 2024 года новые счета типа А и Б не открывают — здесь считается уже открытый,
+                его минимальный срок — <b>3 года</b>.
               </>
             )}
           </p>
@@ -225,7 +213,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             hint={
               scenario.years < minHolding
                 ? `Минимум для этого счёта — ${minHolding} ${yearsWord(minHolding)}: закроете раньше, вычеты придётся вернуть`
-                : `счёт закроется в ${scenario.openYear + scenario.years} году`
+                : `закрыть можно с ${formatHuman(addYears(scenario.openDate, scenario.years))}`
             }
           />
 
@@ -239,18 +227,6 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             suffix="% годовых"
             onChange={(v) => onChange({ returnPct: v })}
             hint="среднегодовая доходность портфеля за весь срок"
-          />
-
-          <Param
-            label="Инфляция"
-            value={scenario.inflationPct}
-            min={0}
-            max={20}
-            step={0.5}
-            format={(v) => v.toLocaleString("ru-RU")}
-            suffix="% годовых"
-            onChange={(v) => onChange({ inflationPct: v })}
-            hint="на неё делим итог, чтобы показать деньги в сегодняшних ценах"
           />
 
           <div className="param param--choice">
@@ -273,16 +249,28 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
           </div>
 
           <Param
-            label="Официальный доход за год"
-            value={scenario.officialIncome}
+            label="Инфляция"
+            value={scenario.inflationPct}
             min={0}
-            max={20_000_000}
+            max={20}
+            step={0.5}
+            format={(v) => v.toLocaleString("ru-RU")}
+            suffix="% годовых"
+            onChange={(v) => onChange({ inflationPct: v })}
+            hint="на неё делим итог, чтобы показать деньги в сегодняшних ценах"
+          />
+
+          <Param
+            label="Официальный доход в месяц"
+            value={monthlyIncome}
+            min={0}
+            max={2_000_000}
             step={1}
             format={(v) => v.toLocaleString("ru-RU")}
             parse={(raw) => parseNumber(raw.replace(/[^\d\s\u202F]/g, ""))}
             suffix="₽"
-            onChange={(v) => onChange({ officialIncome: v })}
-            hint={`НДФЛ за год ≈ ${rub(incomeTax)} · предельная ставка ${rate}%`}
+            onChange={(v) => onChange({ officialIncome: v * 12 })}
+            hint={`в год ${compactRub(scenario.officialIncome)} · НДФЛ ≈ ${rub(incomeTax)} · ставка ${rate}%`}
           />
 
           <div className="param param--choice">

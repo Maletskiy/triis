@@ -110,6 +110,11 @@ a {
   gap: 8px;
 }
 
+.topbar__actions .btn {
+  min-height: 48px;
+  padding: 0 18px;
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 416px;
@@ -126,8 +131,7 @@ a {
 }
 
 .layout__aside {
-  position: sticky;
-  top: 16px;
+  position: static;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -180,8 +184,8 @@ a {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 0 20px;
+  min-height: 56px;
+  padding: 0 24px;
   border: 1px solid transparent;
   border-radius: var(--radius-full);
   font-size: var(--body-size);
@@ -261,7 +265,7 @@ a {
   top: 0;
   left: 0;
   border-radius: var(--radius-12);
-  background: var(--primary);
+  background: var(--primary-10);
   pointer-events: none;
   z-index: 0;
   will-change: width, transform;
@@ -301,7 +305,7 @@ a {
 }
 
 .segmented__item.is-active {
-  color: var(--white);
+  color: var(--primary);
   font-weight: 600;
 }
 
@@ -400,7 +404,14 @@ a {
 
 .params {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .params {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .param {
@@ -463,6 +474,10 @@ a {
   font-size: 14px;
   line-height: 18px;
   color: var(--primary-40);
+}
+
+.param--choice {
+  gap: 8px;
 }
 
 .param--choice .segmented {
@@ -1631,6 +1646,12 @@ a {
   }
 }
 
+@media (max-width: 380px) {
+  .param--choice .segmented {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 @media (max-width: 360px) {
   .segmented__item {
     font-size: 12px;
@@ -1639,6 +1660,15 @@ a {
 }
 
 @media (max-width: 560px) {
+  .param--choice .segmented {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .param--choice .segmented__item {
+    font-size: 13px;
+    padding: 8px 6px;
+  }
+
   .app {
     padding: 0 14px 96px;
   }
@@ -1813,5 +1843,198 @@ a {
   .summary__hero-value {
     font-size: 32px;
     line-height: 34px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Выбор даты открытия счёта                                          */
+/* ------------------------------------------------------------------ */
+
+.inputs__date {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.datepicker {
+  position: relative;
+  max-width: 320px;
+}
+
+.datepicker__field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 1px solid var(--primary-10);
+  border-radius: var(--radius-16);
+  background: var(--surface);
+  color: var(--primary);
+  font-size: var(--body-size);
+  line-height: var(--body-line);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.datepicker__field:hover {
+  border-color: var(--primary-30);
+}
+
+.datepicker__field.is-open {
+  background: var(--background);
+  border-color: var(--primary);
+}
+
+.datepicker__icon {
+  color: var(--primary-50);
+  flex: none;
+}
+
+.calendar {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 40;
+  width: 320px;
+  padding: 16px;
+  border-radius: var(--radius-20);
+  background: var(--background);
+  border: 1px solid var(--primary-10);
+  box-shadow: 0 24px 48px -24px var(--primary-30);
+  animation: calendarIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes calendarIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.calendar__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.calendar__title {
+  font-size: var(--body-size);
+  line-height: var(--body-line);
+  font-weight: 600;
+}
+
+.calendar__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0 0 3px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--primary);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.16s ease;
+}
+
+.calendar__nav:hover {
+  background: var(--primary-10);
+}
+
+.calendar__weekdays,
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.calendar__weekday {
+  padding: 6px 0;
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--primary-40);
+}
+
+.calendar__day {
+  height: 38px;
+  border: 0;
+  border-radius: var(--radius-10);
+  background: transparent;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.14s ease,
+    color 0.14s ease;
+}
+
+.calendar__day:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+.calendar__day.is-selected {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.calendar__day:disabled {
+  color: var(--primary-20);
+  cursor: default;
+}
+
+.calendar__empty {
+  height: 38px;
+}
+
+.calendar__foot {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--primary-8);
+}
+
+.calendar__today {
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--primary-10);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.calendar__today:hover {
+  background: var(--surface);
+}
+
+/* узкие экраны: выборы в параметрах — в одну колонку, плашка компактнее */
+@media (max-width: 380px) {
+  .param--choice .segmented {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bar__number {
+    font-size: 14px;
   }
 }

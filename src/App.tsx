@@ -9,6 +9,7 @@ import { AutoHeight, CopyButton, Section, Sheet, useSlidingThumb } from "./compo
 import { bestAccount, compare } from "./lib/calc";
 import type { AccountType, Scenario } from "./lib/calc";
 import { compactRub, rub, yearsWord } from "./lib/format";
+import { formatHuman, yearOf } from "./lib/dates";
 import { readState, writeState } from "./lib/url";
 import type { AppState } from "./lib/url";
 
@@ -97,7 +98,7 @@ export default function App() {
   const shareUrl = () => window.location.href;
 
   const printParams = [
-    `${state.account === "iis3" ? "ИИС-3" : state.account === "iis1" ? "ИИС-1" : "ИИС-2"}, открыт в ${state.scenario.openYear}`,
+    `${state.account === "iis3" ? "ИИС-3" : state.account === "iis1" ? "Тип А" : "Тип Б"}, открыт ${formatHuman(state.scenario.openDate)}`,
     `${rub(state.scenario.annualContribution)} в год`,
     `${state.scenario.years} ${yearsWord(state.scenario.years)}`,
     `доходность ${state.scenario.returnPct}%`,
@@ -227,7 +228,7 @@ export default function App() {
               />
             ) : null}
 
-            {tab === "rules" ? <Rules openYear={state.scenario.openYear} /> : null}
+            {tab === "rules" ? <Rules openYear={yearOf(state.scenario.openDate)} /> : null}
           </AutoHeight>
         </div>
 
@@ -270,7 +271,7 @@ export default function App() {
             hint="Разбор каждого года: взнос, вычет, доход, капитал"
             collapsible
           >
-            <YearTable result={active} />
+            <YearTable result={active} openYear={yearOf(state.scenario.openDate)} />
           </Section>
         </aside>
       </main>

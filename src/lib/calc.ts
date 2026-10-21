@@ -15,8 +15,8 @@ export const ACCOUNT_ORDER: AccountType[] = ["iis3", "iis1", "iis2"];
 
 export const ACCOUNT_LABELS: Record<AccountType, string> = {
   iis3: "ИИС-3",
-  iis1: "ИИС-1",
-  iis2: "ИИС-2",
+  iis1: "Тип А",
+  iis2: "Тип Б",
 };
 
 export type Scenario = {
@@ -32,8 +32,8 @@ export type Scenario = {
   officialIncome: number;
   /** Возвращать вычет обратно на счёт */
   reinvestRefunds: boolean;
-  /** Год открытия счёта */
-  openYear: number;
+  /** Дата открытия счёта, ISO */
+  openDate: string;
   /** Сколько раз в год реинвестируется доход: 1, 4 или 12 */
   periodsPerYear: number;
   /** Ставка НДФЛ вручную; null — считать по доходу */
@@ -105,7 +105,8 @@ function simulateCore(type: AccountType, scenario: Scenario, years: number): Cor
           OLD_IIS_CONTRIBUTION_LIMIT,
         );
 
-  const minHolding = minHoldingYears(type, scenario.openYear);
+  const openYear = Number(scenario.openDate.slice(0, 4)) || 2026;
+  const minHolding = minHoldingYears(type, openYear);
   const rate = nonNegative(scenario.returnPct) / 100;
   const horizon = Math.max(0, Math.floor(years));
   const income = nonNegative(scenario.officialIncome);

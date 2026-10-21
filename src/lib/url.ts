@@ -1,3 +1,4 @@
+import { clampIso, todayIso } from "./dates";
 import type { AccountType } from "./calc";
 import type { Scenario } from "./calc";
 
@@ -14,7 +15,7 @@ export const DEFAULTS: AppState = {
     inflationPct: 6,
     officialIncome: 1_200_000,
     reinvestRefunds: true,
-    openYear: 2026,
+    openDate: todayIso(),
     periodsPerYear: 1,
     manualRate: null,
   },
@@ -28,7 +29,7 @@ const PARAM_KEYS = {
   inflationPct: "i",
   officialIncome: "d",
   reinvestRefunds: "rr",
-  openYear: "o",
+  openDate: "od",
   periodsPerYear: "m",
   manualRate: "n",
 } as const;
@@ -62,10 +63,7 @@ export function readState(search: string): AppState {
       readNumber(params, PARAM_KEYS.officialIncome, DEFAULTS.scenario.officialIncome),
     ),
     reinvestRefunds: params.get(PARAM_KEYS.reinvestRefunds) !== "0",
-    openYear: Math.min(
-      2035,
-      Math.max(2021, Math.round(readNumber(params, PARAM_KEYS.openYear, DEFAULTS.scenario.openYear))),
-    ),
+    openDate: clampIso(params.get(PARAM_KEYS.openDate) ?? DEFAULTS.scenario.openDate),
     periodsPerYear: [1, 4, 12].includes(
       Math.round(readNumber(params, PARAM_KEYS.periodsPerYear, DEFAULTS.scenario.periodsPerYear ?? 1)),
     )
@@ -94,7 +92,7 @@ export function writeState(state: AppState): string {
   params.set(PARAM_KEYS.inflationPct, String(scenario.inflationPct));
   params.set(PARAM_KEYS.officialIncome, String(Math.round(scenario.officialIncome)));
   params.set(PARAM_KEYS.reinvestRefunds, scenario.reinvestRefunds ? "1" : "0");
-  params.set(PARAM_KEYS.openYear, String(scenario.openYear));
+  params.set(PARAM_KEYS.openDate, scenario.openDate);
   params.set(PARAM_KEYS.periodsPerYear, String(scenario.periodsPerYear ?? 1));
   if (scenario.manualRate) params.set(PARAM_KEYS.manualRate, String(scenario.manualRate));
   params.set("a", state.account);

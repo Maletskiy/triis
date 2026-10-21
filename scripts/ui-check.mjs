@@ -92,7 +92,7 @@ const metrics = (page) =>
   const before = await page.$eval(".summary__hero-value", (el) => el.textContent);
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".inputs .segmented__item")];
-    items.find((el) => el.textContent?.trim() === "ИИС-2")?.click();
+    items.find((el) => el.textContent?.trim() === "Тип Б")?.click();
   });
   await new Promise((r) => setTimeout(r, 650));
   const after = await page.$eval(".summary__hero-value", (el) => el.textContent);
@@ -121,40 +121,50 @@ const metrics = (page) =>
   if (!rateHint.includes("вручную")) fail(`ручная ставка не применилась: ${rateHint}`);
   else ok("ручная ставка НДФЛ применяется");
 
-  // год открытия: меняется минимальный срок владения
-  const metaText = () => page.$eval(".summary__meta", (el) => el.textContent ?? "");
-  const pickAccount = (name) =>
-    page.evaluate((n) => {
-      const items = [...document.querySelectorAll(".inputs .segmented__item")];
-      items.find((el) => el.textContent.trim() === n)?.click();
-    }, name);
-  const pickYear = (y) =>
-    page.evaluate((year) => {
-      const items = [...document.querySelectorAll(".inputs__year .segmented__item")];
-      items.find((el) => el.textContent.trim() === year)?.click();
-    }, y);
+  // дата открытия: календарь выбирает день и меняет минимальный срок
+  await page.evaluate(() => {
+    const items = [...document.querySelectorAll(".inputs .segmented__item")];
+    items.find((el) => el.textContent.trim() === "ИИС-3")?.click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
 
-  await pickAccount("ИИС-3");
-  await new Promise((r) => setTimeout(r, 450));
-  await pickYear("2032");
+  await page.click(".datepicker__field");
+  await page.waitForSelector(".calendar");
+  ok("календарь открывается");
+
+  const calendarDays = await page.$$eval(".calendar__day", (els) => els.length);
+  if (calendarDays < 28) fail(`в календаре ${calendarDays} дней`);
+  else ok(`в календаре ${calendarDays} дней`);
+
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".calendar__day")].find((el) => el.textContent.trim() === "1")?.click();
+  });
+  await new Promise((r) => setTimeout(r, 400));
+  if (await page.$(".calendar")) fail("календарь не закрылся после выбора");
+  else ok("календарь закрывается после выбора дня");
+
+  // год из даты управляет минимальным сроком
+  await page.goto(APP_URL + "?od=2032-05-01", { waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 500));
-  if (!(await metaText()).includes("10 лет")) fail("год 2032 не поднял минимальный срок до 10 лет");
-  else ok("год открытия 2032 → минимальный срок 10 лет");
+  const metaLong = await page.$eval(".summary__meta", (el) => el.textContent ?? "");
+  if (!metaLong.includes("10 лет")) fail(`дата 2032 не подняла срок: ${metaLong}`);
+  else ok("дата 2032 → минимальный срок 10 лет");
 
-  await pickYear("2026");
+  await page.goto(APP_URL + "?od=2026-05-01", { waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 500));
-  if (!(await metaText()).includes("5 лет")) fail("год 2026 не вернул срок 5 лет");
-  else ok("год открытия 2026 → минимальный срок 5 лет");
+  const metaShort = await page.$eval(".summary__meta", (el) => el.textContent ?? "");
+  if (!metaShort.includes("5 лет")) fail(`дата 2026 не дала срок 5 лет: ${metaShort}`);
+  else ok("дата 2026 → минимальный срок 5 лет");
 
-  // у старых счетов набор годов ограничен
-  await pickAccount("ИИС-2");
-  await new Promise((r) => setTimeout(r, 450));
-  const oldYears = await page.$$eval(".inputs__year .segmented__item", (els) =>
-    els.map((el) => el.textContent.trim()),
-  );
-  if (!oldYears.includes("2021") || oldYears.includes("2028")) {
-    fail(`годы для старого счёта: ${oldYears.join(",")}`);
-  } else ok(`годы для старого счёта ограничены: ${oldYears.join(", ")}`);
+  // у старого счёта год подтягивается к 2023
+  await page.evaluate(() => {
+    const items = [...document.querySelectorAll(".inputs .segmented__item")];
+    items.find((el) => el.textContent.trim() === "Тип А")?.click();
+  });
+  await new Promise((r) => setTimeout(r, 500));
+  const dateLabel = await page.$eval(".datepicker__value", (el) => el.textContent ?? "");
+  if (!dateLabel.includes("2023")) fail(`старый счёт не подтянул год: ${dateLabel}`);
+  else ok(`старый счёт: дата ${dateLabel}`);
 
   // таб «Сравнение»
   await page.evaluate(() => {
@@ -184,7 +194,7 @@ const metrics = (page) =>
 
   // URL отражает состояние
   const url = page.url();
-  if (!url.includes("c=400000") || !url.includes("a=iis2")) fail(`состояние не в адресе: ${url}`);
+  if (!url.includes("c=400000") || !url.includes("od=") || !url.includes("a=iis")) fail(`состояние не в адресе: ${url}`);
   else ok("параметры расчёта в адресе");
 
   // копирование ссылки
@@ -202,11 +212,16 @@ const metrics = (page) =>
 
   await page.screenshot({ path: `${SHOTS}desktop.png`, fullPage: false });
 
-  // плашка табов чёрная, без синего
+  // плашка табов серая, текст чёрный
   const thumbColor = await page.$eval(".tabs .segmented__thumb", (el) => getComputedStyle(el).backgroundColor);
   const activeColor = await page.$eval(".tabs .segmented__item.is-active", (el) => getComputedStyle(el).color);
-  if (thumbColor !== "rgb(17, 17, 17)") fail(`плашка табов не чёрная: ${thumbColor}`);
-  else ok(`плашка табов чёрная: ${thumbColor}, текст ${activeColor}`);
+  if (!thumbColor.startsWith("rgba(17, 17, 17")) fail(`плашка табов не серая: ${thumbColor}`);
+  else ok(`плашка табов серая: ${thumbColor}, текст ${activeColor}`);
+
+  const btnHeight = await page.$eval(".actions .btn", (el) => el.getBoundingClientRect().height);
+  const resetHeight = await page.$eval(".topbar__actions .btn", (el) => el.getBoundingClientRect().height);
+  if (Math.round(btnHeight) !== 56) fail(`высота кнопки ${Math.round(btnHeight)}, ожидалась 56`);
+  else ok(`высота кнопок 56 px, «Сбросить» — ${Math.round(resetHeight)} px`);
 
   // печать: шапка с параметрами, скрытые контролы, развёрнутая таблица
   await page.emulateMediaType("print");

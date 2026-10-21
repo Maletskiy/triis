@@ -1,7 +1,13 @@
 import type { AccountResult } from "../lib/calc";
 import { rub } from "../lib/format";
 
-export default function YearTable({ result }: { result: AccountResult }) {
+export default function YearTable({
+  result,
+  openYear,
+}: {
+  result: AccountResult;
+  openYear: number;
+}) {
   if (result.rows.length === 0) {
     return <p className="table__empty">Пока нет данных для таблицы.</p>;
   }
@@ -15,6 +21,9 @@ export default function YearTable({ result }: { result: AccountResult }) {
             <th scope="col">Взнос</th>
             <th scope="col">Вычет</th>
             <th scope="col" className="table__hide-sm">
+              Вернут в
+            </th>
+            <th scope="col" className="table__hide-sm">
               Доход за год
             </th>
             <th scope="col">Капитал</th>
@@ -26,6 +35,7 @@ export default function YearTable({ result }: { result: AccountResult }) {
               <td>{row.year}</td>
               <td>{rub(row.contribution)}</td>
               <td className="table__refund">{row.refund > 0 ? rub(row.refund) : "—"}</td>
+              <td className="table__hide-sm">{row.refund > 0 ? openYear + row.year + 1 : "—"}</td>
               <td className="table__hide-sm">{rub(row.growth)}</td>
               <td className="table__capital">{rub(row.capital)}</td>
             </tr>
@@ -36,6 +46,7 @@ export default function YearTable({ result }: { result: AccountResult }) {
             <td>Итого</td>
             <td>{rub(result.contributions)}</td>
             <td className="table__refund">{rub(result.refunds)}</td>
+            <td className="table__hide-sm">—</td>
             <td className="table__hide-sm">{rub(result.profit)}</td>
             <td className="table__capital">{rub(result.grossCapital)}</td>
           </tr>
