@@ -303,6 +303,33 @@ const metrics = (page) =>
   if (!dateLabel.includes("2023")) fail(`старый счёт не подтянул год: ${dateLabel}`);
   else ok(`старый счёт: дата ${dateLabel}`);
 
+  // плавная смена высоты: и таб, и секции
+  const sectionHeight = await page.evaluate(() => {
+    const el = document.querySelector(".inputs .section .auto-height");
+    if (!el) return null;
+    const cs = getComputedStyle(el);
+    return { transition: cs.transitionProperty, duration: cs.transitionDuration };
+  });
+  if (!sectionHeight || !sectionHeight.transition.includes("height")) {
+    fail(`секции не анимируют высоту: ${JSON.stringify(sectionHeight)}`);
+  } else ok(`секции анимируют высоту (${sectionHeight.duration})`);
+
+  const heightsDuringSwitch = await page.evaluate(async () => {
+    const host = document.querySelector(".inputs > .section:last-child .auto-height");
+    const items = [...document.querySelectorAll(".param--wide .segmented__item")];
+    const target = items.find((el) => el.textContent.trim() === "Разные суммы по годам");
+    const values = [];
+    target?.click();
+    for (let i = 0; i < 8; i += 1) {
+      values.push(Math.round(host.getBoundingClientRect().height));
+      await new Promise((r) => setTimeout(r, 40));
+    }
+    return values;
+  });
+  const distinct = new Set(heightsDuringSwitch).size;
+  if (distinct < 2) fail(`высота секции не менялась плавно: ${heightsDuringSwitch.join(",")}`);
+  else ok(`высота секции меняется плавно: ${heightsDuringSwitch.join(" → ")}`);
+
   // таб «Сравнение»
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".tabs .segmented__item")];

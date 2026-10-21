@@ -5,7 +5,7 @@ import Chart from "./components/Chart";
 import YearTable from "./components/YearTable";
 import Compare from "./components/Compare";
 import Rules from "./components/Rules";
-import { AutoHeight, CopyButton, Section, Sheet, useSlidingThumb } from "./components/ui";
+import { AnimatedHeight, CopyButton, Section, Sheet, useSlidingThumb } from "./components/ui";
 import { bestAccount, compare } from "./lib/calc";
 import type { AccountType, Scenario } from "./lib/calc";
 import { compactRub, rub, yearsWord } from "./lib/format";
@@ -209,7 +209,7 @@ export default function App() {
             </div>
           </div>
 
-          <AutoHeight>
+          <AnimatedHeight>
             <div className="appear" key={tab}>
             {tab === "params" ? (
               <Inputs
@@ -233,7 +233,7 @@ export default function App() {
 
             {tab === "rules" ? <Rules openYear={yearOf(state.scenario.openDate)} /> : null}
             </div>
-          </AutoHeight>
+          </AnimatedHeight>
         </div>
 
         <aside className="layout__aside">

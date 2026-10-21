@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   MAX_DATE,
   MIN_DATE,
@@ -24,10 +25,26 @@ export default function DatePicker({
   label: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [up, setUp] = useState(false);
   const [view, setView] = useState<View>("days");
   const [cursor, setCursor] = useState(() => parseIso(value));
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const fieldRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+
+  /** Поповер живёт в портале: его не режут контейнеры с анимацией высоты. */
+  const place = useCallback(() => {
+    const field = fieldRef.current;
+    if (!field) return;
+    const rect = field.getBoundingClientRect();
+    const panelHeight = panelRef.current?.offsetHeight ?? 404;
+    const below = window.innerHeight - rect.bottom;
+    const up = below < panelHeight + 16 && rect.top > panelHeight + 16;
+    setPos({
+      left: Math.min(rect.left, window.innerWidth - 336),
+      top: up ? Math.max(8, rect.top - panelHeight - 8) : rect.bottom + 8,
+    });
+  }, []);
 
   useEffect(() => setCursor(parseIso(value)), [value]);
 
@@ -36,18 +53,31 @@ export default function DatePicker({
       setView("days");
       return;
     }
-    const onDown = (event: PointerEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) setOpen(false);
-    };
+    place();
+    const onScroll = () => place();
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onScroll);
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
     };
-    document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
     return () => {
-      document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onScroll);
     };
+  }, [open, place]);
+
+  // клик внутри поповера не должен считаться внешним
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (panelRef.current?.contains(target) || wrapRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
   }, [open]);
 
   const years = useMemo(() => {
@@ -90,13 +120,10 @@ export default function DatePicker({
   return (
     <div className="datepicker" ref={wrapRef}>
       <button
+        ref={fieldRef}
         type="button"
         className={"datepicker__field" + (open ? " is-open" : "")}
-        onClick={(event) => {
-          const rect = event.currentTarget.getBoundingClientRect();
-          setUp(window.innerHeight - rect.bottom < 400 && rect.top > 400);
-          setOpen((was) => !was);
-        }}
+        onClick={() => setOpen((was) => !was)}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={label}
@@ -108,8 +135,16 @@ export default function DatePicker({
         </svg>
       </button>
 
-      {open && (
-        <div className={"calendar" + (up ? " is-up" : "")} role="dialog" aria-label={label}>
+      {open &&
+        pos &&
+        createPortal(
+        <div
+          ref={panelRef}
+          className="calendar"
+          role="dialog"
+          aria-label={label}
+          style={{ position: "fixed", left: pos.left, top: pos.top }}
+        >
           <div className="calendar__head">
             <button type="button" className="calendar__nav" onClick={() => shift(-1)} aria-label="Назад">
               ‹
@@ -219,8 +254,9 @@ export default function DatePicker({
               {view === "days" ? "Месяц и год" : "К дням"}
             </button>
           </div>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </div>
   );
 }

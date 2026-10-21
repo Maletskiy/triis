@@ -257,7 +257,9 @@ export function Section({
       {hint ? <p className="section__hint">{hint}</p> : null}
       <div className="section__body-wrap">
         <div className="section__body-clip">
-          <div className="section__body">{children}</div>
+          <div className="section__body">
+            {collapsible ? children : <AnimatedHeight>{children}</AnimatedHeight>}
+          </div>
         </div>
       </div>
     </section>
@@ -279,8 +281,11 @@ function Chevron() {
   );
 }
 
-/** Плавная смена высоты при переключении табов — чтобы контент не прыгал. */
-export function AutoHeight({ children }: { children: ReactNode }) {
+/**
+ * Плавная смена высоты контейнера под содержимое: используется и для табов,
+ * и для секций — чтобы кадр перерисовывался, а не прыгал.
+ */
+export function AnimatedHeight({ children }: { children: ReactNode }) {
   const innerRef = useRef<HTMLDivElement | null>(null);
   const [height, setHeight] = useState<number | undefined>(undefined);
   const [animating, setAnimating] = useState(false);
@@ -290,9 +295,14 @@ export function AutoHeight({ children }: { children: ReactNode }) {
     if (!el) return;
 
     let timer: number | undefined;
+    let first = true;
     const sync = () => {
       const next = el.getBoundingClientRect().height;
       setHeight((prev) => {
+        if (first) {
+          first = false;
+          return next;
+        }
         if (prev !== undefined && Math.abs(prev - next) > 0.5) {
           setAnimating(true);
           if (timer) window.clearTimeout(timer);
