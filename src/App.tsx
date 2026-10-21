@@ -61,7 +61,7 @@ export default function App() {
   }, [state]);
 
   useEffect(() => {
-    document.title = "Triis — калькулятор ИИС-3, ИИС-1 и ИИС-2";
+    document.title = "Triis — калькулятор ИИС";
   }, []);
 
   // Нижняя плашка нужна, только когда блок с итогом ушёл за верх экрана.

@@ -188,7 +188,7 @@ function simulateCore(type: AccountType, scenario: Scenario, years: number): Cor
   } else if (type === "iis1") {
     exitTax = taxOnGains(Math.max(0, profit), scenario.manualRate);
   } else {
-    // ИИС-2: прибыль освобождена полностью.
+    // Тип Б: прибыль освобождена полностью.
     exitTax = 0;
   }
 

@@ -36,7 +36,7 @@ export function collectWarnings(result: AccountResult, scenario: Scenario): Warn
   if (result.type !== "iis3" && scenario.annualContribution > 1_000_000) {
     list.push({
       tone: "info",
-      text: "У ИИС-1 и ИИС-2 есть лимит взноса 1 млн ₽ в год — излишек в расчёте не участвует.",
+      text: "У типов А и Б есть лимит взноса 1 млн ₽ в год — излишек в расчёте не участвует.",
     });
   }
 

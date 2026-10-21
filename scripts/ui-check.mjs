@@ -573,7 +573,12 @@ const metrics = (page) =>
     items.find((el) => el.textContent?.includes("Правила"))?.click();
   });
   await page.waitForSelector(".rules__block");
-  ok("правила отрисованы");
+  const rulesText = await page.$eval(".rules", (el) => el.textContent ?? "");
+  if (!rulesText.includes("Тип А") || rulesText.includes("ИИС-1 и ИИС-2")) {
+    fail(`в правилах осталась старая терминология: ${rulesText.slice(0, 120)}`);
+  } else {
+    ok("правила используют «Тип А» и «Тип Б»");
+  }
 
   // назад к параметрам
   await page.evaluate(() => {

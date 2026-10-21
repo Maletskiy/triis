@@ -16,6 +16,10 @@ export default function Rules({ openYear }: { openYear: number }) {
       <p className="rules__lead">
         Расчёт по правилам {RULES_YEAR} года. Ниже — то, что реально влияет на цифры.
       </p>
+      <p className="rules__text">
+        Тип А — это бывший ИИС-1, тип Б — бывший ИИС-2. Новые такие счета не открывают
+        с 2024 года, но уже открытые продолжают работать.
+      </p>
 
       <section className="rules__block">
         <h3>Вычет на взнос</h3>
@@ -40,7 +44,7 @@ export default function Rules({ openYear }: { openYear: number }) {
       <section className="rules__block">
         <h3>Срок владения</h3>
         <ul>
-          <li>ИИС-1 и ИИС-2 — 3 года.</li>
+          <li>Тип А и тип Б — 3 года.</li>
           <li>
             ИИС-3, открытый в {openYear} году, — {minYears} лет. Для счетов 2024–2026 годов это
             5 лет, дальше планка растёт на год ежегодно до 10.
@@ -55,12 +59,12 @@ export default function Rules({ openYear }: { openYear: number }) {
       <section className="rules__block">
         <h3>Налог на прибыль</h3>
         <ul>
-          <li>ИИС-2 и ИИС-3 освобождают прибыль от НДФЛ.</li>
+          <li>Тип Б и ИИС-3 освобождают прибыль от НДФЛ.</li>
           <li>
             У ИИС-3 освобождение ограничено {compactRub(IIS3_PROFIT_EXEMPT_LIMIT)} за весь срок
             владения — с суммы выше налог придётся заплатить.
           </li>
-          <li>У ИИС-1 прибыль облагается по двухступенчатой шкале 13 / 15%.</li>
+          <li>У типа А прибыль облагается по двухступенчатой шкале 13 / 15%.</li>
           <li>Дивиденды облагаются всегда — льгота на них не распространяется.</li>
         </ul>
       </section>
@@ -69,7 +73,7 @@ export default function Rules({ openYear }: { openYear: number }) {
         <h3>Взносы</h3>
         <ul>
           <li>
-            ИИС-1 и ИИС-2 — лимит {compactRub(OLD_IIS_CONTRIBUTION_LIMIT)} в год.
+            Тип А и тип Б — лимит {compactRub(OLD_IIS_CONTRIBUTION_LIMIT)} в год.
           </li>
           <li>У ИИС-3 лимита взносов нет.</li>
           <li>Можно держать до трёх ИИС-3 одновременно.</li>
