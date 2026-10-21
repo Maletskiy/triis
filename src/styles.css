@@ -2430,3 +2430,38 @@ a {
     animation: none;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Сворачивание и разворачивание блоков                               */
+/* ------------------------------------------------------------------ */
+
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.34s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.22s ease;
+}
+
+.collapse.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.collapse__clip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.collapse__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collapse {
+    transition: none;
+  }
+}

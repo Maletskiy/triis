@@ -8,7 +8,7 @@ import {
   marginalRate,
   ndfl,
 } from "../lib/rules";
-import { Section, Segmented, Toggle } from "./ui";
+import { Collapse, Section, Segmented, Toggle } from "./ui";
 import WakeSlider from "./WakeSlider";
 import DatePicker from "./DatePicker";
 
@@ -145,7 +145,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
 
   return (
     <div className="inputs">
-      <Section title="Счёт">
+      <Section title="Счёт" collapsible defaultOpen>
         <Segmented
           label="Тип счёта"
           value={account}
@@ -191,6 +191,8 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
       <Section
         title="Параметры расчёта"
         hint="Взносы, срок, доходность и инфляция — всё, из чего складывается итог"
+        collapsible
+        defaultOpen
       >
         <div className="params">
           <div className="param param--wide">
@@ -228,8 +230,8 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
                 }
               />
 
-              {scenario.manualRate !== null ? (
-                <div className="param--choice appear" key="rate">
+              <Collapse open={scenario.manualRate !== null}>
+                <div className="param--choice">
                   <Segmented
                     label="Ставка НДФЛ"
                     value={String(appliedRate)}
@@ -243,7 +245,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
                     ]}
                   />
                 </div>
-              ) : null}
+              </Collapse>
             </div>
           </div>
 
@@ -259,61 +261,55 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
               ]}
             />
 
-            {custom ? (
-              <>
-                <div className="plan">
-                  {Array.from({ length: scenario.years }, (_, index) => (
-                    <label
-                      className="plan__row"
-                      key={index}
-                      style={{ animationDelay: `${Math.min(index, 12) * 28}ms` }}
-                    >
-                      <span className="plan__year">
-                        {openYear + index}
-                      </span>
-                      <span className="plan__field">
-                        <input
-                          className="plan__input"
-                          inputMode="numeric"
-                          aria-label={`Взнос в ${openYear + index} году`}
-                          value={money(scenario.contributions[index] ?? 0)}
-                          onChange={(event) =>
-                            setContribution(index, parseMoney(event.target.value))
-                          }
-                        />
-                        <span className="plan__unit">₽</span>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-                <span className="param__hint">
-                  всего за {scenario.years} {yearsWord(scenario.years)} — {rub(planTotal)} · вычет
-                  считается с базы {compactRub(DEDUCTION_BASE_LIMIT)} в год
-                </span>
-              </>
-            ) : (
-              <>
-                <MoneyValue
-                  value={scenario.annualContribution}
-                  onChange={(v) => onChange({ annualContribution: v })}
-                  label="Пополняю каждый год"
-                  suffix="₽"
-                />
-                <WakeSlider
-                  value={Math.min(scenario.annualContribution, contributionLimit ?? 2_000_000)}
-                  min={0}
-                  max={contributionLimit ?? 2_000_000}
-                  step={5000}
-                  label="Пополняю каждый год"
-                  onChange={(v) => onChange({ annualContribution: v })}
-                />
-                <span className="param__hint">
-                  {overLimit
-                    ? `У этого счёта лимит ${compactRub(OLD_IIS_CONTRIBUTION_LIMIT)} в год — сумма урезана`
-                    : `это ${compactRub(Math.round(scenario.annualContribution / 12))} в месяц · вычет считается с базы ${compactRub(DEDUCTION_BASE_LIMIT)}`}
-                </span>
-              </>
-            )}
+            <Collapse open={custom}>
+              <div className="plan">
+                {Array.from({ length: scenario.years }, (_, index) => (
+                  <label
+                    className="plan__row"
+                    key={index}
+                    style={{ animationDelay: `${Math.min(index, 12) * 28}ms` }}
+                  >
+                    <span className="plan__year">{openYear + index}</span>
+                    <span className="plan__field">
+                      <input
+                        className="plan__input"
+                        inputMode="numeric"
+                        aria-label={`Взнос в ${openYear + index} году`}
+                        value={money(scenario.contributions[index] ?? 0)}
+                        onChange={(event) => setContribution(index, parseMoney(event.target.value))}
+                      />
+                      <span className="plan__unit">₽</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+              <span className="param__hint">
+                всего за {scenario.years} {yearsWord(scenario.years)} — {rub(planTotal)} · вычет
+                считается с базы {compactRub(DEDUCTION_BASE_LIMIT)} в год
+              </span>
+            </Collapse>
+
+            <Collapse open={!custom}>
+              <MoneyValue
+                value={scenario.annualContribution}
+                onChange={(v) => onChange({ annualContribution: v })}
+                label="Пополняю каждый год"
+                suffix="₽"
+              />
+              <WakeSlider
+                value={Math.min(scenario.annualContribution, contributionLimit ?? 2_000_000)}
+                min={0}
+                max={contributionLimit ?? 2_000_000}
+                step={5000}
+                label="Пополняю каждый год"
+                onChange={(v) => onChange({ annualContribution: v })}
+              />
+              <span className="param__hint">
+                {overLimit
+                  ? `У этого счёта лимит ${compactRub(OLD_IIS_CONTRIBUTION_LIMIT)} в год — сумма урезана`
+                  : `это ${compactRub(Math.round(scenario.annualContribution / 12))} в месяц · вычет считается с базы ${compactRub(DEDUCTION_BASE_LIMIT)}`}
+              </span>
+            </Collapse>
           </div>
 
           <Param

@@ -260,14 +260,17 @@ export function Section({
   children,
   aside,
   collapsible = false,
+  defaultOpen,
 }: {
   title: string;
   hint?: string;
   children: ReactNode;
   aside?: ReactNode;
   collapsible?: boolean;
+  /** свёрнутая секция может стартовать раскрытой */
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(!collapsible);
+  const [open, setOpen] = useState(defaultOpen ?? !collapsible);
   const [animating, setAnimating] = useState(false);
 
   const toggle = () => {
@@ -320,6 +323,26 @@ function Chevron() {
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+/**
+ * Сворачивание и разворачивание блока в обе стороны: высота едет через
+ * grid-template-rows, содержимое остаётся в DOM — поэтому уход тоже плавный.
+ */
+export function Collapse({
+  open,
+  children,
+}: {
+  open: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <div className={"collapse" + (open ? " is-open" : "")} aria-hidden={!open}>
+      <div className="collapse__clip">
+        <div className="collapse__inner">{children}</div>
+      </div>
+    </div>
   );
 }
 

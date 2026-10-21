@@ -428,19 +428,54 @@ const metrics = (page) =>
   if (!dateLabel.includes("2023")) fail(`старый счёт не подтянул год: ${dateLabel}`);
   else ok(`старый счёт: дата ${dateLabel}`);
 
+  // сворачивание: секции и блоки внутри параметров
+  const sectionToggle = await page.evaluate(async () => {
+    const body = document.querySelector(".inputs > .section .section__body-wrap");
+    const toggle = document.querySelector(".inputs > .section .section__toggle");
+    const values = [];
+    toggle?.click();
+    for (let i = 0; i < 6; i += 1) {
+      values.push(Math.round(body.getBoundingClientRect().height));
+      await new Promise((r) => setTimeout(r, 40));
+    }
+    toggle?.click();
+    await new Promise((r) => setTimeout(r, 420));
+    return { values, distinct: new Set(values).size };
+  });
+  if (sectionToggle.distinct < 2) fail(`секция сворачивается мгновенно: ${sectionToggle.values.join(",")}`);
+  else ok(`секция сворачивается плавно: ${sectionToggle.values.join(" → ")}`);
+
+  const planCollapse = await page.evaluate(async () => {
+    const items = [...document.querySelectorAll(".param--wide .segmented__item")];
+    items.find((el) => el.textContent.trim() === "Разные суммы по годам")?.click();
+    await new Promise((r) => setTimeout(r, 500));
+    const block = document.querySelector(".param--spaced .collapse");
+    const opened = Math.round(block.getBoundingClientRect().height);
+    items.find((el) => el.textContent.trim() === "Одна сумма на все годы")?.click();
+    const values = [];
+    for (let i = 0; i < 6; i += 1) {
+      values.push(Math.round(block.getBoundingClientRect().height));
+      await new Promise((r) => setTimeout(r, 40));
+    }
+    return { opened, values, distinct: new Set(values).size };
+  });
+  if (planCollapse.opened < 100 || planCollapse.distinct < 2) {
+    fail(`блок плана не сворачивается плавно: ${JSON.stringify(planCollapse)}`);
+  } else ok(`план по годам сворачивается плавно: ${planCollapse.opened} → ${planCollapse.values.join(" → ")}`);
+
   // плавная смена высоты: и таб, и секции
   const sectionHeight = await page.evaluate(() => {
-    const el = document.querySelector(".inputs .section .auto-height");
+    const el = document.querySelector(".inputs > .section .section__body-wrap");
     if (!el) return null;
     const cs = getComputedStyle(el);
     return { transition: cs.transitionProperty, duration: cs.transitionDuration };
   });
-  if (!sectionHeight || !sectionHeight.transition.includes("height")) {
+  if (!sectionHeight || !sectionHeight.transition.includes("grid-template-rows")) {
     fail(`секции не анимируют высоту: ${JSON.stringify(sectionHeight)}`);
   } else ok(`секции анимируют высоту (${sectionHeight.duration})`);
 
   const heightsDuringSwitch = await page.evaluate(async () => {
-    const host = document.querySelector(".inputs > .section:last-child .auto-height");
+    const host = document.querySelector(".inputs > .section:last-child .section__body-wrap");
     const items = [...document.querySelectorAll(".param--wide .segmented__item")];
     const target = items.find((el) => el.textContent.trim() === "Разные суммы по годам");
     const values = [];
