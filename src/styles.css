@@ -772,21 +772,16 @@ a {
   margin: 0;
 }
 
-/* сетка выгрузок: основная кнопка на всю ширину, две вторичные — по половине */
+/* выгрузки: «Поделиться расчётом» и PDF — по одной в ряд, на всю ширину */
 .actions {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
 }
 
 .actions .btn {
   width: 100%;
   min-width: 0;
-  padding: 0 12px;
-}
-
-.actions .btn--primary {
-  grid-column: 1 / -1;
 }
 
 /* ------------------------------------------------------------------ */
@@ -952,6 +947,12 @@ a {
   max-width: 100%;
   overflow-x: auto;
   margin: 0;
+}
+
+.table__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .table {

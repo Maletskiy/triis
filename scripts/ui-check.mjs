@@ -147,6 +147,18 @@ const metrics = (page) =>
     );
   }
 
+  const tableYears = await page.evaluate(() => {
+    const first = document.querySelector(".table tbody tr td")?.textContent ?? "";
+    const refund = document.querySelector(".table tbody tr td:nth-child(4)")?.textContent ?? "";
+    return {
+      firstYear: Number(first),
+      refundYear: Number(refund),
+      header: document.querySelector(".table thead th")?.textContent ?? "",
+    };
+  });
+  if (tableYears.firstYear < 2000) fail(`в первой колонке не год: ${tableYears.firstYear}`);
+  else ok(`таблица: первый год ${tableYears.firstYear}, вычет вернут в ${tableYears.refundYear}`);
+
   const rows = await page.$$eval(".table tbody tr", (trs) => trs.length);
   if (rows !== 10) fail(`в таблице ${rows} строк вместо 10`);
   else ok(`таблица по годам: ${rows} строк`);
@@ -465,8 +477,9 @@ const metrics = (page) =>
     inputToggles: document.querySelectorAll(".inputs .section__toggle").length,
     tableToggles: document.querySelectorAll(".layout__aside .section__toggle").length,
   }));
-  if (sectionsStatic.inputToggles !== 0) fail(`у секций параметров осталось сворачивание: ${sectionsStatic.inputToggles}`);
-  else ok(`секции параметров без сворачивания (у таблицы — ${sectionsStatic.tableToggles})`);
+  if (sectionsStatic.inputToggles !== 0 || sectionsStatic.tableToggles !== 0) {
+    fail(`осталось сворачивание: ${JSON.stringify(sectionsStatic)}`);
+  } else ok("сворачивания блоков нет — все секции раскрыты");
 
   const planCollapse = await page.evaluate(async () => {
     const items = [...document.querySelectorAll(".param--wide .segmented__item")];
@@ -593,7 +606,7 @@ const metrics = (page) =>
   });
   await new Promise((r) => setTimeout(r, 400));
   const copyLabel = await page.$eval(".actions .btn", (el) => el.textContent?.trim() ?? "");
-  if (!copyLabel.includes("Скопировано")) fail(`кнопка копирования не подтвердила: "${copyLabel}"`);
+  if (!copyLabel.includes("Ссылка скопирована")) fail(`кнопка копирования не подтвердила: "${copyLabel}"`);
   else ok(`копирование подтверждается: "${copyLabel}"`);
 
   await page.screenshot({ path: `${SHOTS}desktop.png`, fullPage: false });
@@ -684,24 +697,23 @@ const metrics = (page) =>
   } else ok("печать: шапка с параметрами, таблица развёрнута");
 
   const gridCheck = await page.evaluate(() => {
-    const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
     const wrap = document.querySelector(".actions");
-    const buttons = [...document.querySelectorAll(".actions .btn")];
     const wrapBox = wrap.getBoundingClientRect();
-    const primary = box(".actions .btn--primary");
-    const others = buttons.filter((b) => !b.classList.contains("btn--primary")).map((b) => b.getBoundingClientRect());
+    const buttons = [...document.querySelectorAll(".actions .btn")];
+    const csvInTable = !!document.querySelector(".table__actions .btn");
     return {
-      overflow: buttons.some((b) => b.getBoundingClientRect().right > wrapBox.right + 1 || b.getBoundingClientRect().left < wrapBox.left - 1),
-      primaryFull: Math.abs(primary.width - wrapBox.width) < 2,
-      othersTwo: others.length === 2 && Math.abs(others[0].width - others[1].width) < 2,
-      sameRow: Math.abs(others[0].top - others[1].top) < 1,
-      underPrimary: others[0].top > primary.bottom - 1,
+      count: buttons.length,
+      texts: buttons.map((b) => b.textContent.trim()),
+      allFull: buttons.every((b) => Math.abs(b.getBoundingClientRect().width - wrapBox.width) < 2),
+      stacked: buttons.every((b, i) => i === 0 || b.getBoundingClientRect().top > buttons[i - 1].getBoundingClientRect().bottom - 1),
+      csvInTable,
     };
   });
-  if (!gridCheck.primaryFull || !gridCheck.othersTwo || !gridCheck.sameRow || !gridCheck.underPrimary) {
-    fail(`сетка выгрузок: ${JSON.stringify(gridCheck)}`);
-  } else ok("выгрузки: чёрная на всю ширину, PDF и CSV по половине во второй строке");
-  if (gridCheck.overflow) fail("кнопки выходят за контейнер выгрузок");
+  if (gridCheck.count !== 2 || !gridCheck.allFull || !gridCheck.stacked || !gridCheck.csvInTable) {
+    fail(`раскладка выгрузок: ${JSON.stringify(gridCheck)}`);
+  } else {
+    ok(`выгрузки: «${gridCheck.texts[0]}» и «${gridCheck.texts[1]}» на всю ширину, CSV в блоке таблицы`);
+  }
 
   const pdfButton = await page.evaluate(() =>
     [...document.querySelectorAll(".actions .btn")].some((el) => el.textContent?.includes("Скачать PDF")),
@@ -762,11 +774,9 @@ const metrics = (page) =>
   await new Promise((r) => setTimeout(r, 500));
   await page.screenshot({ path: `${SHOTS}mobile.png`, fullPage: false });
 
-  const collapsed = await page.$$eval(".section--collapsible", (els) =>
-    els.map((el) => el.classList.contains("is-collapsed")),
-  );
-  if (!collapsed.includes(true)) fail("секции на мобиле не сворачиваются");
-  else ok("секции на мобиле сворачиваемые");
+  const collapsibleCount = await page.$$eval(".section--collapsible", (els) => els.length);
+  if (collapsibleCount !== 0) fail(`на мобиле остались сворачиваемые секции: ${collapsibleCount}`);
+  else ok("на мобиле все секции раскрыты");
 
   if (errors.length) fail(`мобильные ошибки в консоли: ${errors.slice(0, 3).join(" | ")}`);
   else ok("мобильная консоль без ошибок");

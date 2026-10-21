@@ -269,8 +269,8 @@ export default function App() {
           <div className="actions">
             <CopyButton
               text={shareUrl()}
-              label="Скопировать ссылку"
-              copiedLabel="Скопировано"
+              label="Поделиться расчётом"
+              copiedLabel="Ссылка скопирована"
               onResult={(ok) => {
                 if (!ok) flash("Браузер не дал скопировать — выделите адрес вручную");
               }}
@@ -283,14 +283,6 @@ export default function App() {
             >
               Скачать PDF
             </button>
-            <button
-              type="button"
-              className="btn btn--ghost"
-              onClick={downloadCsv}
-              title="Таблица по годам в CSV"
-            >
-              Скачать CSV
-            </button>
           </div>
 
           <Chart rows={active.rows} />
@@ -298,9 +290,18 @@ export default function App() {
           <Section
             title="Таблица по годам"
             hint="Разбор каждого года: взнос, вычет, доход, капитал"
-            collapsible
           >
             <YearTable result={active} openYear={yearOf(state.scenario.openDate)} />
+            <div className="table__actions">
+              <button
+                type="button"
+                className="btn btn--ghost"
+                onClick={downloadCsv}
+                title="Эта таблица в CSV"
+              >
+                Скачать CSV
+              </button>
+            </div>
           </Section>
         </aside>
       </main>

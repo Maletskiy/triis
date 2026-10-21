@@ -32,10 +32,10 @@ export default function YearTable({
         <tbody>
           {result.rows.map((row) => (
             <tr key={row.year}>
-              <td>{row.year}</td>
+              <td>{openYear + row.year - 1}</td>
               <td>{rub(row.contribution)}</td>
               <td className="table__refund">{row.refund > 0 ? rub(row.refund) : "—"}</td>
-              <td className="table__hide-sm">{row.refund > 0 ? openYear + row.year + 1 : "—"}</td>
+              <td className="table__hide-sm">{row.refund > 0 ? openYear + row.year : "—"}</td>
               <td className="table__hide-sm">{rub(row.growth)}</td>
               <td className="table__capital">{rub(row.capital)}</td>
             </tr>
