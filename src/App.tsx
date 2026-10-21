@@ -5,7 +5,14 @@ import Chart from "./components/Chart";
 import YearTable from "./components/YearTable";
 import Compare from "./components/Compare";
 import Rules from "./components/Rules";
-import { AnimatedHeight, CopyButton, Section, Sheet, useSlidingThumb } from "./components/ui";
+import {
+  AnimatedHeight,
+  CopyButton,
+  RollingNumber,
+  Section,
+  Sheet,
+  useSlidingThumb,
+} from "./components/ui";
 import { bestAccount, compare } from "./lib/calc";
 import type { AccountType, Scenario } from "./lib/calc";
 import { compactRub, rub, yearsWord } from "./lib/format";
@@ -295,7 +302,9 @@ export default function App() {
       <div className={"bar" + (barVisible ? " is-visible" : "")} aria-hidden={!barVisible}>
         <div className="bar__value">
           <span className="bar__label">на руки</span>
-          <span className="bar__number">{compactRub(active.net)}</span>
+          <span className="bar__number">
+            <RollingNumber value={active.net} format={(n) => compactRub(n)} />
+          </span>
         </div>
         <div className="bar__actions">
           <button
@@ -326,24 +335,34 @@ export default function App() {
         <div className="sheet-summary">
           <div className="sheet-summary__hero">
             <span className="sheet-summary__label">На руки</span>
-            <span className="sheet-summary__value">{rub(active.net)}</span>
+            <span className="sheet-summary__value">
+              <RollingNumber value={active.net} format={(n) => rub(n)} />
+            </span>
           </div>
           <ul className="sheet-summary__list">
             <li>
               <span>Вычеты за срок</span>
-              <b>{rub(active.refunds)}</b>
+              <b>
+                <RollingNumber value={active.refunds} format={(n) => rub(n)} />
+              </b>
             </li>
             <li>
               <span>Капитал на счёте</span>
-              <b>{rub(active.grossCapital)}</b>
+              <b>
+                <RollingNumber value={active.grossCapital} format={(n) => rub(n)} />
+              </b>
             </li>
             <li>
               <span>Налог при закрытии</span>
-              <b>{rub(active.exitTax)}</b>
+              <b>
+                <RollingNumber value={active.exitTax} format={(n) => rub(n)} />
+              </b>
             </li>
             <li>
               <span>В ценах сегодня</span>
-              <b>{rub(active.netReal)}</b>
+              <b>
+                <RollingNumber value={active.netReal} format={(n) => rub(n)} />
+              </b>
             </li>
           </ul>
           {warnings.length > 0 && (

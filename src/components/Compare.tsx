@@ -1,7 +1,7 @@
 import type { AccountResult, AccountType } from "../lib/calc";
 import { ACCOUNT_ORDER, ACCOUNT_LABELS } from "../lib/calc";
 import { compactRub, rub, yearsWord } from "../lib/format";
-import { AnimatedValue } from "./ui";
+import { RollingNumber } from "./ui";
 
 type Props = {
   results: Record<AccountType, AccountResult>;
@@ -48,7 +48,7 @@ export default function Compare({ results, best, onPick }: Props) {
               </span>
 
               <span className="card__net">
-                <AnimatedValue value={result.net} format={(n) => rub(n)} />
+                <RollingNumber value={result.net} format={(n) => rub(n)} />
               </span>
 
               <span className="card__note">{SHORT_NOTE[type]}</span>

@@ -59,6 +59,48 @@ export function AnimatedValue({
   return <>{format(shown)}</>;
 }
 
+/**
+ * Число-«одометр»: каждая цифра едет по своей полосе 0–9, поэтому смена
+ * значения выглядит как прокрутка, а не как подмена текста.
+ */
+function Digit({ digit }: { digit: number }) {
+  return (
+    <span className="roll__digit">
+      <span className="roll__strip" style={{ transform: `translateY(-${digit}em)` }}>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => (
+          <span key={value} className="roll__slot">
+            {value}
+          </span>
+        ))}
+      </span>
+    </span>
+  );
+}
+
+export function RollingNumber({
+  value,
+  format,
+}: {
+  value: number;
+  format: (n: number) => string;
+}) {
+  const text = format(Math.round(value));
+
+  return (
+    <span className="roll" aria-label={text}>
+      {[...text].map((char, index) =>
+        /\d/.test(char) ? (
+          <Digit key={index} digit={Number(char)} />
+        ) : (
+          <span key={index} className="roll__static">
+            {char}
+          </span>
+        ),
+      )}
+    </span>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Скользящая подложка сегментов                                     */
 /* ------------------------------------------------------------------ */

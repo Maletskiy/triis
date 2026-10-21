@@ -2246,3 +2246,44 @@ a {
   flex: 1;
   min-width: 0;
 }
+
+/* ------------------------------------------------------------------ */
+/* Числа-«одометр»                                                     */
+/* ------------------------------------------------------------------ */
+
+.roll {
+  display: inline-flex;
+  align-items: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+.roll__digit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: baseline;
+}
+
+.roll__strip {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.52s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+
+.roll__slot {
+  display: block;
+  height: 1em;
+  line-height: 1;
+}
+
+.roll__static {
+  display: inline-block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roll__strip {
+    transition: none;
+  }
+}

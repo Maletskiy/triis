@@ -1,6 +1,6 @@
 import type { AccountResult, Scenario } from "../lib/calc";
 import { compactRub, pct, rub, yearsWord } from "../lib/format";
-import { AnimatedValue } from "./ui";
+import { RollingNumber } from "./ui";
 
 type Props = {
   result: AccountResult;
@@ -52,7 +52,7 @@ export default function Summary({ result, scenario }: Props) {
       <div className="summary__hero">
         <span className="summary__hero-label">На руки после закрытия</span>
         <span className="summary__hero-value">
-          <AnimatedValue value={result.net} format={(n) => rub(n)} />
+          <RollingNumber value={result.net} format={(n) => rub(n)} />
         </span>
         <span className="summary__hero-sub">
           в ценах сегодняшнего дня — <b>{compactRub(result.netReal)}</b>
@@ -63,21 +63,21 @@ export default function Summary({ result, scenario }: Props) {
         <div className="stat">
           <dt>Вычеты за срок</dt>
           <dd>
-            <AnimatedValue value={result.refunds} format={(n) => rub(n)} />
+            <RollingNumber value={result.refunds} format={(n) => rub(n)} />
           </dd>
           <span className="stat__sub">вернёт налоговая</span>
         </div>
         <div className="stat">
           <dt>Капитал на счёте</dt>
           <dd>
-            <AnimatedValue value={result.grossCapital} format={(n) => rub(n)} />
+            <RollingNumber value={result.grossCapital} format={(n) => rub(n)} />
           </dd>
           <span className="stat__sub">{compactRub(profitToUser)} дохода</span>
         </div>
         <div className="stat">
           <dt>Налог при закрытии</dt>
           <dd className={result.exitTax > 0 ? "is-warn" : "is-ok"}>
-            <AnimatedValue value={result.exitTax} format={(n) => rub(n)} />
+            <RollingNumber value={result.exitTax} format={(n) => rub(n)} />
           </dd>
           <span className="stat__sub">
             {result.type === "iis3"

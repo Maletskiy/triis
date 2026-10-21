@@ -65,7 +65,10 @@ const metrics = (page) =>
   if (params !== 6) fail(`параметров ${params} вместо 6`);
   else ok(`параметры в одном блоке: ${params} контролов`);
 
-  const hero = await page.$eval(".summary__hero-value", (el) => el.textContent?.trim() ?? "");
+  const heroValue = () =>
+    page.$eval(".layout__summary-desktop .roll", (el) => el.getAttribute("aria-label"));
+
+  const hero = await heroValue();
   if (!hero.includes("₽")) fail(`итог не отрисован: "${hero}"`);
   else ok(`итог отрисован: ${hero}`);
 
@@ -75,6 +78,31 @@ const metrics = (page) =>
   });
   if (thumb.width < 20 || thumb.height < 10) fail(`плашка таба не встала: ${JSON.stringify(thumb)}`);
   else ok(`плашка таба на месте: ${Math.round(thumb.width)}×${Math.round(thumb.height)}`);
+
+  // числа прокручиваются, а не подменяются
+  const rolling = await page.evaluate(async () => {
+    const scope = ".layout__summary-desktop .summary__hero-value";
+    const host = document.querySelector(scope);
+    const strips = () => [...host.querySelectorAll(".roll__strip")];
+    const transition = getComputedStyle(strips()[0]).transitionProperty;
+    const before = strips().map((el) => getComputedStyle(el).transform);
+    [...document.querySelectorAll(".inputs .segmented__item")].find((e) => e.textContent.trim() === "Тип Б")?.click();
+    await new Promise((r) => setTimeout(r, 120));
+    const during = strips().map((el) => getComputedStyle(el).transform);
+    await new Promise((r) => setTimeout(r, 700));
+    // возвращаем исходный счёт, чтобы не ломать последующие проверки
+    [...document.querySelectorAll(".inputs .segmented__item")].find((e) => e.textContent.trim() === "ИИС-3")?.click();
+    await new Promise((r) => setTimeout(r, 650));
+    return {
+      digits: strips().length,
+      transition,
+      moved: during.some((value, index) => value !== before[index]),
+      aria: host.querySelector(".roll")?.getAttribute("aria-label"),
+    };
+  });
+  if (rolling.transition !== "transform" || !rolling.moved) {
+    fail(`числа не прокручиваются: ${JSON.stringify(rolling)}`);
+  } else ok(`числа прокручиваются одометром: ${rolling.digits} цифр, aria «${rolling.aria}»`);
 
   const chart = await page.$eval(".chart__svg", (svg) => ({
     paths: svg.querySelectorAll("path").length,
@@ -89,13 +117,13 @@ const metrics = (page) =>
   else ok(`таблица по годам: ${rows} строк`);
 
   // сегмент типа счёта переключает расчёт
-  const before = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  const before = await heroValue();
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".inputs .segmented__item")];
     items.find((el) => el.textContent?.trim() === "Тип Б")?.click();
   });
   await new Promise((r) => setTimeout(r, 650));
-  const after = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  const after = await heroValue();
   if (before === after) fail("переключение на ИИС-2 не изменило итог");
   else ok(`переключение счёта меняет итог: ${before} → ${after}`);
 
@@ -107,13 +135,13 @@ const metrics = (page) =>
   else ok("частота реинвестирования: две колонки");
 
   // частота реинвестирования и ставка НДФЛ меняют расчёт
-  const heroBefore = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  const heroBefore = await heroValue();
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".param--choice .segmented__item")];
     items.find((el) => el.textContent.trim() === "Раз в месяц")?.click();
   });
   await new Promise((r) => setTimeout(r, 700));
-  const heroMonthly = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  const heroMonthly = await heroValue();
   if (heroBefore === heroMonthly) fail("частота реинвестирования не влияет на итог");
   else ok(`частота реинвестирования меняет итог: ${heroBefore} → ${heroMonthly}`);
 
@@ -167,7 +195,7 @@ const metrics = (page) =>
   } else ok("ручная ставка НДФЛ применяется");
 
   // разная сумма по годам
-  const heroUniform = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  const heroUniform = await heroValue();
   await page.evaluate(() => {
     [...document.querySelectorAll(".param--wide .segmented__item")]
       .find((el) => el.textContent.trim() === "Разные суммы по годам")
@@ -204,7 +232,7 @@ const metrics = (page) =>
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
   await new Promise((r) => setTimeout(r, 700));
-  const heroCustom = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  const heroCustom = await heroValue();
   if (heroUniform === heroCustom) fail("своя сумма по годам не повлияла на итог");
   else ok(`своя сумма по годам меняет итог: ${heroUniform} → ${heroCustom}`);
 
