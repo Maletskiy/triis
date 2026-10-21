@@ -9,6 +9,7 @@ import {
   ndfl,
 } from "../lib/rules";
 import { Section, Segmented, Toggle } from "./ui";
+import WakeSlider from "./WakeSlider";
 import DatePicker from "./DatePicker";
 
 type Props = {
@@ -63,48 +64,6 @@ function MoneyValue({
   );
 }
 
-/** Ползунок под значением: заполнение, деления и бегунок. */
-function RangeTrack({
-  value,
-  min,
-  max,
-  step,
-  label,
-  onChange,
-}: {
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  label: string;
-  onChange: (value: number) => void;
-}) {
-  const clamped = Math.min(Math.max(value, min), max);
-  const percent = max > min ? ((clamped - min) / (max - min)) * 100 : 0;
-
-  return (
-    <div className="range">
-      <div className="range__fill" style={{ width: `${percent}%` }} />
-      <div className="range__ticks" aria-hidden="true">
-        {[25, 50, 75].map((p) => (
-          <span key={p} className="range__tick" style={{ left: `${p}%` }} />
-        ))}
-      </div>
-      <div className="range__thumb" style={{ left: `${percent}%` }} />
-      <input
-        className="range__input"
-        type="range"
-        aria-label={label}
-        min={min}
-        max={max}
-        step={step}
-        value={clamped}
-        onChange={(event) => onChange(Number(event.target.value))}
-      />
-    </div>
-  );
-}
-
 /** Параметр с подписью, значением и ползунком. */
 function Param({
   label,
@@ -131,7 +90,7 @@ function Param({
     <div className={"param" + (wide ? " param--wide" : "")}>
       <span className="param__label">{label}</span>
       <MoneyValue value={value} onChange={onChange} label={label} suffix={suffix} />
-      <RangeTrack value={value} min={min} max={max} step={step} label={label} onChange={onChange} />
+      <WakeSlider value={value} min={min} max={max} step={step} label={label} onChange={onChange} />
       {hint ? <span className="param__hint">{hint}</span> : null}
     </div>
   );
@@ -242,11 +201,11 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
               label="Официальный доход в месяц"
               suffix="₽"
             />
-            <RangeTrack
+            <WakeSlider
               value={monthlyIncome}
               min={0}
               max={2_000_000}
-              step={1}
+              step={1000}
               label="Официальный доход в месяц"
               onChange={(v) => onChange({ officialIncome: v * 12 })}
             />
@@ -340,11 +299,11 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
                   label="Пополняю каждый год"
                   suffix="₽"
                 />
-                <RangeTrack
+                <WakeSlider
                   value={Math.min(scenario.annualContribution, contributionLimit ?? 2_000_000)}
                   min={0}
                   max={contributionLimit ?? 2_000_000}
-                  step={1000}
+                  step={5000}
                   label="Пополняю каждый год"
                   onChange={(v) => onChange({ annualContribution: v })}
                 />

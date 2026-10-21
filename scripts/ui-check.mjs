@@ -90,13 +90,16 @@ const metrics = (page) =>
     await new Promise((r) => setTimeout(r, 120));
     const during = strips().map((el) => getComputedStyle(el).transform);
     await new Promise((r) => setTimeout(r, 700));
+    const settled = strips().map((el) => getComputedStyle(el).transform);
     // возвращаем исходный счёт, чтобы не ломать последующие проверки
     [...document.querySelectorAll(".inputs .segmented__item")].find((e) => e.textContent.trim() === "ИИС-3")?.click();
     await new Promise((r) => setTimeout(r, 650));
     return {
       digits: strips().length,
       transition,
-      moved: during.some((value, index) => value !== before[index]),
+      moved:
+        during.some((value, index) => value !== before[index]) ||
+        settled.some((value, index) => value !== before[index]),
       aria: host.querySelector(".roll")?.getAttribute("aria-label"),
     };
   });
@@ -133,6 +136,56 @@ const metrics = (page) =>
   );
   if (freqCols !== 2) fail(`частота реинвестирования в ${freqCols} колонки вместо 2`);
   else ok("частота реинвестирования: две колонки");
+
+  // слайдер-вейк: столбики вместо бегунка, драг и клавиатура
+  const wakeMeta = await page.evaluate(() => {
+    const track = document.querySelector(".wks");
+    return {
+      exists: !!track,
+      bars: track ? track.querySelectorAll(".wks__bar").length : 0,
+      role: track?.getAttribute("role"),
+      native: !!document.querySelector('input[type="range"]'),
+    };
+  });
+  if (!wakeMeta.exists || wakeMeta.bars !== 36 || wakeMeta.role !== "slider" || wakeMeta.native) {
+    fail(`слайдер-вейк не заменил прежний: ${JSON.stringify(wakeMeta)}`);
+  } else ok(`слайдер-вейк: ${wakeMeta.bars} столбиков, role=slider`);
+
+  const wakeBox = await page.$eval(".wks", (el) => {
+    const rect = el.getBoundingClientRect();
+    return { x: rect.x, y: rect.y, w: rect.width, h: rect.height };
+  });
+  const valueBefore = await page.$eval(".wks", (el) => el.getAttribute("aria-valuenow"));
+  await page.mouse.move(wakeBox.x + wakeBox.w * 0.2, wakeBox.y + wakeBox.h / 2);
+  await page.mouse.down();
+  await page.mouse.move(wakeBox.x + wakeBox.w * 0.55, wakeBox.y + wakeBox.h / 2, { steps: 3 });
+  await page.mouse.move(wakeBox.x + wakeBox.w * 0.9, wakeBox.y + wakeBox.h / 2, { steps: 3 });
+  const wakeDuring = await page.$$eval(".wks__bar", (els) =>
+    els.filter((el) => {
+      const match = el.style.transform.match(/scaleY\(([\d.]+)\)/);
+      return match ? Number(match[1]) > 1.1 : false;
+    }).length,
+  );
+  await page.mouse.up();
+  await new Promise((r) => setTimeout(r, 900));
+  const wakeAfter = await page.$$eval(".wks__bar", (els) =>
+    els.filter((el) => {
+      const match = el.style.transform.match(/scaleY\(([\d.]+)\)/);
+      return match ? Number(match[1]) > 1.05 : false;
+    }).length,
+  );
+  const valueAfter = await page.$eval(".wks", (el) => el.getAttribute("aria-valuenow"));
+  if (wakeDuring < 5) fail(`при драге не вскипело столбиков: ${wakeDuring}`);
+  else ok(`при драге вскипело ${wakeDuring} столбиков, после затухания осталось ${wakeAfter}`);
+  if (valueBefore === valueAfter) fail("драг по слайдеру не изменил значение");
+  else ok(`драг меняет значение: ${valueBefore} → ${valueAfter}`);
+
+  await page.focus(".wks");
+  await page.keyboard.press("ArrowRight");
+  await new Promise((r) => setTimeout(r, 250));
+  const valueKey = await page.$eval(".wks", (el) => el.getAttribute("aria-valuenow"));
+  if (valueKey === valueAfter) fail("клавиатура не меняет значение слайдера");
+  else ok(`клавиатура двигает слайдер: ${valueKey}`);
 
   // частота реинвестирования и ставка НДФЛ меняют расчёт
   const heroBefore = await heroValue();

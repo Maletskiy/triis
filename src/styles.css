@@ -504,75 +504,6 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.range {
-  position: relative;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  margin-top: 2px;
-  user-select: none;
-}
-
-.range::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 4px;
-  border-radius: var(--radius-full);
-  background: var(--primary-10);
-}
-
-.range__fill {
-  position: absolute;
-  left: 0;
-  height: 4px;
-  border-radius: var(--radius-full);
-  background: var(--primary);
-  transition: width 0.1s linear;
-}
-
-.range__ticks {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 4px;
-  pointer-events: none;
-}
-
-.range__tick {
-  position: absolute;
-  top: 50%;
-  width: 1px;
-  height: 4px;
-  transform: translate(-50%, -50%);
-  background: var(--background);
-  opacity: 0.6;
-}
-
-.range__thumb {
-  position: absolute;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--radius-full);
-  background: var(--background);
-  border: 6px solid var(--primary);
-  box-shadow: 0 1px 4px var(--primary-20);
-  transform: translateX(-50%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.range__input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
 /* ------------------------------------------------------------------ */
 /* Ввод                                                                */
 /* ------------------------------------------------------------------ */
@@ -2285,5 +2216,71 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .roll__strip {
     transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Слайдер-«вейк»: дорожка из столбиков без бегунка                    */
+/* ------------------------------------------------------------------ */
+
+.wks {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 46px;
+  margin-top: 4px;
+  padding-bottom: 2px;
+  border-radius: var(--radius-10);
+  cursor: pointer;
+  touch-action: pan-y;
+  outline-offset: 4px;
+}
+
+.wks__bar {
+  flex: 1;
+  height: 58%;
+  min-width: 0;
+  border-radius: 2px 2px 1px 1px;
+  background: var(--primary-10);
+  transform-origin: bottom center;
+  transition: background-color 0.2s ease;
+  will-change: transform;
+}
+
+.wks__bar.is-on {
+  background: var(--primary);
+}
+
+.wks[data-dragging] {
+  cursor: grabbing;
+}
+
+.wks:focus-visible {
+  outline: 2px solid var(--primary);
+}
+
+.wks__value {
+  position: absolute;
+  top: -18px;
+  right: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--primary-40);
+  font-variant-numeric: tabular-nums;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.wks:hover .wks__value,
+.wks:focus-visible .wks__value {
+  opacity: 1;
+}
+
+/* на узких экранах столбиков меньше — они не слипаются */
+@media (max-width: 560px) {
+  .wks {
+    gap: 1.5px;
+    height: 40px;
   }
 }
