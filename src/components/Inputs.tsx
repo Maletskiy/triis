@@ -353,7 +353,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             hint="на неё делим итог, чтобы показать деньги в сегодняшних ценах"
           />
 
-          <div className="param param--wide param--choice">
+          <div className="param param--wide param--choice param--choice--two">
             <span className="param__label">Частота реинвестирования</span>
             <Segmented
               label="Частота реинвестирования"

@@ -99,6 +99,13 @@ const metrics = (page) =>
   if (before === after) fail("переключение на ИИС-2 не изменило итог");
   else ok(`переключение счёта меняет итог: ${before} → ${after}`);
 
+  const freqCols = await page.$eval(
+    ".param--choice--two .segmented",
+    (el) => getComputedStyle(el).gridTemplateColumns.split(" ").length,
+  );
+  if (freqCols !== 2) fail(`частота реинвестирования в ${freqCols} колонки вместо 2`);
+  else ok("частота реинвестирования: две колонки");
+
   // частота реинвестирования и ставка НДФЛ меняют расчёт
   const heroBefore = await page.$eval(".summary__hero-value", (el) => el.textContent);
   await page.evaluate(() => {
