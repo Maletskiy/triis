@@ -23,6 +23,18 @@ import type { AppState } from "./lib/url";
 
 type Tab = "params" | "compare" | "rules";
 
+function useMediaQuery(query: string): boolean {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+  useEffect(() => {
+    const mql = window.matchMedia(query);
+    const onChange = () => setMatches(mql.matches);
+    mql.addEventListener("change", onChange);
+    setMatches(mql.matches);
+    return () => mql.removeEventListener("change", onChange);
+  }, [query]);
+  return matches;
+}
+
 export default function App() {
   const [state, setState] = useState<AppState>(() => readState(window.location.search));
   const [tab, setTab] = useState<Tab>("params");
@@ -31,6 +43,7 @@ export default function App() {
   const [barVisible, setBarVisible] = useState(false);
 
   const toastTimer = useRef<number | null>(null);
+  const isNarrow = useMediaQuery("(max-width: 1024px)");
   const mobileSummaryRef = useRef<HTMLDivElement | null>(null);
   const desktopSummaryRef = useRef<HTMLDivElement | null>(null);
   const tabsRef = useRef<HTMLDivElement | null>(null);
@@ -176,9 +189,11 @@ export default function App() {
       </div>
 
       <main className="layout">
-        <div className="layout__summary-mobile" ref={mobileSummaryRef}>
-          <Summary result={active} scenario={state.scenario} />
-        </div>
+        {isNarrow ? (
+          <div className="layout__summary-mobile" ref={mobileSummaryRef}>
+            <Summary result={active} scenario={state.scenario} />
+          </div>
+        ) : null}
 
         <div className="layout__main">
           <div className="tabs" ref={tabsRef}>
@@ -245,9 +260,11 @@ export default function App() {
         </div>
 
         <aside className="layout__aside">
-          <div className="layout__summary-desktop" ref={desktopSummaryRef}>
-            <Summary result={active} scenario={state.scenario} />
-          </div>
+          {isNarrow ? null : (
+            <div className="layout__summary-desktop" ref={desktopSummaryRef}>
+              <Summary result={active} scenario={state.scenario} />
+            </div>
+          )}
 
           <div className="actions">
             <CopyButton

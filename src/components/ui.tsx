@@ -1,7 +1,9 @@
 import {
+  memo,
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -77,7 +79,7 @@ function Digit({ digit }: { digit: number }) {
   );
 }
 
-export function RollingNumber({
+function RollingNumberInner({
   value,
   format,
 }: {
@@ -85,10 +87,31 @@ export function RollingNumber({
   format: (n: number) => string;
 }) {
   const text = format(Math.round(value));
+  const chars = useMemo(() => [...text], [text]);
+
+  // при частых изменениях (протаскивание слайдера) цифры прыгают сразу:
+  // десятки одновременных переходов подтормаживают отрисовку
+  const lastChange = useRef(0);
+  const [instant, setInstant] = useState(false);
+  const instantTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    const now = performance.now();
+    const rapid = now - lastChange.current < 180;
+    lastChange.current = now;
+    if (rapid) {
+      setInstant(true);
+      if (instantTimer.current) window.clearTimeout(instantTimer.current);
+      instantTimer.current = window.setTimeout(() => setInstant(false), 220);
+    }
+    return () => {
+      if (instantTimer.current) window.clearTimeout(instantTimer.current);
+    };
+  }, [text]);
 
   return (
-    <span className="roll" aria-label={text}>
-      {[...text].map((char, index) =>
+    <span className={"roll" + (instant ? " roll--instant" : "")} aria-label={text}>
+      {chars.map((char, index) =>
         /\d/.test(char) ? (
           <Digit key={index} digit={Number(char)} />
         ) : (
@@ -100,6 +123,8 @@ export function RollingNumber({
     </span>
   );
 }
+
+export const RollingNumber = memo(RollingNumberInner);
 
 /* ------------------------------------------------------------------ */
 /* Скользящая подложка сегментов                                     */

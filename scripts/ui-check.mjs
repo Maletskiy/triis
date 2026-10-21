@@ -103,6 +103,16 @@ const metrics = (page) =>
       aria: host.querySelector(".roll")?.getAttribute("aria-label"),
     };
   });
+  // при частых изменениях цифры должны переключаться без перехода
+  const instantMode = await page.evaluate(async () => {
+    const roll = document.querySelector(".layout__summary-desktop .roll");
+    const before = roll.className;
+    const over = document.querySelector(".datepicker__field");
+    const box = over.getBoundingClientRect();
+    return { before, exists: !!roll };
+  });
+  if (!instantMode.exists) fail("нет блока итога для проверки мгновенного режима");
+
   if (rolling.transition !== "transform" || !rolling.moved) {
     fail(`числа не прокручиваются: ${JSON.stringify(rolling)}`);
   } else ok(`числа прокручиваются одометром: ${rolling.digits} цифр, aria «${rolling.aria}»`);
