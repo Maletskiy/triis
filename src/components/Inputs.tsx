@@ -247,7 +247,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             </div>
           </div>
 
-          <div className="param param--wide">
+          <div className="param param--wide param--spaced">
             <span className="param__label">Взносы на счёт</span>
             <Segmented
               label="Как задаём взносы"

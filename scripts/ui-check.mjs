@@ -255,6 +255,18 @@ const metrics = (page) =>
       ?.click();
   });
   await new Promise((r) => setTimeout(r, 600));
+  const tabGap = await page.evaluate(() => {
+    const block = document.querySelector(".param--spaced");
+    const seg = block.querySelector(".segmented");
+    const plan = block.querySelector(".plan");
+    return {
+      gap: Math.round(plan.getBoundingClientRect().top - seg.getBoundingClientRect().bottom),
+      margin: getComputedStyle(seg).marginBottom,
+    };
+  });
+  if (tabGap.gap < 12) fail(`мало воздуха между табами и планом: ${tabGap.gap} px`);
+  else ok(`между табами режима и планом ${tabGap.gap} px`);
+
   const planState = await page.evaluate(() => {
     const plan = document.querySelector(".plan");
     const rows = [...document.querySelectorAll(".plan__row")];

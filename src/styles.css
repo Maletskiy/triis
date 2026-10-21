@@ -486,6 +486,11 @@ a {
   gap: 8px;
 }
 
+/* между переключателем режима и суммой нужен воздух */
+.param--spaced .segmented {
+  margin-bottom: 10px;
+}
+
 .param--choice .segmented {
   grid-auto-flow: row;
   grid-template-columns: repeat(3, minmax(0, 1fr));
