@@ -21,6 +21,7 @@ export default function DatePicker({
   label: string;
 }) {
   const [open, setOpen] = useState(false);
+  const [up, setUp] = useState(false);
   const [cursor, setCursor] = useState(() => parseIso(value));
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
@@ -71,7 +72,12 @@ export default function DatePicker({
       <button
         type="button"
         className={"datepicker__field" + (open ? " is-open" : "")}
-        onClick={() => setOpen((was) => !was)}
+        onClick={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect();
+          // если снизу не хватает места — раскрываем календарь вверх
+          setUp(window.innerHeight - rect.bottom < 400 && rect.top > 400);
+          setOpen((was) => !was);
+        }}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={label}
@@ -84,7 +90,7 @@ export default function DatePicker({
       </button>
 
       {open && (
-        <div className="calendar" role="dialog" aria-label={label}>
+        <div className={"calendar" + (up ? " is-up" : "")} role="dialog" aria-label={label}>
           <div className="calendar__head">
             <button type="button" className="calendar__nav" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">
               ‹

@@ -378,8 +378,14 @@ a {
 }
 
 .section__body-clip {
-  overflow: hidden;
+  /* видно по умолчанию: внутри секций открываются поповеры (календарь) */
+  overflow: visible;
   min-height: 0;
+}
+
+.section.is-collapsed .section__body-clip,
+.section.is-animating .section__body-clip {
+  overflow: hidden;
 }
 
 .section__body {
@@ -1909,6 +1915,11 @@ a {
   border: 1px solid var(--primary-10);
   box-shadow: 0 24px 48px -24px var(--primary-30);
   animation: calendarIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.calendar.is-up {
+  top: auto;
+  bottom: calc(100% + 8px);
 }
 
 @keyframes calendarIn {

@@ -132,6 +132,26 @@ const metrics = (page) =>
   await page.waitForSelector(".calendar");
   ok("календарь открывается");
 
+  const calendarState = await page.evaluate(() => {
+    const cal = document.querySelector(".calendar");
+    const rect = cal.getBoundingClientRect();
+    const clipped = [];
+    let el = cal.parentElement;
+    while (el && el !== document.body) {
+      const cs = getComputedStyle(el);
+      if (cs.overflow !== "visible" || cs.overflowY !== "visible") clipped.push(el.className || el.tagName);
+      el = el.parentElement;
+    }
+    return {
+      height: Math.round(rect.height),
+      inViewport: rect.top >= 0 && rect.bottom <= window.innerHeight + 1,
+      clipped,
+    };
+  });
+  if (calendarState.height < 300 || calendarState.clipped.length || !calendarState.inViewport) {
+    fail(`календарь не виден: ${JSON.stringify(calendarState)}`);
+  } else ok(`календарь видим: ${calendarState.height} px, не обрезан`);
+
   const calendarDays = await page.$$eval(".calendar__day", (els) => els.length);
   if (calendarDays < 28) fail(`в календаре ${calendarDays} дней`);
   else ok(`в календаре ${calendarDays} дней`);
