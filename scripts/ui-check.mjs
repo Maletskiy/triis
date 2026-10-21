@@ -485,6 +485,34 @@ const metrics = (page) =>
     fail(`блок плана не сворачивается плавно: ${JSON.stringify(planCollapse)}`);
   } else ok(`план по годам сворачивается плавно: ${planCollapse.opened} → ${planCollapse.values.join(" → ")}`);
 
+  // блок предупреждения тоже сворачивается плавно
+  await page.goto(APP_URL + "?od=2026-03-01&y=3", { waitUntil: "networkidle0" });
+  await new Promise((r) => setTimeout(r, 500));
+  await page.focus('.wks[aria-label="Срок"]');
+  const calloutFrames = await page.evaluate(async () => {
+    const wrap = document.querySelector(".layout__summary-desktop .collapse");
+    const out = [];
+    for (let i = 0; i < 10; i += 1) {
+      out.push(Math.round(wrap.getBoundingClientRect().height));
+      await new Promise((r) => setTimeout(r, 45));
+    }
+    return out;
+  });
+  await page.keyboard.press("End");
+  const calloutAfter = await page.evaluate(async () => {
+    const wrap = document.querySelector(".layout__summary-desktop .collapse");
+    const out = [];
+    for (let i = 0; i < 10; i += 1) {
+      out.push(Math.round(wrap.getBoundingClientRect().height));
+      await new Promise((r) => setTimeout(r, 45));
+    }
+    return out;
+  });
+  const calloutDistinct = new Set(calloutAfter).size;
+  if (calloutFrames[0] < 50 || calloutDistinct < 2 || calloutAfter[calloutAfter.length - 1] > 2) {
+    fail(`предупреждение не сворачивается плавно: ${calloutFrames.join(",")} → ${calloutAfter.join(",")}`);
+  } else ok(`предупреждение сворачивается плавно: ${calloutFrames[0]} → 0 (${calloutAfter.join(" → ")})`);
+
   // плавная смена высоты: и таб, и секции
   const sectionHeight = await page.evaluate(() => {
     const el = document.querySelector(".inputs > .section .section__body-wrap");

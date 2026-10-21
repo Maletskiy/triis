@@ -1,6 +1,6 @@
 import type { AccountResult, Scenario } from "../lib/calc";
 import { compactRub, pct, rub, yearsWord } from "../lib/format";
-import { RollingNumber } from "./ui";
+import { Collapse, RollingNumber } from "./ui";
 
 type Props = {
   result: AccountResult;
@@ -96,20 +96,24 @@ export default function Summary({ result, scenario }: Props) {
         </div>
       </dl>
 
-      {result.earlyClose && result.earlyPenalty > 0 ? (
+      <Collapse open={result.earlyClose && result.earlyPenalty > 0}>
         <div className="callout callout--warn">
-          <span className="callout__title">Досрочное закрытие стоит {compactRub(result.earlyPenalty)}</span>
+          <span className="callout__title">
+            Досрочное закрытие стоит {compactRub(result.earlyPenalty)}
+          </span>
           <span className="callout__text">
             Продержите до {result.minHolding} {yearsWord(result.minHolding)} — и льгота сохранится.
           </span>
         </div>
-      ) : null}
+      </Collapse>
 
-      {warnings.map((warning) => (
-        <div key={warning.text} className={"callout callout--" + warning.tone}>
-          <span className="callout__text">{warning.text}</span>
-        </div>
-      ))}
+      <Collapse open={warnings.length > 0}>
+        {warnings.map((warning) => (
+          <div key={warning.text} className={"callout callout--" + warning.tone}>
+            <span className="callout__text">{warning.text}</span>
+          </div>
+        ))}
+      </Collapse>
 
       <div className="summary__meta">
         <span>

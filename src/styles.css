@@ -403,6 +403,11 @@ a {
 .section__body {
   padding-top: 16px;
   min-width: 0;
+  transition: opacity 0.24s ease;
+}
+
+.section.is-collapsed .section__body {
+  opacity: 0;
 }
 
 .section--collapsible.is-collapsed .section__body {
