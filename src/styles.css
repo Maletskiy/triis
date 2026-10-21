@@ -380,6 +380,7 @@ a {
 .section__body-wrap {
   display: grid;
   grid-template-rows: 1fr;
+  min-width: 0;
   transition: grid-template-rows 0.34s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -388,9 +389,10 @@ a {
 }
 
 .section__body-clip {
-  /* видно по умолчанию: внутри секций открываются поповеры (календарь) */
-  overflow: visible;
+  /* обрезаем по ширине карточки: широкие таблицы скроллятся внутри обёртки */
+  overflow: hidden;
   min-height: 0;
+  min-width: 0;
 }
 
 .section.is-collapsed .section__body-clip,
@@ -400,6 +402,7 @@ a {
 
 .section__body {
   padding-top: 16px;
+  min-width: 0;
 }
 
 .section--collapsible.is-collapsed .section__body {
@@ -941,8 +944,9 @@ a {
 /* ------------------------------------------------------------------ */
 
 .table__wrap {
+  max-width: 100%;
   overflow-x: auto;
-  margin: 0 -4px;
+  margin: 0;
 }
 
 .table {

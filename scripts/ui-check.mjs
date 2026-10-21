@@ -115,6 +115,28 @@ const metrics = (page) =>
   if (chart.paths < 4 || chart.width < 100) fail(`график не отрисован: ${JSON.stringify(chart)}`);
   else ok(`график: ${chart.paths} path, ${Math.round(chart.width)}×${Math.round(chart.height)}`);
 
+  const tableFit = await page.evaluate(() => {
+    const section = [...document.querySelectorAll(".section")].find((el) =>
+      el.textContent?.includes("Таблица по годам"),
+    );
+    const wrap = section?.querySelector(".table__wrap");
+    return section && wrap
+      ? {
+          sectionOverflow: section.scrollWidth - section.clientWidth,
+          wrapFits: wrap.clientWidth <= section.clientWidth,
+          scrolls: wrap.scrollWidth > wrap.clientWidth,
+          clip: getComputedStyle(section.querySelector(".section__body-clip")).overflow,
+        }
+      : null;
+  });
+  if (!tableFit || tableFit.sectionOverflow > 1 || !tableFit.wrapFits) {
+    fail(`таблица выезжает за карточку: ${JSON.stringify(tableFit)}`);
+  } else {
+    ok(
+      `таблица внутри карточки${tableFit.scrolls ? " и скроллится" : ""} (обрезка ${tableFit.clip})`,
+    );
+  }
+
   const rows = await page.$$eval(".table tbody tr", (trs) => trs.length);
   if (rows !== 10) fail(`в таблице ${rows} строк вместо 10`);
   else ok(`таблица по годам: ${rows} строк`);
