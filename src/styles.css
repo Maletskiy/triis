@@ -59,7 +59,8 @@ a {
 .app {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 0 28px 40px;
+  /* запас снизу: подвал не должен уходить под плавающую плашку */
+  padding: 0 28px 104px;
 }
 
 .topbar {
@@ -143,12 +144,21 @@ a {
   padding-top: 20px;
   border-top: 1px solid var(--primary-10);
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 16px 24px;
   flex-wrap: wrap;
   font-size: var(--subtitle-size);
   line-height: var(--subtitle-line);
   color: var(--primary-40);
+}
+
+.footer__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  text-align: right;
 }
 
 .footer__author {
@@ -2285,15 +2295,15 @@ a {
 /* ------------------------------------------------------------------ */
 
 .footer__left {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  min-width: 0;
 }
 
 .like {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 16px;
+  min-width: min(100%, 420px);
 }
 
 .like__btn {
@@ -2301,9 +2311,9 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-full);
   background: var(--background);
@@ -2413,14 +2423,16 @@ a {
 .like__count {
   font-size: var(--body-size);
   font-weight: 600;
-  color: var(--primary);
+  color: inherit;
   font-variant-numeric: tabular-nums;
+  line-height: 1;
 }
 
 .like__hint {
   font-size: var(--subtitle-size);
   line-height: var(--subtitle-line);
   color: var(--primary-40);
+  min-width: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

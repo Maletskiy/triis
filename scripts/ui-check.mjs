@@ -567,6 +567,22 @@ const metrics = (page) =>
     fail(`лайк в исходном виде неверный: ${JSON.stringify(likeStart)}`);
   } else ok(`лайк на месте: ${likeStart.particles} частиц, подпись «${likeStart.hint}»`);
 
+  const likeLayout = await page.evaluate(() => {
+    const hint = document.querySelector(".like__hint").getBoundingClientRect();
+    const btn = document.querySelector(".like__btn").getBoundingClientRect();
+    const count = document.querySelector(".like__count").getBoundingClientRect();
+    const right = document.querySelector(".footer__right");
+    const footer = document.querySelector(".footer").getBoundingClientRect();
+    return {
+      hintLeftOfBtn: hint.right <= btn.left,
+      countInside: count.left >= btn.left && count.right <= btn.right,
+      disclaimerRight: right ? Math.round(footer.right - right.getBoundingClientRect().right) < 2 : false,
+    };
+  });
+  if (!likeLayout.hintLeftOfBtn || !likeLayout.countInside || !likeLayout.disclaimerRight) {
+    fail(`раскладка лайка: ${JSON.stringify(likeLayout)}`);
+  } else ok("лайк: подпись слева, число внутри кнопки, служебный текст справа");
+
   await page.click(".like__btn");
   await new Promise((r) => setTimeout(r, 120));
   const likeActive = await page.evaluate(() => ({

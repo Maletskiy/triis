@@ -291,16 +291,18 @@ export default function App() {
       <footer className="footer">
         <div className="footer__left">
           <LikeButton hint="Если было полезно, поставь лайк" />
-          <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
         </div>
-        <a
-          className="footer__author"
-          href="https://maletskiy-design.ru"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Maletskiy Design
-        </a>
+        <div className="footer__right">
+          <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
+          <a
+            className="footer__author"
+            href="https://maletskiy-design.ru"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Maletskiy Design
+          </a>
+        </div>
       </footer>
 
       <div className={"bar" + (barVisible ? " is-visible" : "")} aria-hidden={!barVisible}>

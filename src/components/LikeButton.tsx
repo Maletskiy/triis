@@ -26,6 +26,8 @@ export default function LikeButton({ hint }: { hint: string }) {
 
   return (
     <div className="like">
+      <span className="like__hint">{hint}</span>
+
       <button
         type="button"
         className={"like__btn" + (liked ? " is-liked" : "")}
@@ -50,7 +52,7 @@ export default function LikeButton({ hint }: { hint: string }) {
             aria-hidden="true"
           />
         ))}
-        <svg className="like__heart" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="like__heart" width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M12 20.5S3.5 15.2 3.5 9.4A4.9 4.9 0 0 1 12 6.2a4.9 4.9 0 0 1 8.5 3.2c0 5.8-8.5 11.1-8.5 11.1Z"
             fill={liked ? "currentColor" : "none"}
@@ -59,12 +61,10 @@ export default function LikeButton({ hint }: { hint: string }) {
             strokeLinejoin="round"
           />
         </svg>
+        <span className="like__count">
+          <RollingNumber value={liked ? 1 : 0} format={(n) => String(n)} />
+        </span>
       </button>
-
-      <span className="like__count">
-        <RollingNumber value={liked ? 1 : 0} format={(n) => String(n)} />
-      </span>
-      <span className="like__hint">{hint}</span>
     </div>
   );
 }
