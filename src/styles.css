@@ -477,8 +477,8 @@ a {
 }
 
 .param__hint {
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 16px;
+  line-height: 24px;
   color: var(--primary-40);
 }
 
@@ -502,6 +502,11 @@ a {
 /* у частоты реинвестирования четыре варианта — раскладываем по два в ряд */
 .param--choice--two .segmented {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.param--choice--two .segmented__item {
+  font-size: 16px;
+  line-height: 24px;
 }
 
 /* ------------------------------------------------------------------ */
