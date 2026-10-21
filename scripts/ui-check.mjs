@@ -149,15 +149,14 @@ const metrics = (page) =>
 
   const tableYears = await page.evaluate(() => {
     const first = document.querySelector(".table tbody tr td")?.textContent ?? "";
-    const refund = document.querySelector(".table tbody tr td:nth-child(4)")?.textContent ?? "";
-    return {
-      firstYear: Number(first),
-      refundYear: Number(refund),
-      header: document.querySelector(".table thead th")?.textContent ?? "",
-    };
+    const headers = [...document.querySelectorAll(".table thead th")].map((th) => th.textContent?.trim());
+    return { firstYear: Number(first), headers };
   });
   if (tableYears.firstYear < 2000) fail(`в первой колонке не год: ${tableYears.firstYear}`);
-  else ok(`таблица: первый год ${tableYears.firstYear}, вычет вернут в ${tableYears.refundYear}`);
+  else ok(`таблица: первый год ${tableYears.firstYear}, колонки — ${tableYears.headers.join(", ")}`);
+
+  if (tableYears.headers.includes("Вернут в")) fail("колонка «Вернут в» осталась");
+  else ok("колонки «Вернут в» нет");
 
   const rows = await page.$$eval(".table tbody tr", (trs) => trs.length);
   if (rows !== 10) fail(`в таблице ${rows} строк вместо 10`);

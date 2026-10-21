@@ -951,8 +951,12 @@ a {
 
 .table__actions {
   display: flex;
-  justify-content: flex-end;
   margin-top: 12px;
+}
+
+.table__actions .btn {
+  flex: 1;
+  width: 100%;
 }
 
 .table {
