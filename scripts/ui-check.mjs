@@ -474,6 +474,51 @@ const metrics = (page) =>
   if (Math.round(btnHeight) !== 56) fail(`высота кнопки ${Math.round(btnHeight)}, ожидалась 56`);
   else ok(`высота кнопок 56 px, «Сбросить» — ${Math.round(resetHeight)} px`);
 
+  // лайк в подвале: сердце, кольцо, конфетти и счётчик
+  await page.evaluate(() => localStorage.setItem("triis-like", "0"));
+  await page.reload({ waitUntil: "networkidle0" });
+  await page.waitForSelector(".like__btn");
+  const likeStart = await page.evaluate(() => ({
+    pressed: document.querySelector(".like__btn").getAttribute("aria-pressed"),
+    count: document.querySelector(".like__count .roll")?.getAttribute("aria-label"),
+    particles: document.querySelectorAll(".like__particle").length,
+    hint: document.querySelector(".like__hint")?.textContent,
+  }));
+  if (likeStart.pressed !== "false" || likeStart.count !== "0" || likeStart.particles !== 8) {
+    fail(`лайк в исходном виде неверный: ${JSON.stringify(likeStart)}`);
+  } else ok(`лайк на месте: ${likeStart.particles} частиц, подпись «${likeStart.hint}»`);
+
+  await page.click(".like__btn");
+  await new Promise((r) => setTimeout(r, 120));
+  const likeActive = await page.evaluate(() => ({
+    pressed: document.querySelector(".like__btn").getAttribute("aria-pressed"),
+    heart: getComputedStyle(document.querySelector(".like__heart")).animationName,
+    ring: getComputedStyle(document.querySelector(".like__ring")).animationName,
+    particle: getComputedStyle(document.querySelector(".like__particle")).animationName,
+    count: document.querySelector(".like__count .roll")?.getAttribute("aria-label"),
+    stored: localStorage.getItem("triis-like"),
+  }));
+  if (
+    likeActive.pressed !== "true" ||
+    likeActive.heart !== "heart-pop" ||
+    likeActive.ring !== "bloom" ||
+    likeActive.particle !== "fly" ||
+    likeActive.count !== "1" ||
+    likeActive.stored !== "1"
+  ) {
+    fail(`лайк не сработал: ${JSON.stringify(likeActive)}`);
+  } else ok(`лайк: сердце ${likeActive.heart}, кольцо ${likeActive.ring}, конфетти ${likeActive.particle}, счётчик ${likeActive.count}`);
+
+  await new Promise((r) => setTimeout(r, 800));
+  await page.click(".like__btn");
+  await new Promise((r) => setTimeout(r, 300));
+  const unlike = await page.evaluate(() => ({
+    pressed: document.querySelector(".like__btn").getAttribute("aria-pressed"),
+    count: document.querySelector(".like__count .roll")?.getAttribute("aria-label"),
+  }));
+  if (unlike.pressed !== "false" || unlike.count !== "0") fail(`лайк не снимается: ${JSON.stringify(unlike)}`);
+  else ok("лайк снимается и счётчик возвращается к 0");
+
   // печать: шапка с параметрами, скрытые контролы, развёрнутая таблица
   await page.emulateMediaType("print");
   await new Promise((r) => setTimeout(r, 250));

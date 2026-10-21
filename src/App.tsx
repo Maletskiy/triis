@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Inputs from "./components/Inputs";
 import Summary, { collectWarnings } from "./components/Summary";
+import LikeButton from "./components/LikeButton";
 import Chart from "./components/Chart";
 import YearTable from "./components/YearTable";
 import Compare from "./components/Compare";
@@ -288,7 +289,10 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
+        <div className="footer__left">
+          <LikeButton hint="Если было полезно, поставь лайк" />
+          <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
+        </div>
         <a
           className="footer__author"
           href="https://maletskiy-design.ru"

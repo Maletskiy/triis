@@ -2284,3 +2284,154 @@ a {
     height: 40px;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Лайк в подвале                                                     */
+/* ------------------------------------------------------------------ */
+
+.footer__left {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.like {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.like__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--primary-10);
+  border-radius: var(--radius-full);
+  background: var(--background);
+  color: var(--primary-40);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.like__btn:hover {
+  color: var(--primary);
+  border-color: var(--primary-30);
+}
+
+.like__btn.is-liked {
+  color: var(--accent-red);
+  border-color: color-mix(in srgb, var(--accent-red) 40%, transparent);
+  background: var(--accent-red-background);
+}
+
+.like__heart {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s ease;
+}
+
+.like__btn.is-liked .like__heart {
+  animation: heart-pop 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes heart-pop {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(0.82);
+  }
+  60% {
+    transform: scale(1.28);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.like__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  border: 0 solid var(--accent-red);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.like__ring.is-burst {
+  animation: bloom 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes bloom {
+  0% {
+    transform: scale(0.4);
+    border-width: 14px;
+    opacity: 0.9;
+  }
+  60% {
+    transform: scale(1.5);
+    border-width: 3px;
+    opacity: 0.45;
+  }
+  100% {
+    transform: scale(1.9);
+    border-width: 0;
+    opacity: 0;
+  }
+}
+
+.like__particle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--radius-full);
+  background: var(--accent-red);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.like__particle.is-burst {
+  animation: fly 0.62s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.2);
+    opacity: 0;
+  }
+}
+
+.like__count {
+  font-size: var(--body-size);
+  font-weight: 600;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.like__hint {
+  font-size: var(--subtitle-size);
+  line-height: var(--subtitle-line);
+  color: var(--primary-40);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .like__heart,
+  .like__ring.is-burst,
+  .like__particle.is-burst {
+    animation: none;
+  }
+}
