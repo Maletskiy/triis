@@ -310,15 +310,24 @@ const metrics = (page) =>
       if (cs.overflow !== "visible" || cs.overflowY !== "visible") clipped.push(el.className || el.tagName);
       el = el.parentElement;
     }
+    const probe = document.elementFromPoint(rect.left + rect.width / 2, rect.bottom - 12);
     return {
       height: Math.round(rect.height),
       inViewport: rect.top >= 0 && rect.bottom <= window.innerHeight + 1,
       clipped,
+      topmost: !!probe && !!probe.closest(".calendar"),
+      z: getComputedStyle(cal).zIndex,
     };
   });
-  if (calendarState.height < 300 || calendarState.clipped.length || !calendarState.inViewport) {
-    fail(`календарь не виден: ${JSON.stringify(calendarState)}`);
-  } else ok(`календарь видим: ${calendarState.height} px, не обрезан`);
+  if (
+    calendarState.height < 300 ||
+    calendarState.clipped.length ||
+    !calendarState.inViewport ||
+    !calendarState.topmost ||
+    Number(calendarState.z) < 70
+  ) {
+    fail(`календарь не виден или перекрыт: ${JSON.stringify(calendarState)}`);
+  } else ok(`календарь целиком в окне и сверху (z=${calendarState.z}, ${calendarState.height} px)`);
 
   const calendarDays = await page.$$eval(".calendar__day", (els) => els.length);
   if (calendarDays < 28) fail(`в календаре ${calendarDays} дней`);

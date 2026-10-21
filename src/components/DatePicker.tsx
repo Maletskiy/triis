@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   MAX_DATE,
@@ -39,14 +39,28 @@ export default function DatePicker({
     const rect = field.getBoundingClientRect();
     const panelHeight = panelRef.current?.offsetHeight ?? 404;
     const below = window.innerHeight - rect.bottom;
-    const up = below < panelHeight + 16 && rect.top > panelHeight + 16;
+    // если снизу не хватает места, а сверху хватает — раскрываем вверх
+    const up = below < panelHeight + 16 && rect.top > below;
+    const wanted = up ? rect.top - panelHeight - 8 : rect.bottom + 8;
+    const maxTop = Math.max(8, window.innerHeight - panelHeight - 8);
     setPos({
-      left: Math.min(rect.left, window.innerWidth - 336),
-      top: up ? Math.max(8, rect.top - panelHeight - 8) : rect.bottom + 8,
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - 344)),
+      top: Math.max(8, Math.min(wanted, maxTop)),
     });
   }, []);
 
   useEffect(() => setCursor(parseIso(value)), [value]);
+
+  // позицию пересчитываем уже по реальной высоте панели
+  useLayoutEffect(() => {
+    if (!open) return;
+    place();
+    const panel = panelRef.current;
+    if (!panel || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => place());
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, [open, place, view]);
 
   useEffect(() => {
     if (!open) {
