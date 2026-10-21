@@ -117,6 +117,26 @@ const metrics = (page) =>
   if (heroBefore === heroMonthly) fail("частота реинвестирования не влияет на итог");
   else ok(`частота реинвестирования меняет итог: ${heroBefore} → ${heroMonthly}`);
 
+  // тогл живёт в карточке дохода и текст тянется на всю ширину
+  const togglePlacement = await page.evaluate(() => {
+    const card = [...document.querySelectorAll(".params .param")].find((el) =>
+      el.textContent?.includes("Официальный доход в месяц"),
+    );
+    const toggle = card?.querySelector(".toggle");
+    const text = toggle?.querySelector(".toggle__text");
+    return {
+      inside: !!toggle,
+      textWidth: text ? Math.round(text.getBoundingClientRect().width) : 0,
+      cardWidth: card ? Math.round(card.getBoundingClientRect().width) : 0,
+    };
+  });
+  if (!togglePlacement.inside) fail("тогл ставки не внутри карточки дохода");
+  else if (togglePlacement.textWidth < togglePlacement.cardWidth * 0.6) {
+    fail(`текст тогла не на всю ширину: ${togglePlacement.textWidth} из ${togglePlacement.cardWidth}`);
+  } else {
+    ok(`тогл ставки в карточке дохода, текст ${togglePlacement.textWidth} из ${togglePlacement.cardWidth} px`);
+  }
+
   // ставка НДФЛ включается тоглом
   await page.evaluate(() => {
     const toggle = [...document.querySelectorAll(".toggle")].find((el) =>
@@ -142,8 +162,9 @@ const metrics = (page) =>
   const rateApplied = await page.evaluate(() =>
     [...document.querySelectorAll(".param__hint")].map((e) => e.textContent).join(" | "),
   );
-  if (!rateApplied.includes("эту ставку")) fail(`ручная ставка не применилась: ${rateApplied}`);
-  else ok("ручная ставка НДФЛ применяется");
+  if (!rateApplied.includes("15%") || !rateApplied.includes("вручную")) {
+    fail(`ручная ставка не применилась: ${rateApplied}`);
+  } else ok("ручная ставка НДФЛ применяется");
 
   // разная сумма по годам
   const heroUniform = await page.$eval(".summary__hero-value", (el) => el.textContent);

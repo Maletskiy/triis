@@ -2222,3 +2222,27 @@ a {
     animation: none;
   }
 }
+
+/* вложенный блок внутри параметра: тогл и зависящие от него настройки */
+.param__nested {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--primary-8);
+}
+
+.param__nested .toggle {
+  margin-top: 0;
+}
+
+/* текст тогла тянется на всю ширину и переносится по ней */
+.toggle {
+  width: 100%;
+}
+
+.toggle__text {
+  flex: 1;
+  min-width: 0;
+}

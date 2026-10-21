@@ -148,7 +148,6 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
 
   const monthlyIncome = Math.round(scenario.officialIncome / 12);
   const incomeTax = ndfl(scenario.officialIncome);
-  const rate = Math.round(marginalRate(scenario.officialIncome) * 100);
   const appliedRate = Math.round(
     (scenario.manualRate ?? marginalRate(scenario.officialIncome)) * 100,
   );
@@ -235,17 +234,59 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
         hint="Взносы, срок, доходность и инфляция — всё, из чего складывается итог"
       >
         <div className="params">
-          <Param
-            wide
-            label="Официальный доход в месяц"
-            value={monthlyIncome}
-            min={0}
-            max={2_000_000}
-            step={1}
-            suffix="₽"
-            onChange={(v) => onChange({ officialIncome: v * 12 })}
-            hint={`в год ${compactRub(scenario.officialIncome)} · НДФЛ ≈ ${rub(incomeTax)} · ставка ${rate}%`}
-          />
+          <div className="param param--wide">
+            <span className="param__label">Официальный доход в месяц</span>
+            <MoneyValue
+              value={monthlyIncome}
+              onChange={(v) => onChange({ officialIncome: v * 12 })}
+              label="Официальный доход в месяц"
+              suffix="₽"
+            />
+            <RangeTrack
+              value={monthlyIncome}
+              min={0}
+              max={2_000_000}
+              step={1}
+              label="Официальный доход в месяц"
+              onChange={(v) => onChange({ officialIncome: v * 12 })}
+            />
+            <span className="param__hint">
+              в год {compactRub(scenario.officialIncome)} · НДФЛ ≈ {rub(incomeTax)} · ставка{" "}
+              {appliedRate}%{scenario.manualRate ? " (вручную)" : ""}
+            </span>
+
+            <div className="param__nested">
+              <Toggle
+                checked={scenario.manualRate !== null}
+                onChange={(enabled) =>
+                  onChange({ manualRate: enabled ? marginalRate(scenario.officialIncome) : null })
+                }
+                label="Задать ставку НДФЛ вручную"
+                hint={
+                  scenario.manualRate
+                    ? "ставка из дохода выше не используется — считаем по выбранной"
+                    : `по умолчанию берём предельную ставку по доходу — ${appliedRate}%`
+                }
+              />
+
+              {scenario.manualRate !== null ? (
+                <div className="param--choice appear" key="rate">
+                  <Segmented
+                    label="Ставка НДФЛ"
+                    value={String(appliedRate)}
+                    onChange={(v) => onChange({ manualRate: Number(v) / 100 })}
+                    options={[
+                      { value: "13", label: "13%" },
+                      { value: "15", label: "15%" },
+                      { value: "18", label: "18%" },
+                      { value: "20", label: "20%" },
+                      { value: "22", label: "22%" },
+                    ]}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
 
           <div className="param param--wide">
             <span className="param__label">Взносы на счёт</span>
@@ -373,39 +414,6 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             </span>
           </div>
 
-          <Toggle
-            checked={scenario.manualRate !== null}
-            onChange={(enabled) =>
-              onChange({ manualRate: enabled ? marginalRate(scenario.officialIncome) : null })
-            }
-            label="Задать ставку НДФЛ вручную"
-            hint={
-              scenario.manualRate
-                ? "ставка из дохода выше не используется — считаем по выбранной"
-                : `по умолчанию берём предельную ставку по доходу — ${appliedRate}%`
-            }
-          />
-
-          {scenario.manualRate !== null ? (
-            <div className="param param--wide param--choice appear" key="rate">
-              <span className="param__label">Ставка НДФЛ</span>
-              <Segmented
-                label="Ставка НДФЛ"
-                value={String(appliedRate)}
-                onChange={(v) => onChange({ manualRate: Number(v) / 100 })}
-                options={[
-                  { value: "13", label: "13%" },
-                  { value: "15", label: "15%" },
-                  { value: "18", label: "18%" },
-                  { value: "20", label: "20%" },
-                  { value: "22", label: "22%" },
-                ]}
-              />
-              <span className="param__hint">
-                применяем эту ставку к вычету на взнос и к налогу с прибыли
-              </span>
-            </div>
-          ) : null}
         </div>
 
         <Toggle
