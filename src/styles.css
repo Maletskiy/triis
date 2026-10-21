@@ -2049,3 +2049,80 @@ a {
     font-size: 14px;
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* План взносов по годам                                              */
+/* ------------------------------------------------------------------ */
+
+.param--wide {
+  grid-column: 1 / -1;
+}
+
+.plan {
+  display: grid;
+  gap: 6px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-top: 4px;
+}
+
+.plan__row {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.plan__year {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--primary-40);
+  font-variant-numeric: tabular-nums;
+}
+
+.plan__field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--primary-10);
+  border-radius: var(--radius-12);
+  background: var(--background);
+  transition: border-color 0.2s ease;
+}
+
+.plan__field:focus-within {
+  border-color: var(--primary);
+}
+
+.plan__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--primary);
+}
+
+.plan__input:focus {
+  outline: none;
+}
+
+.plan__unit {
+  color: var(--primary-40);
+  font-size: 14px;
+}
+
+/* узкие экраны: длинные подписи режима взносов — в столбик */
+@media (max-width: 560px) {
+  .params .param--wide:not(.param--choice) .segmented {
+    grid-auto-flow: row;
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+}

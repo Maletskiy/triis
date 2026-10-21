@@ -99,7 +99,9 @@ export default function App() {
 
   const printParams = [
     `${state.account === "iis3" ? "ИИС-3" : state.account === "iis1" ? "Тип А" : "Тип Б"}, открыт ${formatHuman(state.scenario.openDate)}`,
-    `${rub(state.scenario.annualContribution)} в год`,
+    state.scenario.contributionMode === "custom"
+      ? `взносы по годам, всего ${rub(state.scenario.contributions.slice(0, state.scenario.years).reduce((sum, v) => sum + v, 0))}`
+      : `${rub(state.scenario.annualContribution)} в год`,
     `${state.scenario.years} ${yearsWord(state.scenario.years)}`,
     `доходность ${state.scenario.returnPct}%`,
     `реинвест ${

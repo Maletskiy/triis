@@ -19,9 +19,15 @@ export const ACCOUNT_LABELS: Record<AccountType, string> = {
   iis2: "Тип Б",
 };
 
+export type ContributionMode = "uniform" | "custom";
+
 export type Scenario = {
-  /** Сколько вносим каждый год, ₽ */
+  /** Сколько вносим каждый год, ₽ (режим одинаковых взносов) */
   annualContribution: number;
+  /** Как задаются взносы: одной суммой на все годы или по каждому году отдельно */
+  contributionMode: ContributionMode;
+  /** Суммы по годам для режима custom */
+  contributions: number[];
   /** На сколько лет открываем счёт */
   years: number;
   /** Ожидаемая доходность, % годовых */
@@ -97,13 +103,17 @@ export function minHoldingYears(type: AccountType, openYear: number): number {
  * Взнос делается в начале года, вычет приходит в начале следующего года.
  */
 function simulateCore(type: AccountType, scenario: Scenario, years: number): Core {
-  const contribution =
+  const limitContribution = (raw: number) =>
     type === "iis3"
-      ? nonNegative(scenario.annualContribution)
-      : Math.min(
-          nonNegative(scenario.annualContribution),
-          OLD_IIS_CONTRIBUTION_LIMIT,
-        );
+      ? nonNegative(raw)
+      : Math.min(nonNegative(raw), OLD_IIS_CONTRIBUTION_LIMIT);
+
+  const contributionFor = (year: number) =>
+    limitContribution(
+      scenario.contributionMode === "custom"
+        ? (scenario.contributions[year - 1] ?? 0)
+        : scenario.annualContribution,
+    );
 
   const openYear = Number(scenario.openDate.slice(0, 4)) || 2026;
   const minHolding = minHoldingYears(type, openYear);
@@ -126,6 +136,7 @@ function simulateCore(type: AccountType, scenario: Scenario, years: number): Cor
   let pendingRefund = 0;
 
   for (let year = 1; year <= horizon; year += 1) {
+    const contribution = contributionFor(year);
     if (scenario.reinvestRefunds && pendingRefund > 0) {
       capital += pendingRefund;
       reinvestedTotal += pendingRefund;

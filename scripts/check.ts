@@ -13,12 +13,14 @@ function check(name: string, actual: number, expected: number, tolerance = 1): v
 
 const base: Scenario = {
   annualContribution: 400_000,
+  contributionMode: "uniform" as const,
+  contributions: [400_000],
   years: 10,
   returnPct: 10,
   inflationPct: 6,
   officialIncome: 1_200_000,
   reinvestRefunds: false,
-  openYear: 2026,
+  openDate: "2026-01-15",
   periodsPerYear: 1,
   manualRate: null,
 };
@@ -128,7 +130,17 @@ check("ручная ставка применяется к прибыли (ИИ�
   (annuity - 4_000_000) * 0.15,
   2);
 
-// 13. Сравнение возвращает три счёта
+// 13. Свои суммы по годам
+const plan = simulate("iis3", {
+  ...base,
+  contributionMode: "custom",
+  contributions: [100_000, 200_000, 300_000, 400_000, 500_000, 600_000, 700_000, 800_000, 900_000, 1_000_000],
+  reinvestRefunds: false,
+});
+check("свои суммы: всего взносов", plan.contributions, 5_500_000);
+check("свои суммы: вычеты с базы 400 000 в год", plan.refunds, 442_000);
+
+// 14. Сравнение возвращает три счёта
 const all = compare(base);
 check("сравнение: три результата", Object.keys(all).length, 3);
 

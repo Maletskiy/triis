@@ -18,23 +18,94 @@ type Props = {
   onAccountChange: (type: AccountType) => void;
 };
 
-type ParamProps = {
+const money = (value: number) => (value > 0 ? value.toLocaleString("ru-RU") : "");
+const parseMoney = (raw: string) => parseNumber(raw.replace(/[^\d\s\u202F]/g, ""));
+
+/** Крупное поле значения: одно число и единица измерения. */
+function MoneyValue({
+  value,
+  onChange,
+  label,
+  suffix,
+}: {
+  value: number;
+  onChange: (value: number) => void;
   label: string;
-  hint?: string;
+  suffix?: string;
+}) {
+  const [draft, setDraft] = useState(() => money(value));
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (!focused) setDraft(money(value));
+  }, [value, focused]);
+
+  return (
+    <div className="param__value">
+      <input
+        className="param__input"
+        inputMode="numeric"
+        aria-label={label}
+        value={draft}
+        onChange={(event) => {
+          const next = parseMoney(event.target.value);
+          setDraft(next > 0 ? next.toLocaleString("ru-RU") : "");
+          onChange(next);
+        }}
+        onFocus={() => setFocused(true)}
+        onBlur={() => {
+          setFocused(false);
+          setDraft(money(value));
+        }}
+      />
+      {suffix ? <span className="param__unit">{suffix}</span> : null}
+    </div>
+  );
+}
+
+/** Ползунок под значением: заполнение, деления и бегунок. */
+function RangeTrack({
+  value,
+  min,
+  max,
+  step,
+  label,
+  onChange,
+}: {
   value: number;
   min: number;
   max: number;
   step: number;
-  format: (value: number) => string;
-  parse?: (raw: string) => number;
-  suffix?: string;
+  label: string;
   onChange: (value: number) => void;
-};
+}) {
+  const clamped = Math.min(Math.max(value, min), max);
+  const percent = max > min ? ((clamped - min) / (max - min)) * 100 : 0;
 
-/**
- * Параметр в духе БКС: подпись, крупное поле значения и слайдер — всё в одной
- * плашке, чтобы глаз читал их как один контрол.
- */
+  return (
+    <div className="range">
+      <div className="range__fill" style={{ width: `${percent}%` }} />
+      <div className="range__ticks" aria-hidden="true">
+        {[25, 50, 75].map((p) => (
+          <span key={p} className="range__tick" style={{ left: `${p}%` }} />
+        ))}
+      </div>
+      <div className="range__thumb" style={{ left: `${percent}%` }} />
+      <input
+        className="range__input"
+        type="range"
+        aria-label={label}
+        min={min}
+        max={max}
+        step={step}
+        value={clamped}
+        onChange={(event) => onChange(Number(event.target.value))}
+      />
+    </div>
+  );
+}
+
+/** Параметр с подписью, значением и ползунком. */
 function Param({
   label,
   hint,
@@ -42,69 +113,25 @@ function Param({
   min,
   max,
   step,
-  format,
-  parse,
   suffix,
+  wide,
   onChange,
-}: ParamProps) {
-  const [draft, setDraft] = useState(() => format(value));
-  const [focused, setFocused] = useState(false);
-
-  useEffect(() => {
-    if (focused) return;
-    setDraft(format(value));
-  }, [value, focused, format]);
-
-  const clamped = Math.min(Math.max(value, min), max);
-  const percent = max > min ? ((clamped - min) / (max - min)) * 100 : 0;
-
-  const commit = (raw: string) => {
-    setDraft(raw);
-    const next = parse ? parse(raw) : Number(raw.replace(/[^\d.,]/g, "").replace(",", "."));
-    if (!Number.isFinite(next)) return;
-    onChange(Math.min(max, Math.max(min, next)));
-  };
-
+}: {
+  label: string;
+  hint?: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  suffix?: string;
+  wide?: boolean;
+  onChange: (value: number) => void;
+}) {
   return (
-    <div className={"param" + (focused ? " is-focused" : "")}>
+    <div className={"param" + (wide ? " param--wide" : "")}>
       <span className="param__label">{label}</span>
-
-      <div className="param__value">
-        <input
-          className="param__input"
-          inputMode="numeric"
-          aria-label={label}
-          value={draft}
-          onChange={(e) => commit(e.target.value)}
-          onFocus={() => setFocused(true)}
-          onBlur={() => {
-            setFocused(false);
-            setDraft(format(value));
-          }}
-        />
-        {suffix ? <span className="param__unit">{suffix}</span> : null}
-      </div>
-
-      <div className="range">
-        <div className="range__fill" style={{ width: `${percent}%` }} />
-        <div className="range__ticks" aria-hidden="true">
-          {[25, 50, 75].map((p) => (
-            <span key={p} className="range__tick" style={{ left: `${p}%` }} />
-          ))}
-        </div>
-        <div className="range__thumb" style={{ left: `${percent}%` }} />
-        <input
-          className="range__input"
-          type="range"
-          aria-label={label}
-          min={min}
-          max={max}
-          step={step}
-          value={clamped}
-          onChange={(e) => onChange(Number(e.target.value))}
-        />
-      </div>
-
+      <MoneyValue value={value} onChange={onChange} label={label} suffix={suffix} />
+      <RangeTrack value={value} min={min} max={max} step={step} label={label} onChange={onChange} />
       {hint ? <span className="param__hint">{hint}</span> : null}
     </div>
   );
@@ -126,6 +153,10 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
     (scenario.manualRate ?? marginalRate(scenario.officialIncome)) * 100,
   );
   const periods = scenario.periodsPerYear ?? 1;
+  const custom = scenario.contributionMode === "custom";
+  const planTotal = scenario.contributions
+    .slice(0, scenario.years)
+    .reduce((sum, value) => sum + value, 0);
 
   // старый счёт не мог быть открыт в будущем: подтягиваем дату к последнему доступному году
   useEffect(() => {
@@ -133,6 +164,26 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
       onChange({ openDate: "2023-01-01" });
     }
   }, [account, openYear, onChange]);
+
+  // в режиме своих сумм длина списка совпадает со сроком
+  useEffect(() => {
+    if (!custom) return;
+    if (scenario.contributions.length === scenario.years) return;
+    const fallback =
+      scenario.contributions[scenario.contributions.length - 1] ?? scenario.annualContribution;
+    const next = Array.from(
+      { length: scenario.years },
+      (_, index) => scenario.contributions[index] ?? fallback,
+    );
+    onChange({ contributions: next });
+  }, [custom, scenario.contributions, scenario.years, scenario.annualContribution, onChange]);
+
+  const setContribution = (index: number, value: number) => {
+    const next = [...scenario.contributions];
+    while (next.length < scenario.years) next.push(next[next.length - 1] ?? 0);
+    next[index] = value;
+    onChange({ contributions: next });
+  };
 
   return (
     <div className="inputs">
@@ -185,21 +236,81 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
       >
         <div className="params">
           <Param
-            label="Пополняю каждый год"
-            value={scenario.annualContribution}
+            wide
+            label="Официальный доход в месяц"
+            value={monthlyIncome}
             min={0}
-            max={contributionLimit ?? 2_000_000}
+            max={2_000_000}
             step={1}
-            format={(v) => v.toLocaleString("ru-RU")}
-            parse={(raw) => parseNumber(raw.replace(/[^\d\s\u202F]/g, ""))}
             suffix="₽"
-            onChange={(v) => onChange({ annualContribution: v })}
-            hint={
-              overLimit
-                ? `У этого счёта лимит ${compactRub(OLD_IIS_CONTRIBUTION_LIMIT)} в год — сумма урезана`
-                : `это ${compactRub(Math.round(scenario.annualContribution / 12))} в месяц · вычет считается с базы ${compactRub(DEDUCTION_BASE_LIMIT)}`
-            }
+            onChange={(v) => onChange({ officialIncome: v * 12 })}
+            hint={`в год ${compactRub(scenario.officialIncome)} · НДФЛ ≈ ${rub(incomeTax)} · ставка ${rate}%`}
           />
+
+          <div className="param param--wide">
+            <span className="param__label">Взносы на счёт</span>
+            <Segmented
+              label="Как задаём взносы"
+              value={scenario.contributionMode}
+              onChange={(v) => onChange({ contributionMode: v })}
+              options={[
+                { value: "uniform", label: "Одна сумма на все годы" },
+                { value: "custom", label: "Разные суммы по годам" },
+              ]}
+            />
+
+            {custom ? (
+              <>
+                <div className="plan">
+                  {Array.from({ length: scenario.years }, (_, index) => (
+                    <label className="plan__row" key={index}>
+                      <span className="plan__year">
+                        {openYear + index}
+                      </span>
+                      <span className="plan__field">
+                        <input
+                          className="plan__input"
+                          inputMode="numeric"
+                          aria-label={`Взнос в ${openYear + index} году`}
+                          value={money(scenario.contributions[index] ?? 0)}
+                          onChange={(event) =>
+                            setContribution(index, parseMoney(event.target.value))
+                          }
+                        />
+                        <span className="plan__unit">₽</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <span className="param__hint">
+                  всего за {scenario.years} {yearsWord(scenario.years)} — {rub(planTotal)} · вычет
+                  считается с базы {compactRub(DEDUCTION_BASE_LIMIT)} в год
+                </span>
+              </>
+            ) : (
+              <>
+                <MoneyValue
+                  value={scenario.annualContribution}
+                  onChange={(v) => onChange({ annualContribution: v })}
+                  label="Пополняю каждый год"
+                  suffix="₽"
+                />
+                <RangeTrack
+                  value={Math.min(scenario.annualContribution, contributionLimit ?? 2_000_000)}
+                  min={0}
+                  max={contributionLimit ?? 2_000_000}
+                  step={1000}
+                  label="Пополняю каждый год"
+                  onChange={(v) => onChange({ annualContribution: v })}
+                />
+                <span className="param__hint">
+                  {overLimit
+                    ? `У этого счёта лимит ${compactRub(OLD_IIS_CONTRIBUTION_LIMIT)} в год — сумма урезана`
+                    : `это ${compactRub(Math.round(scenario.annualContribution / 12))} в месяц · вычет считается с базы ${compactRub(DEDUCTION_BASE_LIMIT)}`}
+                </span>
+              </>
+            )}
+          </div>
 
           <Param
             label="Срок"
@@ -207,7 +318,6 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             min={1}
             max={30}
             step={1}
-            format={(v) => String(v)}
             suffix={yearsWord(scenario.years)}
             onChange={(v) => onChange({ years: v })}
             hint={
@@ -223,13 +333,23 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             min={0}
             max={30}
             step={0.5}
-            format={(v) => v.toLocaleString("ru-RU")}
             suffix="% годовых"
             onChange={(v) => onChange({ returnPct: v })}
             hint="среднегодовая доходность портфеля за весь срок"
           />
 
-          <div className="param param--choice">
+          <Param
+            label="Инфляция"
+            value={scenario.inflationPct}
+            min={0}
+            max={20}
+            step={0.5}
+            suffix="% годовых"
+            onChange={(v) => onChange({ inflationPct: v })}
+            hint="на неё делим итог, чтобы показать деньги в сегодняшних ценах"
+          />
+
+          <div className="param param--wide param--choice">
             <span className="param__label">Частота реинвестирования</span>
             <Segmented
               label="Частота реинвестирования"
@@ -237,6 +357,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
               onChange={(v) => onChange({ periodsPerYear: Number(v) })}
               options={[
                 { value: "1", label: "Раз в год" },
+                { value: "2", label: "Раз в полгода" },
                 { value: "4", label: "Раз в квартал" },
                 { value: "12", label: "Раз в месяц" },
               ]}
@@ -248,52 +369,39 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             </span>
           </div>
 
-          <Param
-            label="Инфляция"
-            value={scenario.inflationPct}
-            min={0}
-            max={20}
-            step={0.5}
-            format={(v) => v.toLocaleString("ru-RU")}
-            suffix="% годовых"
-            onChange={(v) => onChange({ inflationPct: v })}
-            hint="на неё делим итог, чтобы показать деньги в сегодняшних ценах"
+          <Toggle
+            checked={scenario.manualRate !== null}
+            onChange={(enabled) =>
+              onChange({ manualRate: enabled ? marginalRate(scenario.officialIncome) : null })
+            }
+            label="Задать ставку НДФЛ вручную"
+            hint={
+              scenario.manualRate
+                ? "ставка из дохода выше не используется — считаем по выбранной"
+                : `по умолчанию берём предельную ставку по доходу — ${appliedRate}%`
+            }
           />
 
-          <Param
-            label="Официальный доход в месяц"
-            value={monthlyIncome}
-            min={0}
-            max={2_000_000}
-            step={1}
-            format={(v) => v.toLocaleString("ru-RU")}
-            parse={(raw) => parseNumber(raw.replace(/[^\d\s\u202F]/g, ""))}
-            suffix="₽"
-            onChange={(v) => onChange({ officialIncome: v * 12 })}
-            hint={`в год ${compactRub(scenario.officialIncome)} · НДФЛ ≈ ${rub(incomeTax)} · ставка ${rate}%`}
-          />
-
-          <div className="param param--choice">
-            <span className="param__label">Ставка НДФЛ</span>
-            <Segmented
-              label="Ставка НДФЛ"
-              value={scenario.manualRate ? String(appliedRate) : "auto"}
-              onChange={(v) => onChange({ manualRate: v === "auto" ? null : Number(v) / 100 })}
-              options={[
-                { value: "auto", label: "По доходу" },
-                { value: "13", label: "13%" },
-                { value: "15", label: "15%" },
-                { value: "18", label: "18%" },
-                { value: "20", label: "20%" },
-                { value: "22", label: "22%" },
-              ]}
-            />
-            <span className="param__hint">
-              {scenario.manualRate
-                ? "ставка задана вручную — её применяем к вычету и налогу с прибыли"
-                : `сейчас берём предельную ставку по доходу — ${appliedRate}%`}
-            </span>
-          </div>
+          {scenario.manualRate !== null ? (
+            <div className="param param--wide param--choice">
+              <span className="param__label">Ставка НДФЛ</span>
+              <Segmented
+                label="Ставка НДФЛ"
+                value={String(appliedRate)}
+                onChange={(v) => onChange({ manualRate: Number(v) / 100 })}
+                options={[
+                  { value: "13", label: "13%" },
+                  { value: "15", label: "15%" },
+                  { value: "18", label: "18%" },
+                  { value: "20", label: "20%" },
+                  { value: "22", label: "22%" },
+                ]}
+              />
+              <span className="param__hint">
+                применяем эту ставку к вычету на взнос и к налогу с прибыли
+              </span>
+            </div>
+          ) : null}
         </div>
 
         <Toggle

@@ -62,7 +62,7 @@ const metrics = (page) =>
   else ok(`бренд: ${brand}`);
 
   const params = await page.$$eval(".params .param", (els) => els.length);
-  if (params !== 7) fail(`параметров ${params} вместо 7`);
+  if (params !== 6) fail(`параметров ${params} вместо 6`);
   else ok(`параметры в одном блоке: ${params} контролов`);
 
   const hero = await page.$eval(".summary__hero-value", (el) => el.textContent?.trim() ?? "");
@@ -110,16 +110,56 @@ const metrics = (page) =>
   if (heroBefore === heroMonthly) fail("частота реинвестирования не влияет на итог");
   else ok(`частота реинвестирования меняет итог: ${heroBefore} → ${heroMonthly}`);
 
+  // ставка НДФЛ включается тоглом
   await page.evaluate(() => {
-    const items = [...document.querySelectorAll(".param--choice .segmented__item")];
-    items.find((el) => el.textContent.trim() === "15%")?.click();
+    const toggle = [...document.querySelectorAll(".toggle")].find((el) =>
+      el.textContent?.includes("Задать ставку НДФЛ вручную"),
+    );
+    toggle?.querySelector(".squish")?.click();
+  });
+  await new Promise((r) => setTimeout(r, 500));
+  const rateShown = await page.evaluate(() =>
+    [...document.querySelectorAll(".param--choice .segmented__item")].some(
+      (el) => el.textContent.trim() === "15%",
+    ),
+  );
+  if (!rateShown) fail("тогл ставки НДФЛ не показал выбор ставки");
+  else ok("тогл ставки НДФЛ показывает выбор ставки");
+
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".param--choice .segmented__item")]
+      .find((el) => el.textContent.trim() === "15%")
+      ?.click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
+  const rateApplied = await page.evaluate(() =>
+    [...document.querySelectorAll(".param__hint")].map((e) => e.textContent).join(" | "),
+  );
+  if (!rateApplied.includes("эту ставку")) fail(`ручная ставка не применилась: ${rateApplied}`);
+  else ok("ручная ставка НДФЛ применяется");
+
+  // разная сумма по годам
+  const heroUniform = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".param--wide .segmented__item")]
+      .find((el) => el.textContent.trim() === "Разные суммы по годам")
+      ?.click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
+  const planRows = await page.$$eval(".plan__row", (els) => els.length);
+  if (planRows !== 10) fail(`в плане ${planRows} строк вместо 10`);
+  else ok(`план по годам: ${planRows} строк`);
+
+  await page.evaluate(() => {
+    const input = document.querySelector(".plan__input");
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+    setter.call(input, "1000000");
+    input.dispatchEvent(new Event("input", { bubbles: true }));
   });
   await new Promise((r) => setTimeout(r, 700));
-  const rateHint = await page.evaluate(() =>
-    [...document.querySelectorAll(".param--choice .param__hint")].map((e) => e.textContent).join(" | "),
-  );
-  if (!rateHint.includes("вручную")) fail(`ручная ставка не применилась: ${rateHint}`);
-  else ok("ручная ставка НДФЛ применяется");
+  const heroCustom = await page.$eval(".summary__hero-value", (el) => el.textContent);
+  if (heroUniform === heroCustom) fail("своя сумма по годам не повлияла на итог");
+  else ok(`своя сумма по годам меняет итог: ${heroUniform} → ${heroCustom}`);
 
   // дата открытия: календарь выбирает день и меняет минимальный срок
   await page.evaluate(() => {

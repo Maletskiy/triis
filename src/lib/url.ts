@@ -10,6 +10,8 @@ export type AppState = {
 export const DEFAULTS: AppState = {
   scenario: {
     annualContribution: 400_000,
+    contributionMode: "uniform",
+    contributions: [400_000],
     years: 10,
     returnPct: 10,
     inflationPct: 6,
@@ -24,6 +26,8 @@ export const DEFAULTS: AppState = {
 
 const PARAM_KEYS = {
   annualContribution: "c",
+  contributionMode: "cm",
+  contributions: "ct",
   years: "y",
   returnPct: "r",
   inflationPct: "i",
@@ -49,6 +53,16 @@ export function readState(search: string): AppState {
       0,
       readNumber(params, PARAM_KEYS.annualContribution, DEFAULTS.scenario.annualContribution),
     ),
+    contributionMode: params.get(PARAM_KEYS.contributionMode) === "custom" ? "custom" : "uniform",
+    contributions: (() => {
+      const raw = params.get(PARAM_KEYS.contributions);
+      if (!raw) return [DEFAULTS.scenario.annualContribution];
+      const list = raw
+        .split(",")
+        .map((part) => Number(part))
+        .filter((value) => Number.isFinite(value) && value >= 0);
+      return list.length > 0 ? list : [DEFAULTS.scenario.annualContribution];
+    })(),
     years: Math.min(
       50,
       Math.max(1, Math.round(readNumber(params, PARAM_KEYS.years, DEFAULTS.scenario.years))),
@@ -87,6 +101,13 @@ export function writeState(state: AppState): string {
   const params = new URLSearchParams();
   const { scenario } = state;
   params.set(PARAM_KEYS.annualContribution, String(Math.round(scenario.annualContribution)));
+  params.set(PARAM_KEYS.contributionMode, scenario.contributionMode ?? "uniform");
+  if (scenario.contributionMode === "custom") {
+    params.set(
+      PARAM_KEYS.contributions,
+      scenario.contributions.slice(0, scenario.years).map((value) => Math.round(value)).join(","),
+    );
+  }
   params.set(PARAM_KEYS.years, String(scenario.years));
   params.set(PARAM_KEYS.returnPct, String(scenario.returnPct));
   params.set(PARAM_KEYS.inflationPct, String(scenario.inflationPct));
