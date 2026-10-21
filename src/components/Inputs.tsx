@@ -263,7 +263,11 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
               <>
                 <div className="plan">
                   {Array.from({ length: scenario.years }, (_, index) => (
-                    <label className="plan__row" key={index}>
+                    <label
+                      className="plan__row"
+                      key={index}
+                      style={{ animationDelay: `${Math.min(index, 12) * 28}ms` }}
+                    >
                       <span className="plan__year">
                         {openYear + index}
                       </span>
@@ -383,7 +387,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
           />
 
           {scenario.manualRate !== null ? (
-            <div className="param param--wide param--choice">
+            <div className="param param--wide param--choice appear" key="rate">
               <span className="param__label">Ставка НДФЛ</span>
               <Segmented
                 label="Ставка НДФЛ"

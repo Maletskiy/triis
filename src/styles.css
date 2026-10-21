@@ -2103,9 +2103,6 @@ a {
 .plan {
   display: grid;
   gap: 6px;
-  max-height: 320px;
-  overflow-y: auto;
-  padding-right: 4px;
   margin-top: 4px;
 }
 
@@ -2166,5 +2163,57 @@ a {
     grid-auto-flow: row;
     grid-template-columns: minmax(0, 1fr);
     height: auto;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Появление контента                                                  */
+/* ------------------------------------------------------------------ */
+
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.appear {
+  animation: appear 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* вход основных блоков при загрузке и смене таба */
+.inputs > .section,
+.layout__aside > * {
+  animation: appear 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.inputs > .section:nth-child(2),
+.layout__aside > *:nth-child(2) {
+  animation-delay: 70ms;
+}
+
+.layout__aside > *:nth-child(3) {
+  animation-delay: 120ms;
+}
+
+.layout__aside > *:nth-child(4) {
+  animation-delay: 160ms;
+}
+
+/* строки плана взносов появляются лесенкой */
+.plan__row {
+  animation: appear 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appear,
+  .inputs > .section,
+  .layout__aside > *,
+  .plan__row {
+    animation: none;
   }
 }

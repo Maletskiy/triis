@@ -210,6 +210,7 @@ export default function App() {
           </div>
 
           <AutoHeight>
+            <div className="appear" key={tab}>
             {tab === "params" ? (
               <Inputs
                 scenario={state.scenario}
@@ -231,6 +232,7 @@ export default function App() {
             ) : null}
 
             {tab === "rules" ? <Rules openYear={yearOf(state.scenario.openDate)} /> : null}
+            </div>
           </AutoHeight>
         </div>
 

@@ -146,6 +146,25 @@ const metrics = (page) =>
       ?.click();
   });
   await new Promise((r) => setTimeout(r, 600));
+  const planState = await page.evaluate(() => {
+    const plan = document.querySelector(".plan");
+    const rows = [...document.querySelectorAll(".plan__row")];
+    return {
+      rows: rows.length,
+      scroll: plan.scrollHeight > plan.clientHeight + 1,
+      overflow: getComputedStyle(plan).overflowY,
+      rowAnim: getComputedStyle(rows[0]).animationName,
+      delay5: getComputedStyle(rows[5]).animationDelay,
+    };
+  });
+  if (planState.scroll || planState.overflow === "auto" || planState.overflow === "scroll") {
+    fail(`в плане внутренний скролл: ${JSON.stringify(planState)}`);
+  } else ok(`план без внутреннего скролла: ${planState.rows} строк`);
+
+  if (planState.rowAnim !== "appear" || planState.delay5 === "0s") {
+    fail(`строки плана не появляются лесенкой: ${JSON.stringify(planState)}`);
+  } else ok(`строки плана появляются лесенкой (задержка 6-й — ${planState.delay5})`);
+
   const planRows = await page.$$eval(".plan__row", (els) => els.length);
   if (planRows !== 10) fail(`в плане ${planRows} строк вместо 10`);
   else ok(`план по годам: ${planRows} строк`);
@@ -261,6 +280,12 @@ const metrics = (page) =>
     const items = [...document.querySelectorAll(".tabs .segmented__item")];
     items.find((el) => el.textContent?.includes("Сравнение"))?.click();
   });
+  await new Promise((r) => setTimeout(r, 250));
+  const tabAnim = await page.evaluate(
+    () => getComputedStyle(document.querySelector(".auto-height .appear")).animationName,
+  );
+  if (tabAnim !== "appear") fail(`контент таба не появляется плавно: ${tabAnim}`);
+  else ok("контент таба появляется плавно");
   await page.waitForSelector(".compare .card");
   const cards = await page.$$eval(".compare .card", (els) => els.length);
   if (cards !== 3) fail(`в сравнении ${cards} карточек вместо 3`);
