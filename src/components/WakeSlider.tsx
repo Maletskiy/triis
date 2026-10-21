@@ -1,6 +1,9 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const BARS = 36;
+/** ширина одного столбика и зазор между ними, px */
+const BAR = 4;
+const GAP = 2;
+const MAX_BARS = 200;
 /** насколько быстро затухает «след» после протаскивания */
 const DECAY = 6.5;
 
@@ -21,7 +24,8 @@ type Props = {
 export default function WakeSlider({ value, min, max, step = 1, label, onChange }: Props) {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const barsRef = useRef<(HTMLSpanElement | null)[]>([]);
-  const energyRef = useRef<Float32Array>(new Float32Array(BARS));
+  const [count, setCount] = useState(36);
+  const energyRef = useRef<Float32Array>(new Float32Array(MAX_BARS));
   const rafRef = useRef<number | null>(null);
   const draggingRef = useRef(false);
   const lastRef = useRef({ x: 0, t: 0 });
@@ -30,7 +34,7 @@ export default function WakeSlider({ value, min, max, step = 1, label, onChange 
   const span = max > min ? max - min : 1;
   const clamped = Math.min(Math.max(value, min), max);
   const indexOf = (v: number) =>
-    Math.round(((v - min) / span) * (BARS - 1));
+    Math.round(((v - min) / span) * (count - 1));
 
   const applyEnergy = useCallback(() => {
     const energy = energyRef.current;
@@ -69,6 +73,21 @@ export default function WakeSlider({ value, min, max, step = 1, label, onChange 
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       rafRef.current = null;
     };
+  }, []);
+
+  // столбики одной ширины: сколько влезает в дорожку, столько и рисуем
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const measure = () => {
+      const width = track.getBoundingClientRect().width;
+      const next = Math.min(MAX_BARS, Math.max(12, Math.floor((width + GAP) / (BAR + GAP))));
+      setCount((previous) => (previous === next ? previous : next));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(track);
+    return () => observer.disconnect();
   }, []);
 
   const valueFromClientX = (clientX: number) => {
@@ -140,7 +159,6 @@ export default function WakeSlider({ value, min, max, step = 1, label, onChange 
   };
 
   const filled = indexOf(clamped);
-  const percent = ((clamped - min) / span) * 100;
 
   return (
     <div
@@ -176,7 +194,7 @@ export default function WakeSlider({ value, min, max, step = 1, label, onChange 
       }}
       onKeyDown={onKeyDown}
     >
-      {Array.from({ length: BARS }, (_, index) => (
+      {Array.from({ length: count }, (_, index) => (
         <span
           key={index}
           ref={(node) => {
@@ -186,9 +204,6 @@ export default function WakeSlider({ value, min, max, step = 1, label, onChange 
           aria-hidden="true"
         />
       ))}
-      <span className="wks__value" aria-hidden="true">
-        {Math.round(percent)}%
-      </span>
     </div>
   );
 }

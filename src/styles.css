@@ -2234,11 +2234,15 @@ a {
 
 .wks {
   position: relative;
-  display: flex;
+  /* фиксированная ширина столбиков: зазоры раздаёт space-between */
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 4px;
+  justify-content: space-between;
   align-items: flex-end;
-  gap: 2px;
   height: 46px;
   margin-top: 4px;
+  margin-bottom: 12px;
   padding-bottom: 2px;
   border-radius: var(--radius-10);
   cursor: pointer;
@@ -2247,7 +2251,7 @@ a {
 }
 
 .wks__bar {
-  flex: 1;
+  width: 4px;
   height: 58%;
   min-width: 0;
   border-radius: 2px 2px 1px 1px;
@@ -2269,27 +2273,9 @@ a {
   outline: 2px solid var(--primary);
 }
 
-.wks__value {
-  position: absolute;
-  top: -18px;
-  right: 0;
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--primary-40);
-  font-variant-numeric: tabular-nums;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.wks:hover .wks__value,
-.wks:focus-visible .wks__value {
-  opacity: 1;
-}
-
 /* на узких экранах столбиков меньше — они не слипаются */
 @media (max-width: 560px) {
   .wks {
-    gap: 1.5px;
     height: 40px;
   }
 }

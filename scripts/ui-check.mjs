@@ -147,9 +147,32 @@ const metrics = (page) =>
       native: !!document.querySelector('input[type="range"]'),
     };
   });
-  if (!wakeMeta.exists || wakeMeta.bars !== 36 || wakeMeta.role !== "slider" || wakeMeta.native) {
+  const barGeometry = await page.evaluate(() => {
+    const bars = [...document.querySelectorAll(".wks__bar")];
+    const widths = bars.map((bar) => bar.getBoundingClientRect().width);
+    const track = document.querySelector(".wks");
+    const hint = track.parentElement.querySelector(".param__hint");
+    return {
+      bars: bars.length,
+      minW: Math.min(...widths),
+      maxW: Math.max(...widths),
+      hoverLabel: !!document.querySelector(".wks__value"),
+      bottomGap: hint ? Math.round(hint.getBoundingClientRect().top - track.getBoundingClientRect().bottom) : 0,
+    };
+  });
+  if (!wakeMeta.exists || wakeMeta.role !== "slider" || wakeMeta.native) {
     fail(`слайдер-вейк не заменил прежний: ${JSON.stringify(wakeMeta)}`);
   } else ok(`слайдер-вейк: ${wakeMeta.bars} столбиков, role=slider`);
+
+  if (Math.abs(barGeometry.maxW - barGeometry.minW) > 0.5) {
+    fail(`столбики разной ширины: ${barGeometry.minW}…${barGeometry.maxW}`);
+  } else ok(`все ${barGeometry.bars} столбиков по ${barGeometry.minW.toFixed(1)} px`);
+
+  if (barGeometry.hoverLabel) fail("осталась подпись с процентом при ховере");
+  else ok("подписи с процентом при ховере нет");
+
+  if (barGeometry.bottomGap < 14) fail(`низ слайдера слишком близко к подсказке: ${barGeometry.bottomGap}`);
+  else ok(`отступ снизу от слайдера — ${barGeometry.bottomGap} px`);
 
   const wakeBox = await page.$eval(".wks", (el) => {
     const rect = el.getBoundingClientRect();
