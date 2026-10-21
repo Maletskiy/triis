@@ -145,7 +145,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
 
   return (
     <div className="inputs">
-      <Section title="Счёт" collapsible defaultOpen>
+      <Section title="Счёт">
         <Segmented
           label="Тип счёта"
           value={account}
@@ -191,8 +191,6 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
       <Section
         title="Параметры расчёта"
         hint="Взносы, срок, доходность и инфляция — всё, из чего складывается итог"
-        collapsible
-        defaultOpen
       >
         <div className="params">
           <div className="param param--wide">

@@ -460,22 +460,13 @@ const metrics = (page) =>
   if (!dateLabel.includes("2023")) fail(`старый счёт не подтянул год: ${dateLabel}`);
   else ok(`старый счёт: дата ${dateLabel}`);
 
-  // сворачивание: секции и блоки внутри параметров
-  const sectionToggle = await page.evaluate(async () => {
-    const body = document.querySelector(".inputs > .section .section__body-wrap");
-    const toggle = document.querySelector(".inputs > .section .section__toggle");
-    const values = [];
-    toggle?.click();
-    for (let i = 0; i < 6; i += 1) {
-      values.push(Math.round(body.getBoundingClientRect().height));
-      await new Promise((r) => setTimeout(r, 40));
-    }
-    toggle?.click();
-    await new Promise((r) => setTimeout(r, 420));
-    return { values, distinct: new Set(values).size };
-  });
-  if (sectionToggle.distinct < 2) fail(`секция сворачивается мгновенно: ${sectionToggle.values.join(",")}`);
-  else ok(`секция сворачивается плавно: ${sectionToggle.values.join(" → ")}`);
+  // у секций параметров сворачивания нет — только у таблицы
+  const sectionsStatic = await page.evaluate(() => ({
+    inputToggles: document.querySelectorAll(".inputs .section__toggle").length,
+    tableToggles: document.querySelectorAll(".layout__aside .section__toggle").length,
+  }));
+  if (sectionsStatic.inputToggles !== 0) fail(`у секций параметров осталось сворачивание: ${sectionsStatic.inputToggles}`);
+  else ok(`секции параметров без сворачивания (у таблицы — ${sectionsStatic.tableToggles})`);
 
   const planCollapse = await page.evaluate(async () => {
     const items = [...document.querySelectorAll(".param--wide .segmented__item")];
