@@ -1942,9 +1942,50 @@ a {
 }
 
 .calendar__title {
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--radius-10);
+  background: transparent;
+  color: var(--primary);
   font-size: var(--body-size);
   line-height: var(--body-line);
   font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.16s ease;
+}
+
+.calendar__title:hover {
+  background: var(--surface);
+}
+
+.calendar__months,
+.calendar__years {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.calendar__cell {
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius-10);
+  background: var(--surface);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background-color 0.14s ease,
+    color 0.14s ease;
+}
+
+.calendar__cell:hover {
+  background: var(--primary-10);
+}
+
+.calendar__cell.is-selected {
+  background: var(--primary);
+  color: var(--white);
 }
 
 .calendar__nav {
@@ -2017,7 +2058,8 @@ a {
 
 .calendar__foot {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--primary-8);

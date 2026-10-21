@@ -10,6 +10,9 @@ import {
 } from "../lib/dates";
 
 const WEEKDAYS = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+const MONTHS_SHORT = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+
+type View = "days" | "months" | "years";
 
 export default function DatePicker({
   value,
@@ -22,13 +25,17 @@ export default function DatePicker({
 }) {
   const [open, setOpen] = useState(false);
   const [up, setUp] = useState(false);
+  const [view, setView] = useState<View>("days");
   const [cursor, setCursor] = useState(() => parseIso(value));
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => setCursor(parseIso(value)), [value]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setView("days");
+      return;
+    }
     const onDown = (event: PointerEvent) => {
       if (wrapRef.current && !wrapRef.current.contains(event.target as Node)) setOpen(false);
     };
@@ -43,29 +50,42 @@ export default function DatePicker({
     };
   }, [open]);
 
+  const years = useMemo(() => {
+    const first = Number(MIN_DATE.slice(0, 4));
+    const last = Number(MAX_DATE.slice(0, 4));
+    return Array.from({ length: last - first + 1 }, (_, index) => first + index);
+  }, []);
+
   const days = useMemo(() => {
     const year = cursor.getFullYear();
     const month = cursor.getMonth();
-    const first = new Date(year, month, 1);
-    // сетка начинается с понедельника
-    const offset = (first.getDay() + 6) % 7;
+    const offset = (new Date(year, month, 1).getDay() + 6) % 7;
     const total = new Date(year, month + 1, 0).getDate();
     const cells: (string | null)[] = Array.from({ length: offset }, () => null);
-    for (let day = 1; day <= total; day += 1) {
-      cells.push(toIso(new Date(year, month, day)));
-    }
+    for (let day = 1; day <= total; day += 1) cells.push(toIso(new Date(year, month, day)));
     while (cells.length % 7 !== 0) cells.push(null);
     return cells;
   }, [cursor]);
 
-  const shiftMonth = (delta: number) => {
-    setCursor((prev) => new Date(prev.getFullYear(), prev.getMonth() + delta, 1));
+  const shift = (delta: number) => {
+    setCursor((prev) => {
+      if (view === "days") return new Date(prev.getFullYear(), prev.getMonth() + delta, 1);
+      if (view === "months") return new Date(prev.getFullYear() + delta, prev.getMonth(), 1);
+      return new Date(prev.getFullYear() + delta * 10, prev.getMonth(), 1);
+    });
   };
 
   const pick = (iso: string) => {
     onChange(clampIso(iso));
     setOpen(false);
   };
+
+  const title =
+    view === "days"
+      ? `${MONTHS_NOMINATIVE[cursor.getMonth()]} ${cursor.getFullYear()}`
+      : view === "months"
+        ? String(cursor.getFullYear())
+        : "Выбор года";
 
   return (
     <div className="datepicker" ref={wrapRef}>
@@ -74,7 +94,6 @@ export default function DatePicker({
         className={"datepicker__field" + (open ? " is-open" : "")}
         onClick={(event) => {
           const rect = event.currentTarget.getBoundingClientRect();
-          // если снизу не хватает места — раскрываем календарь вверх
           setUp(window.innerHeight - rect.bottom < 400 && rect.top > 400);
           setOpen((was) => !was);
         }}
@@ -92,42 +111,93 @@ export default function DatePicker({
       {open && (
         <div className={"calendar" + (up ? " is-up" : "")} role="dialog" aria-label={label}>
           <div className="calendar__head">
-            <button type="button" className="calendar__nav" onClick={() => shiftMonth(-1)} aria-label="Предыдущий месяц">
+            <button type="button" className="calendar__nav" onClick={() => shift(-1)} aria-label="Назад">
               ‹
             </button>
-            <span className="calendar__title">{MONTHS_NOMINATIVE[cursor.getMonth()]} {cursor.getFullYear()}</span>
-            <button type="button" className="calendar__nav" onClick={() => shiftMonth(1)} aria-label="Следующий месяц">
+            <button
+              type="button"
+              className="calendar__title"
+              onClick={() => setView(view === "days" ? "months" : view === "months" ? "years" : "days")}
+              title={view === "days" ? "Выбрать месяц и год" : view === "months" ? "Выбрать год" : "Вернуться к дням"}
+            >
+              {title}
+            </button>
+            <button type="button" className="calendar__nav" onClick={() => shift(1)} aria-label="Вперёд">
               ›
             </button>
           </div>
 
-          <div className="calendar__weekdays" aria-hidden="true">
-            {WEEKDAYS.map((day) => (
-              <span key={day} className="calendar__weekday">{day}</span>
-            ))}
-          </div>
+          {view === "days" && (
+            <>
+              <div className="calendar__weekdays" aria-hidden="true">
+                {WEEKDAYS.map((day) => (
+                  <span key={day} className="calendar__weekday">{day}</span>
+                ))}
+              </div>
+              <div className="calendar__grid">
+                {days.map((iso, index) =>
+                  iso === null ? (
+                    <span key={`empty-${index}`} className="calendar__empty" />
+                  ) : (
+                    <button
+                      key={iso}
+                      type="button"
+                      className={
+                        "calendar__day" +
+                        (iso === value ? " is-selected" : "") +
+                        (iso < MIN_DATE || iso > MAX_DATE ? " is-disabled" : "")
+                      }
+                      onClick={() => pick(iso)}
+                      disabled={iso < MIN_DATE || iso > MAX_DATE}
+                    >
+                      {Number(iso.slice(8, 10))}
+                    </button>
+                  ),
+                )}
+              </div>
+            </>
+          )}
 
-          <div className="calendar__grid">
-            {days.map((iso, index) =>
-              iso === null ? (
-                <span key={`empty-${index}`} className="calendar__empty" />
-              ) : (
+          {view === "months" && (
+            <div className="calendar__months">
+              {MONTHS_SHORT.map((month, index) => {
+                const active =
+                  cursor.getFullYear() === parseIso(value).getFullYear() &&
+                  index === parseIso(value).getMonth();
+                return (
+                  <button
+                    key={month}
+                    type="button"
+                    className={"calendar__cell" + (active ? " is-selected" : "")}
+                    onClick={() => {
+                      setCursor(new Date(cursor.getFullYear(), index, 1));
+                      setView("days");
+                    }}
+                  >
+                    {month}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {view === "years" && (
+            <div className="calendar__years">
+              {years.map((year) => (
                 <button
-                  key={iso}
+                  key={year}
                   type="button"
-                  className={
-                    "calendar__day" +
-                    (iso === value ? " is-selected" : "") +
-                    (iso < MIN_DATE || iso > MAX_DATE ? " is-disabled" : "")
-                  }
-                  onClick={() => pick(iso)}
-                  disabled={iso < MIN_DATE || iso > MAX_DATE}
+                  className={"calendar__cell" + (year === cursor.getFullYear() ? " is-selected" : "")}
+                  onClick={() => {
+                    setCursor(new Date(year, cursor.getMonth(), 1));
+                    setView("months");
+                  }}
                 >
-                  {Number(iso.slice(8, 10))}
+                  {year}
                 </button>
-              ),
-            )}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="calendar__foot">
             <button
@@ -140,6 +210,13 @@ export default function DatePicker({
               }}
             >
               Сегодня
+            </button>
+            <button
+              type="button"
+              className="calendar__today"
+              onClick={() => setView(view === "days" ? "months" : "days")}
+            >
+              {view === "days" ? "Месяц и год" : "К дням"}
             </button>
           </div>
         </div>

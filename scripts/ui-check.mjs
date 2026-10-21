@@ -196,10 +196,40 @@ const metrics = (page) =>
   if (calendarDays < 28) fail(`в календаре ${calendarDays} дней`);
   else ok(`в календаре ${calendarDays} дней`);
 
+  // навигация: месяцы и годы
+  await page.click(".calendar__title");
+  await new Promise((r) => setTimeout(r, 250));
+  const monthsCount = await page.$$eval(".calendar__months .calendar__cell", (els) => els.length);
+  if (monthsCount !== 12) fail(`в выборе месяцев ${monthsCount} ячеек`);
+  else ok("выбор месяца: 12 ячеек");
+
+  await page.click(".calendar__title");
+  await new Promise((r) => setTimeout(r, 250));
+  const yearsCount = await page.$$eval(".calendar__years .calendar__cell", (els) => els.length);
+  if (yearsCount < 15) fail(`в выборе годов ${yearsCount} ячеек`);
+  else ok(`выбор года: ${yearsCount} лет`);
+
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".calendar__years .calendar__cell")]
+      .find((el) => el.textContent?.trim() === "2031")
+      ?.click();
+  });
+  await new Promise((r) => setTimeout(r, 250));
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".calendar__months .calendar__cell")]
+      .find((el) => el.textContent?.trim() === "Май")
+      ?.click();
+  });
+  await new Promise((r) => setTimeout(r, 250));
+
   await page.evaluate(() => {
     [...document.querySelectorAll(".calendar__day")].find((el) => el.textContent.trim() === "1")?.click();
   });
   await new Promise((r) => setTimeout(r, 400));
+  const pickedLabel = await page.$eval(".datepicker__value", (el) => el.textContent ?? "");
+  if (!pickedLabel.includes("мая 2031")) fail(`выбор года и месяца не применился: ${pickedLabel}`);
+  else ok(`выбор через год и месяц: ${pickedLabel}`);
+
   if (await page.$(".calendar")) fail("календарь не закрылся после выбора");
   else ok("календарь закрывается после выбора дня");
 
