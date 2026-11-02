@@ -341,6 +341,27 @@ export default function App() {
         </div>
       </footer>
 
+      <div className="bar-dock">
+        <button
+          type="button"
+          className={"to-top" + (barVisible ? " is-visible" : "")}
+          aria-label="Наверх"
+          title="Наверх"
+          tabIndex={barVisible ? 0 : -1}
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 19V5M5 12l7-7 7 7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+
       <div className={"bar" + (barVisible ? " is-visible" : "")} aria-hidden={!barVisible}>
         <div className="bar__value">
           <span className="bar__label">на руки</span>
@@ -349,17 +370,6 @@ export default function App() {
           </span>
         </div>
         <div className="bar__actions">
-          <button
-            type="button"
-            className="btn btn--ghost bar__top"
-            aria-label="Наверх"
-            title="Наверх"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
           <button
             type="button"
             className="btn btn--ghost bar__pdf"
@@ -390,6 +400,7 @@ export default function App() {
             }}
           />
         </div>
+      </div>
       </div>
 
       <Sheet open={sheetOpen} title="Коротко о расчёте" onClose={() => setSheetOpen(false)}>

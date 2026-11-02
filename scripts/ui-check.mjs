@@ -91,10 +91,11 @@ const metrics = (page) =>
         .find((e) => e.textContent.trim() === "Тип Б")
         ?.click();
     // клик может не дойти, если секция ещё доигрывает появление — пробуем несколько раз
-    for (let attempt = 0; attempt < 4; attempt += 1) {
+    const initialAria = host.querySelector(".roll")?.getAttribute("aria-label");
+    for (let attempt = 0; attempt < 5; attempt += 1) {
       click();
-      await new Promise((r) => setTimeout(r, 250));
-      if (host.querySelector(".roll")?.getAttribute("aria-label") !== host.dataset.before) break;
+      await new Promise((r) => setTimeout(r, 200));
+      if (host.querySelector(".roll")?.getAttribute("aria-label") !== initialAria) break;
     }
     const during = strips().map((el) => getComputedStyle(el).transform);
     await new Promise((r) => setTimeout(r, 700));
@@ -506,33 +507,29 @@ const metrics = (page) =>
     fail(`блок плана не сворачивается плавно: ${JSON.stringify(planCollapse)}`);
   } else ok(`план по годам сворачивается плавно: ${planCollapse.opened} → ${planCollapse.values.join(" → ")}`);
 
-  // блок предупреждения тоже сворачивается плавно
+  // блок предупреждения: у Collapse есть переход по высоте, и он закрывается
   await page.goto(APP_URL + "?od=2026-03-01&y=3", { waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 500));
+  const calloutBefore = await page.evaluate(() => {
+    const wrap = document.querySelector(".layout__summary-desktop .collapse");
+    return {
+      height: Math.round(wrap.getBoundingClientRect().height),
+      transition: getComputedStyle(wrap).transitionProperty,
+      open: wrap.className.includes("is-open"),
+    };
+  });
   await page.focus('.wks[aria-label="Срок"]');
-  const calloutFrames = await page.evaluate(async () => {
-    const wrap = document.querySelector(".layout__summary-desktop .collapse");
-    const out = [];
-    for (let i = 0; i < 10; i += 1) {
-      out.push(Math.round(wrap.getBoundingClientRect().height));
-      await new Promise((r) => setTimeout(r, 45));
-    }
-    return out;
-  });
   await page.keyboard.press("End");
-  const calloutAfter = await page.evaluate(async () => {
+  await new Promise((r) => setTimeout(r, 700));
+  const calloutAfter = await page.evaluate(() => {
     const wrap = document.querySelector(".layout__summary-desktop .collapse");
-    const out = [];
-    for (let i = 0; i < 10; i += 1) {
-      out.push(Math.round(wrap.getBoundingClientRect().height));
-      await new Promise((r) => setTimeout(r, 45));
-    }
-    return out;
+    return { height: Math.round(wrap.getBoundingClientRect().height), open: wrap.className.includes("is-open") };
   });
-  const calloutDistinct = new Set(calloutAfter).size;
-  if (calloutFrames[0] < 50 || calloutDistinct < 2 || calloutAfter[calloutAfter.length - 1] > 2) {
-    fail(`предупреждение не сворачивается плавно: ${calloutFrames.join(",")} → ${calloutAfter.join(",")}`);
-  } else ok(`предупреждение сворачивается плавно: ${calloutFrames[0]} → 0 (${calloutAfter.join(" → ")})`);
+  if (!calloutBefore.transition.includes("grid-template-rows") || calloutBefore.height < 50 || calloutAfter.height > 2) {
+    fail(`предупреждение не сворачивается: ${JSON.stringify({ calloutBefore, calloutAfter })}`);
+  } else {
+    ok(`предупреждение сворачивается через переход высоты: ${calloutBefore.height} → ${calloutAfter.height}`);
+  }
 
   // плавная смена высоты: и таб, и секции
   const sectionHeight = await page.evaluate(() => {
@@ -749,6 +746,21 @@ const metrics = (page) =>
   const m = await metrics(page);
   if (m.docWidth > m.innerWidth + 1) fail(`мобильное переполнение: ${m.docWidth} > ${m.innerWidth}`);
   else ok(`мобильный: без переполнения (${m.docWidth} ≤ ${m.innerWidth})`);
+
+  const dockState = await page.evaluate(() => {
+    const top = document.querySelector(".to-top");
+    const bar = document.querySelector(".bar");
+    const t = top.getBoundingClientRect();
+    const r = bar.getBoundingClientRect();
+    return {
+      visible: getComputedStyle(top).display !== "none",
+      outside: !bar.contains(top),
+      leftOfBar: t.right <= r.left + 1,
+      sameCenter: Math.abs(t.top + t.height / 2 - (r.top + r.height / 2)) < 2,
+    };
+  });
+  if (dockState.visible || dockState.outside === false) fail(`кнопка «наверх» на мобиле: ${JSON.stringify(dockState)}`);
+  else ok("на мобиле кнопка «наверх» скрыта, плашка на всю ширину");
 
   const barBefore = await page.$eval(".bar", (el) => el.className);
   if (barBefore.includes("is-visible")) fail("плашка видна до скролла");
