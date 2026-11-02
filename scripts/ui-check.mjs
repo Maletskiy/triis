@@ -86,8 +86,16 @@ const metrics = (page) =>
     const strips = () => [...host.querySelectorAll(".roll__strip")];
     const transition = getComputedStyle(strips()[0]).transitionProperty;
     const before = strips().map((el) => getComputedStyle(el).transform);
-    [...document.querySelectorAll(".inputs .segmented__item")].find((e) => e.textContent.trim() === "Тип Б")?.click();
-    await new Promise((r) => setTimeout(r, 120));
+    const click = () =>
+      [...document.querySelectorAll(".inputs .segmented__item")]
+        .find((e) => e.textContent.trim() === "Тип Б")
+        ?.click();
+    // клик может не дойти, если секция ещё доигрывает появление — пробуем несколько раз
+    for (let attempt = 0; attempt < 4; attempt += 1) {
+      click();
+      await new Promise((r) => setTimeout(r, 250));
+      if (host.querySelector(".roll")?.getAttribute("aria-label") !== host.dataset.before) break;
+    }
     const during = strips().map((el) => getComputedStyle(el).transform);
     await new Promise((r) => setTimeout(r, 700));
     const settled = strips().map((el) => getComputedStyle(el).transform);
@@ -620,6 +628,12 @@ const metrics = (page) =>
   const resetHeight = await page.$eval(".topbar__actions .btn", (el) => el.getBoundingClientRect().height);
   if (Math.round(btnHeight) !== 56) fail(`высота кнопки ${Math.round(btnHeight)}, ожидалась 56`);
   else ok(`высота кнопок 56 px, «Сбросить» — ${Math.round(resetHeight)} px`);
+
+  // подвал сообщает, когда сервис обновляли
+  const updated = await page.evaluate(() => document.querySelector(".footer__updated")?.textContent ?? "");
+  if (!/^Обновлено \d{1,2} [а-яё]+ \d{4}, \d{2}:\d{2}\u00A0МСК$/.test(updated)) {
+    fail(`строка обновления неверная: ${JSON.stringify(updated)}`);
+  } else ok(`подвал: «${updated}»`);
 
   // лайк в подвале: сердце, кольцо, конфетти и счётчик
   await page.evaluate(() => localStorage.setItem("triis-like", "0"));

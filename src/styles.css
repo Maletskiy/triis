@@ -2618,3 +2618,11 @@ a {
     font-size: 15px;
   }
 }
+
+/* строка о последнем обновлении сервиса */
+.footer__updated {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--primary-30);
+  font-variant-numeric: tabular-nums;
+}

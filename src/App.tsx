@@ -118,6 +118,23 @@ export default function App() {
 
   const shareUrl = () => window.location.href;
 
+  const updatedLabel = useMemo(() => {
+    const stamp = new Date(__BUILD_TIME__);
+    const date = new Intl.DateTimeFormat("ru-RU", {
+      timeZone: "Europe/Moscow",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(stamp);
+    const time = new Intl.DateTimeFormat("ru-RU", {
+      timeZone: "Europe/Moscow",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(stamp);
+    // Intl добавляет «г.» после года — в подписи это лишнее
+    return `Обновлено ${date.replace(/\s*г\.$/, "")}, ${time}\u00A0МСК`;
+  }, []);
+
   const printParams = [
     `${state.account === "iis3" ? "ИИС-3" : state.account === "iis1" ? "Тип А" : "Тип Б"}, открыт ${formatHuman(state.scenario.openDate)}`,
     state.scenario.contributionMode === "custom"
@@ -312,6 +329,7 @@ export default function App() {
         </div>
         <div className="footer__right">
           <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
+          <span className="footer__updated">{updatedLabel}</span>
           <a
             className="footer__author"
             href="https://maletskiy-design.ru"
