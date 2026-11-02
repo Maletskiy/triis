@@ -15,7 +15,7 @@ export function collectWarnings(result: AccountResult, scenario: Scenario): Warn
   if (result.earlyClose) {
     list.push({
       tone: "warn",
-      text: `Счёт закрывается на ${scenario.years} ${yearsWord(scenario.years)} — это раньше минимального срока в ${result.minHolding} ${yearsWord(result.minHolding)}. Вычеты придётся вернуть (${rub(result.clawback)}), а с прибыли заплатить налог.`,
+      text: `Счёт закрывается на ${scenario.years} ${yearsWord(scenario.years)} — это раньше минимального срока в ${result.minHolding} ${yearsWord(result.minHolding)}. Вычеты придётся вернуть (${rub(result.clawback)}), а с прибыли заплатить налог.`,
     });
   }
 
@@ -29,14 +29,14 @@ export function collectWarnings(result: AccountResult, scenario: Scenario): Warn
   if (result.refunds < scenario.annualContribution * 0.13 * scenario.years * 0.999 && result.refunds > 0) {
     list.push({
       tone: "info",
-      text: "Вычет упёрся в предел: он считается только с 400 000 ₽ взносов в год и не больше уплаченного НДФЛ.",
+      text: "Вычет упёрся в предел: он считается только с 400 000 ₽ взносов в год и не больше уплаченного НДФЛ.",
     });
   }
 
   if (result.type !== "iis3" && scenario.annualContribution > 1_000_000) {
     list.push({
       tone: "info",
-      text: "У типов А и Б есть лимит взноса 1 млн ₽ в год — излишек в расчёте не участвует.",
+      text: "У типов А и Б есть лимит взноса 1 млн ₽ в год — излишек в расчёте не участвует.",
     });
   }
 
@@ -55,36 +55,36 @@ export default function Summary({ result, scenario }: Props) {
           <RollingNumber value={result.net} format={(n) => rub(n)} />
         </span>
         <span className="summary__hero-sub">
-          в ценах сегодняшнего дня — <b>{compactRub(result.netReal)}</b>
+          в ценах сегодняшнего дня — <b>{compactRub(result.netReal)}</b>
         </span>
       </div>
 
       <dl className="stats">
         <div className="stat">
-          <dt>Вычеты за срок</dt>
+          <dt>Вычеты за срок</dt>
           <dd>
             <RollingNumber value={result.refunds} format={(n) => rub(n)} />
           </dd>
           <span className="stat__sub">вернёт налоговая</span>
         </div>
         <div className="stat">
-          <dt>Капитал на счёте</dt>
+          <dt>Капитал на счёте</dt>
           <dd>
             <RollingNumber value={result.grossCapital} format={(n) => rub(n)} />
           </dd>
           <span className="stat__sub">{compactRub(profitToUser)} дохода</span>
         </div>
         <div className="stat">
-          <dt>Налог при закрытии</dt>
+          <dt>Налог при закрытии</dt>
           <dd className={result.exitTax > 0 ? "is-warn" : "is-ok"}>
             <RollingNumber value={result.exitTax} format={(n) => rub(n)} />
           </dd>
           <span className="stat__sub">
             {result.type === "iis3"
-              ? "прибыль освобождена до 30 млн ₽"
+              ? "прибыль освобождена до 30 млн ₽"
               : result.type === "iis2"
-                ? "прибыль не облагается"
-                : "13% с прибыли до 2,4 млн, дальше 15%"}
+                ? "прибыль не облагается"
+                : "13% с прибыли до 2,4 млн, дальше 15%"}
           </span>
         </div>
         <div className="stat">
@@ -102,7 +102,7 @@ export default function Summary({ result, scenario }: Props) {
             Досрочное закрытие стоит {compactRub(result.earlyPenalty)}
           </span>
           <span className="callout__text">
-            Продержите до {result.minHolding} {yearsWord(result.minHolding)} — и льгота сохранится.
+            Продержите до {result.minHolding} {yearsWord(result.minHolding)} — и льгота сохранится.
           </span>
         </div>
       </Collapse>
@@ -117,10 +117,10 @@ export default function Summary({ result, scenario }: Props) {
 
       <div className="summary__meta">
         <span>
-          Минимальный срок владения — {result.minHolding} {yearsWord(result.minHolding)}
+          Минимальный срок владения — {result.minHolding} {yearsWord(result.minHolding)}
         </span>
         <span>
-          Эффективная доходность — {pct(effectiveRate(result, scenario.years), 1)} годовых
+          Эффективная доходность — {pct(effectiveRate(result, scenario.years), 1)} годовых
         </span>
       </div>
     </div>

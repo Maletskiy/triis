@@ -138,25 +138,25 @@ export default function App() {
   const printParams = [
     `${state.account === "iis3" ? "ИИС-3" : state.account === "iis1" ? "Тип А" : "Тип Б"}, открыт ${formatHuman(state.scenario.openDate)}`,
     state.scenario.contributionMode === "custom"
-      ? `взносы по годам, всего ${rub(state.scenario.contributions.slice(0, state.scenario.years).reduce((sum, v) => sum + v, 0))}`
-      : `${rub(state.scenario.annualContribution)} в год`,
+      ? `взносы по годам, всего ${rub(state.scenario.contributions.slice(0, state.scenario.years).reduce((sum, v) => sum + v, 0))}`
+      : `${rub(state.scenario.annualContribution)} в год`,
     `${state.scenario.years} ${yearsWord(state.scenario.years)}`,
     `доходность ${state.scenario.returnPct}%`,
     `реинвест ${
       (state.scenario.periodsPerYear ?? 1) === 12
-        ? "раз в месяц"
+        ? "раз в месяц"
         : (state.scenario.periodsPerYear ?? 1) === 4
-          ? "раз в квартал"
-          : "раз в год"
+          ? "раз в квартал"
+          : "раз в год"
     }`,
     `инфляция ${state.scenario.inflationPct}%`,
     state.scenario.manualRate
       ? `НДФЛ ${Math.round(state.scenario.manualRate * 100)}%`
-      : "НДФЛ по доходу",
+      : "НДФЛ по доходу",
   ].join(" · ");
 
   const downloadCsv = () => {
-    const header = "Год;Взнос;Вычет;Доход за год;Капитал";
+    const header = "Год;Взнос;Вычет;Доход за год;Капитал";
     const body = active.rows
       .map((row) =>
         [row.year, row.contribution, row.refund, row.growth, Math.round(row.capital)].join(";"),
@@ -289,14 +289,14 @@ export default function App() {
               label="Поделиться расчётом"
               copiedLabel="Ссылка скопирована"
               onResult={(ok) => {
-                if (!ok) flash("Браузер не дал скопировать — выделите адрес вручную");
+                if (!ok) flash("Браузер не дал скопировать — выделите адрес вручную");
               }}
             />
             <button
               type="button"
               className="btn btn--ghost"
               onClick={() => window.print()}
-              title="Откроется печать — выберите «Сохранить как PDF»"
+              title="Откроется печать — выберите «Сохранить как PDF»"
             >
               Скачать PDF
             </button>
@@ -305,7 +305,7 @@ export default function App() {
           <Chart rows={active.rows} />
 
           <Section
-            title="Таблица по годам"
+            title="Таблица по годам"
             hint="Разбор каждого года: взнос, вычет, доход, капитал"
           >
             <YearTable result={active} openYear={yearOf(state.scenario.openDate)} />
@@ -364,7 +364,7 @@ export default function App() {
 
       <div className={"bar" + (barVisible ? " is-visible" : "")} aria-hidden={!barVisible}>
         <div className="bar__value">
-          <span className="bar__label">на руки</span>
+          <span className="bar__label">на руки</span>
           <span className="bar__number">
             <RollingNumber value={active.net} format={(n) => compactRub(n)} />
           </span>
@@ -374,7 +374,7 @@ export default function App() {
             type="button"
             className="btn btn--ghost bar__pdf"
             onClick={() => window.print()}
-            title="Откроется печать — выберите «Сохранить как PDF»"
+            title="Откроется печать — выберите «Сохранить как PDF»"
           >
             Скачать PDF
           </button>
@@ -403,7 +403,7 @@ export default function App() {
       </div>
       </div>
 
-      <Sheet open={sheetOpen} title="Коротко о расчёте" onClose={() => setSheetOpen(false)}>
+      <Sheet open={sheetOpen} title="Коротко о расчёте" onClose={() => setSheetOpen(false)}>
         <div className="sheet-summary">
           <div className="sheet-summary__hero">
             <span className="sheet-summary__label">На руки</span>
@@ -413,19 +413,19 @@ export default function App() {
           </div>
           <ul className="sheet-summary__list">
             <li>
-              <span>Вычеты за срок</span>
+              <span>Вычеты за срок</span>
               <b>
                 <RollingNumber value={active.refunds} format={(n) => rub(n)} />
               </b>
             </li>
             <li>
-              <span>Капитал на счёте</span>
+              <span>Капитал на счёте</span>
               <b>
                 <RollingNumber value={active.grossCapital} format={(n) => rub(n)} />
               </b>
             </li>
             <li>
-              <span>Налог при закрытии</span>
+              <span>Налог при закрытии</span>
               <b>
                 <RollingNumber value={active.exitTax} format={(n) => rub(n)} />
               </b>

@@ -8,6 +8,8 @@ const SHOTS = fileURLToPath(new globalThis.URL("../.shots/", import.meta.url));
 
 mkdirSync(SHOTS, { recursive: true });
 
+const norm = (value) => (value ?? "").replace(/[\u00A0\u202F]/g, " ");
+
 let failures = 0;
 const fail = (message) => {
   failures += 1;
@@ -37,6 +39,9 @@ async function open(viewport, path = "") {
     if (msg.type() === "error") errors.push(msg.text());
   });
   page.on("pageerror", (err) => errors.push(String(err)));
+  await page.evaluateOnNewDocument(() => {
+    window.norm = (value) => (value ?? "").replace(/[\u00A0\u202F]/g, " ");
+  });
   await page.goto(APP_URL + path, { waitUntil: "networkidle0" });
   await page.waitForSelector(".summary__hero-value");
   await new Promise((r) => setTimeout(r, 500));
@@ -136,7 +141,7 @@ const metrics = (page) =>
 
   const tableFit = await page.evaluate(() => {
     const section = [...document.querySelectorAll(".section")].find((el) =>
-      el.textContent?.includes("Таблица по годам"),
+      norm(el.textContent).includes("Таблица по годам"),
     );
     const wrap = section?.querySelector(".table__wrap");
     return section && wrap
@@ -175,7 +180,7 @@ const metrics = (page) =>
   const before = await heroValue();
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".inputs .segmented__item")];
-    items.find((el) => el.textContent?.trim() === "Тип Б")?.click();
+    items.find((el) => norm(el.textContent).trim() === "Тип Б")?.click();
   });
   await new Promise((r) => setTimeout(r, 650));
   const after = await heroValue();
@@ -266,7 +271,7 @@ const metrics = (page) =>
   const heroBefore = await heroValue();
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".param--choice .segmented__item")];
-    items.find((el) => el.textContent.trim() === "Раз в месяц")?.click();
+    items.find((el) => norm(el.textContent).trim() === "Раз в месяц")?.click();
   });
   await new Promise((r) => setTimeout(r, 700));
   const heroMonthly = await heroValue();
@@ -276,7 +281,7 @@ const metrics = (page) =>
   // тогл живёт в карточке дохода и текст тянется на всю ширину
   const togglePlacement = await page.evaluate(() => {
     const card = [...document.querySelectorAll(".params .param")].find((el) =>
-      el.textContent?.includes("Официальный доход в месяц"),
+      norm(el.textContent).includes("Официальный доход в месяц"),
     );
     const toggle = card?.querySelector(".toggle");
     const text = toggle?.querySelector(".toggle__text");
@@ -296,14 +301,14 @@ const metrics = (page) =>
   // ставка НДФЛ включается тоглом
   await page.evaluate(() => {
     const toggle = [...document.querySelectorAll(".toggle")].find((el) =>
-      el.textContent?.includes("Задать ставку НДФЛ вручную"),
+      norm(el.textContent).includes("Задать ставку НДФЛ вручную"),
     );
     toggle?.querySelector(".squish")?.click();
   });
   await new Promise((r) => setTimeout(r, 500));
   const rateShown = await page.evaluate(() =>
     [...document.querySelectorAll(".param--choice .segmented__item")].some(
-      (el) => el.textContent.trim() === "15%",
+      (el) => norm(el.textContent).trim() === "15%",
     ),
   );
   if (!rateShown) fail("тогл ставки НДФЛ не показал выбор ставки");
@@ -311,7 +316,7 @@ const metrics = (page) =>
 
   await page.evaluate(() => {
     [...document.querySelectorAll(".param--choice .segmented__item")]
-      .find((el) => el.textContent.trim() === "15%")
+      .find((el) => norm(el.textContent).trim() === "15%")
       ?.click();
   });
   await new Promise((r) => setTimeout(r, 600));
@@ -326,7 +331,7 @@ const metrics = (page) =>
   const heroUniform = await heroValue();
   await page.evaluate(() => {
     [...document.querySelectorAll(".param--wide .segmented__item")]
-      .find((el) => el.textContent.trim() === "Разные суммы по годам")
+      .find((el) => norm(el.textContent).trim() === "Разные суммы по годам")
       ?.click();
   });
   await new Promise((r) => setTimeout(r, 600));
@@ -379,7 +384,7 @@ const metrics = (page) =>
   // дата открытия: календарь выбирает день и меняет минимальный срок
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".inputs .segmented__item")];
-    items.find((el) => el.textContent.trim() === "ИИС-3")?.click();
+    items.find((el) => norm(el.textContent).trim() === "ИИС-3")?.click();
   });
   await new Promise((r) => setTimeout(r, 400));
 
@@ -435,19 +440,19 @@ const metrics = (page) =>
 
   await page.evaluate(() => {
     [...document.querySelectorAll(".calendar__years .calendar__cell")]
-      .find((el) => el.textContent?.trim() === "2031")
+      .find((el) => norm(el.textContent).trim() === "2031")
       ?.click();
   });
   await new Promise((r) => setTimeout(r, 250));
   await page.evaluate(() => {
     [...document.querySelectorAll(".calendar__months .calendar__cell")]
-      .find((el) => el.textContent?.trim() === "Май")
+      .find((el) => norm(el.textContent).trim() === "Май")
       ?.click();
   });
   await new Promise((r) => setTimeout(r, 250));
 
   await page.evaluate(() => {
-    [...document.querySelectorAll(".calendar__day")].find((el) => el.textContent.trim() === "1")?.click();
+    [...document.querySelectorAll(".calendar__day")].find((el) => norm(el.textContent).trim() === "1")?.click();
   });
   await new Promise((r) => setTimeout(r, 400));
   const pickedLabel = await page.$eval(".datepicker__value", (el) => el.textContent ?? "");
@@ -473,7 +478,7 @@ const metrics = (page) =>
   // у старого счёта год подтягивается к 2023
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".inputs .segmented__item")];
-    items.find((el) => el.textContent.trim() === "Тип А")?.click();
+    items.find((el) => norm(el.textContent).trim() === "Тип А")?.click();
   });
   await new Promise((r) => setTimeout(r, 500));
   const dateLabel = await page.$eval(".datepicker__value", (el) => el.textContent ?? "");
@@ -491,11 +496,11 @@ const metrics = (page) =>
 
   const planCollapse = await page.evaluate(async () => {
     const items = [...document.querySelectorAll(".param--wide .segmented__item")];
-    items.find((el) => el.textContent.trim() === "Разные суммы по годам")?.click();
+    items.find((el) => norm(el.textContent).trim() === "Разные суммы по годам")?.click();
     await new Promise((r) => setTimeout(r, 500));
     const block = document.querySelector(".param--spaced .collapse");
     const opened = Math.round(block.getBoundingClientRect().height);
-    items.find((el) => el.textContent.trim() === "Одна сумма на все годы")?.click();
+    items.find((el) => norm(el.textContent).trim() === "Одна сумма на все годы")?.click();
     const values = [];
     for (let i = 0; i < 6; i += 1) {
       values.push(Math.round(block.getBoundingClientRect().height));
@@ -545,7 +550,7 @@ const metrics = (page) =>
   const heightsDuringSwitch = await page.evaluate(async () => {
     const host = document.querySelector(".inputs > .section:last-child .section__body-wrap");
     const items = [...document.querySelectorAll(".param--wide .segmented__item")];
-    const target = items.find((el) => el.textContent.trim() === "Разные суммы по годам");
+    const target = items.find((el) => norm(el.textContent).trim() === "Разные суммы по годам");
     const values = [];
     target?.click();
     for (let i = 0; i < 8; i += 1) {
@@ -561,7 +566,7 @@ const metrics = (page) =>
   // таб «Сравнение»
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".tabs .segmented__item")];
-    items.find((el) => el.textContent?.includes("Сравнение"))?.click();
+    items.find((el) => norm(el.textContent).includes("Сравнение"))?.click();
   });
   await new Promise((r) => setTimeout(r, 250));
   const tabAnim = await page.evaluate(
@@ -578,7 +583,7 @@ const metrics = (page) =>
   // таб «Правила»
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".tabs .segmented__item")];
-    items.find((el) => el.textContent?.includes("Правила"))?.click();
+    items.find((el) => norm(el.textContent).includes("Правила"))?.click();
   });
   await page.waitForSelector(".rules__block");
   const rulesText = await page.$eval(".rules", (el) => el.textContent ?? "");
@@ -591,7 +596,7 @@ const metrics = (page) =>
   // назад к параметрам
   await page.evaluate(() => {
     const items = [...document.querySelectorAll(".tabs .segmented__item")];
-    items.find((el) => el.textContent?.includes("Параметры"))?.click();
+    items.find((el) => norm(el.textContent).includes("Параметры"))?.click();
   });
   await page.waitForSelector(".inputs .param__input");
 
@@ -726,7 +731,7 @@ const metrics = (page) =>
   }
 
   const pdfButton = await page.evaluate(() =>
-    [...document.querySelectorAll(".actions .btn")].some((el) => el.textContent?.includes("Скачать PDF")),
+    [...document.querySelectorAll(".actions .btn")].some((el) => norm(el.textContent).includes("Скачать PDF")),
   );
   if (!pdfButton) fail("кнопки «Скачать PDF» нет");
   else ok("кнопка «Скачать PDF» на месте");
@@ -780,7 +785,7 @@ const metrics = (page) =>
   // шторка «Детали»
   await page.evaluate(() => {
     const btn = [...document.querySelectorAll(".bar .btn")].find((el) =>
-      el.textContent?.includes("Детали"),
+      norm(el.textContent).includes("Детали"),
     );
     btn?.click();
   });

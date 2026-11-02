@@ -45,7 +45,7 @@ export default function Chart({ rows, height = 260 }: Props) {
   }, [rows, H]);
 
   if (!data || rows.length === 0) {
-    return <div className="chart chart--empty">Задайте взносы и срок — покажу рост капитала</div>;
+    return <div className="chart chart--empty">Задайте взносы и срок — покажу рост капитала</div>;
   }
 
   const { contributions, capital, x, y, line, area, maxCapital, innerH } = data;
@@ -79,7 +79,7 @@ export default function Chart({ rows, height = 260 }: Props) {
           viewBox={`0 0 ${W} ${H}`}
           preserveAspectRatio="none"
           role="img"
-          aria-label="Рост капитала по годам"
+          aria-label="Рост капитала по годам"
           onPointerMove={(e) => pointFromEvent(e.clientX)}
           onPointerLeave={() => setHover(null)}
           onPointerDown={(e) => pointFromEvent(e.clientX)}
@@ -160,7 +160,7 @@ export default function Chart({ rows, height = 260 }: Props) {
               Взнос <b>{rub(hovered.contribution)}</b>
             </span>
             <span className="chart__tip-row">
-              Доход за год <b>{rub(hovered.growth)}</b>
+              Доход за год <b>{rub(hovered.growth)}</b>
             </span>
           </div>
         )}

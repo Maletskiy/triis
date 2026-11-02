@@ -10,9 +10,9 @@ type Props = {
 };
 
 const SHORT_NOTE: Record<AccountType, string> = {
-  iis3: "ИИС-3: оба вычета — взнос и доход. Держать 5–10 лет.",
-  iis1: "Тип А: вычет на взнос, доход облагается. 3 года.",
-  iis2: "Тип Б: доход без налога, вычета на взнос нет. 3 года.",
+  iis3: "ИИС-3: оба вычета — взнос и доход. Держать 5–10 лет.",
+  iis1: "Тип А: вычет на взнос, доход облагается. 3 года.",
+  iis2: "Тип Б: доход без налога, вычета на взнос нет. 3 года.",
 };
 
 export default function Compare({ results, best, onPick }: Props) {
@@ -21,7 +21,7 @@ export default function Compare({ results, best, onPick }: Props) {
   return (
     <div className="compare">
       <p className="compare__lead">
-        Одинаковые параметры, три типа счёта. Выгода считается от лучшего варианта.
+        Одинаковые параметры, три типа счёта. Выгода считается от лучшего варианта.
       </p>
 
       <div className="compare__list">
@@ -66,7 +66,7 @@ export default function Compare({ results, best, onPick }: Props) {
               </span>
 
               {!isBest && gap > 1 ? (
-                <span className="card__gap">−{compactRub(gap)} к лучшему варианту</span>
+                <span className="card__gap">−{compactRub(gap)} к лучшему варианту</span>
               ) : (
                 <span className="card__gap card__gap--best">лучший результат</span>
               )}
@@ -91,7 +91,7 @@ export default function Compare({ results, best, onPick }: Props) {
       </div>
 
       <p className="compare__hint">
-        Нажмите на карточку, чтобы посмотреть детали этого счёта.
+        Нажмите на карточку, чтобы посмотреть детали этого счёта.
       </p>
     </div>
   );

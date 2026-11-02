@@ -151,17 +151,17 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
           value={account}
           onChange={onAccountChange}
           options={[
-            { value: "iis3", label: "ИИС-3", title: "Оба вычета: взнос и доход" },
-            { value: "iis1", label: "Тип А", title: "Вычет на взнос, доход облагается" },
-            { value: "iis2", label: "Тип Б", title: "Доход без налога, вычета на взнос нет" },
+            { value: "iis3", label: "ИИС-3", title: "Оба вычета: взнос и доход" },
+            { value: "iis1", label: "Тип А", title: "Вычет на взнос, доход облагается" },
+            { value: "iis2", label: "Тип Б", title: "Доход без налога, вычета на взнос нет" },
           ]}
         />
         <p className="inputs__note">
           {account === "iis3"
-            ? "ИИС-3 — оба вычета сразу: возврат НДФЛ за взносы и освобождение дохода от налога."
+            ? "ИИС-3 — оба вычета сразу: возврат НДФЛ за взносы и освобождение дохода от налога."
             : account === "iis1"
-              ? "Тип А — возврат НДФЛ с взносов. Доход на счёте облагается налогом при закрытии."
-              : "Тип Б — доход освобождён от НДФЛ, но вычета на взнос нет."}
+              ? "Тип А — возврат НДФЛ с взносов. Доход на счёте облагается налогом при закрытии."
+              : "Тип Б — доход освобождён от НДФЛ, но вычета на взнос нет."}
         </p>
 
         <div className="inputs__date">
@@ -174,14 +174,14 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
           <p className="inputs__note">
             {account === "iis3" ? (
               <>
-                Срок владения для этого счёта — <b>{minHolding} {yearsWord(minHolding)}</b>,
-                закрыть без потери льгот можно с{" "}
+                Срок владения для этого счёта — <b>{minHolding} {yearsWord(minHolding)}</b>,
+                закрыть без потери льгот можно с{" "}
                 <b>{formatHuman(addYears(scenario.openDate, minHolding))}</b>.
               </>
             ) : (
               <>
-                С 2024 года новые счета типа А и Б не открывают — здесь считается уже открытый,
-                его минимальный срок — <b>3 года</b>.
+                С 2024 года новые счета типа А и Б не открывают — здесь считается уже открытый,
+                его минимальный срок — <b>3 года</b>.
               </>
             )}
           </p>
@@ -190,15 +190,15 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
 
       <Section
         title="Параметры расчёта"
-        hint="Взносы, срок, доходность и инфляция — всё, из чего складывается итог"
+        hint="Взносы, срок, доходность и инфляция — всё, из чего складывается итог"
       >
         <div className="params">
           <div className="param param--wide">
-            <span className="param__label">Официальный доход в месяц</span>
+            <span className="param__label">Официальный доход в месяц</span>
             <MoneyValue
               value={monthlyIncome}
               onChange={(v) => onChange({ officialIncome: v * 12 })}
-              label="Официальный доход в месяц"
+              label="Официальный доход в месяц"
               suffix="₽"
             />
             <WakeSlider
@@ -206,11 +206,11 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
               min={0}
               max={2_000_000}
               step={1000}
-              label="Официальный доход в месяц"
+              label="Официальный доход в месяц"
               onChange={(v) => onChange({ officialIncome: v * 12 })}
             />
             <span className="param__hint">
-              в год {compactRub(scenario.officialIncome)} · НДФЛ ≈ {rub(incomeTax)} · ставка{" "}
+              в год {compactRub(scenario.officialIncome)} · НДФЛ ≈ {rub(incomeTax)} · ставка{" "}
               {appliedRate}%{scenario.manualRate ? " (вручную)" : ""}
             </span>
 
@@ -223,8 +223,8 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
                 label="Задать ставку НДФЛ вручную"
                 hint={
                   scenario.manualRate
-                    ? "ставка из дохода выше не используется — считаем по выбранной"
-                    : `по умолчанию берём предельную ставку по доходу — ${appliedRate}%`
+                    ? "ставка из дохода выше не используется — считаем по выбранной"
+                    : `по умолчанию берём предельную ставку по доходу — ${appliedRate}%`
                 }
               />
 
@@ -248,14 +248,14 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
           </div>
 
           <div className="param param--wide param--spaced">
-            <span className="param__label">Взносы на счёт</span>
+            <span className="param__label">Взносы на счёт</span>
             <Segmented
               label="Как задаём взносы"
               value={scenario.contributionMode}
               onChange={(v) => onChange({ contributionMode: v })}
               options={[
-                { value: "uniform", label: "Одна сумма на все годы" },
-                { value: "custom", label: "Разные суммы по годам" },
+                { value: "uniform", label: "Одна сумма на все годы" },
+                { value: "custom", label: "Разные суммы по годам" },
               ]}
             />
 
@@ -283,7 +283,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
               </div>
               <span className="param__hint">
                 всего за {scenario.years} {yearsWord(scenario.years)} — {rub(planTotal)} · вычет
-                считается с базы {compactRub(DEDUCTION_BASE_LIMIT)} в год
+                считается с базы {compactRub(DEDUCTION_BASE_LIMIT)} в год
               </span>
             </Collapse>
 
@@ -304,8 +304,8 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
               />
               <span className="param__hint">
                 {overLimit
-                  ? `У этого счёта лимит ${compactRub(OLD_IIS_CONTRIBUTION_LIMIT)} в год — сумма урезана`
-                  : `это ${compactRub(Math.round(scenario.annualContribution / 12))} в месяц · вычет считается с базы ${compactRub(DEDUCTION_BASE_LIMIT)}`}
+                  ? `У этого счёта лимит ${compactRub(OLD_IIS_CONTRIBUTION_LIMIT)} в год — сумма урезана`
+                  : `это ${compactRub(Math.round(scenario.annualContribution / 12))} в месяц · вычет считается с базы ${compactRub(DEDUCTION_BASE_LIMIT)}`}
               </span>
             </Collapse>
           </div>
@@ -320,7 +320,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             onChange={(v) => onChange({ years: v })}
             hint={
               scenario.years < minHolding
-                ? `Минимум для этого счёта — ${minHolding} ${yearsWord(minHolding)}: закроете раньше, вычеты придётся вернуть`
+                ? `Минимум для этого счёта — ${minHolding} ${yearsWord(minHolding)}: закроете раньше, вычеты придётся вернуть`
                 : `закрыть можно с ${formatHuman(addYears(scenario.openDate, scenario.years))}`
             }
           />
@@ -333,7 +333,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             step={0.5}
             suffix="% годовых"
             onChange={(v) => onChange({ returnPct: v })}
-            hint="среднегодовая доходность портфеля за весь срок"
+            hint="среднегодовая доходность портфеля за весь срок"
           />
 
           <Param
@@ -344,7 +344,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
             step={0.5}
             suffix="% годовых"
             onChange={(v) => onChange({ inflationPct: v })}
-            hint="на неё делим итог, чтобы показать деньги в сегодняшних ценах"
+            hint="на неё делим итог, чтобы показать деньги в сегодняшних ценах"
           />
 
           <div className="param param--wide param--choice param--choice--two">
@@ -354,16 +354,16 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
               value={String(periods)}
               onChange={(v) => onChange({ periodsPerYear: Number(v) })}
               options={[
-                { value: "1", label: "Раз в год" },
-                { value: "2", label: "Раз в полгода" },
-                { value: "4", label: "Раз в квартал" },
-                { value: "12", label: "Раз в месяц" },
+                { value: "1", label: "Раз в год" },
+                { value: "2", label: "Раз в полгода" },
+                { value: "4", label: "Раз в квартал" },
+                { value: "12", label: "Раз в месяц" },
               ]}
             />
             <span className="param__hint">
               {periods > 1
-                ? `доход капитализируется ${periods} раз в год — итог немного выше`
-                : "доход начисляется раз в год"}
+                ? `доход капитализируется ${periods} раз в год — итог немного выше`
+                : "доход начисляется раз в год"}
             </span>
           </div>
 
@@ -372,8 +372,8 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
         <Toggle
           checked={scenario.reinvestRefunds}
           onChange={(v) => onChange({ reinvestRefunds: v })}
-          label="Возвращать вычет обратно на счёт"
-          hint="Основной сценарий — деньги работают дальше, а не лежат на карте"
+          label="Возвращать вычет обратно на счёт"
+          hint="Основной сценарий — деньги работают дальше, а не лежат на карте"
         />
       </Section>
     </div>

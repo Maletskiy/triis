@@ -9,7 +9,7 @@ export default function YearTable({
   openYear: number;
 }) {
   if (result.rows.length === 0) {
-    return <p className="table__empty">Пока нет данных для таблицы.</p>;
+    return <p className="table__empty">Пока нет данных для таблицы.</p>;
   }
 
   return (
@@ -21,7 +21,7 @@ export default function YearTable({
             <th scope="col">Взнос</th>
             <th scope="col">Вычет</th>
             <th scope="col" className="table__hide-sm">
-              Доход за год
+              Доход за год
             </th>
             <th scope="col">Капитал</th>
           </tr>

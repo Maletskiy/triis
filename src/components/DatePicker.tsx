@@ -167,7 +167,7 @@ export default function DatePicker({
               type="button"
               className="calendar__title"
               onClick={() => setView(view === "days" ? "months" : view === "months" ? "years" : "days")}
-              title={view === "days" ? "Выбрать месяц и год" : view === "months" ? "Выбрать год" : "Вернуться к дням"}
+              title={view === "days" ? "Выбрать месяц и год" : view === "months" ? "Выбрать год" : "Вернуться к дням"}
             >
               {title}
             </button>
@@ -265,7 +265,7 @@ export default function DatePicker({
               className="calendar__today"
               onClick={() => setView(view === "days" ? "months" : "days")}
             >
-              {view === "days" ? "Месяц и год" : "К дням"}
+              {view === "days" ? "Месяц и год" : "К дням"}
             </button>
           </div>
         </div>,
