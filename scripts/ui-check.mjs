@@ -646,7 +646,8 @@ const metrics = (page) =>
     fail(`ссылка на политику: ${JSON.stringify(privacyLink)}`);
   } else ok(`подвал: ссылка «${privacyLink.text}» → ${privacyLink.href}`);
 
-  await page.goto(APP_URL + "privacy", { waitUntil: "networkidle0" });
+  const privacyUrl = APP_URL.includes("vercel.app") ? APP_URL + "privacy" : APP_URL + "privacy.html";
+  await page.goto(privacyUrl, { waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 400));
   const privacyPage = await page.evaluate(() => ({
     title: document.title,
