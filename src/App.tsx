@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Inputs from "./components/Inputs";
 import Summary, { collectWarnings } from "./components/Summary";
 import LikeButton from "./components/LikeButton";
+import Privacy from "./pages/Privacy";
 import Chart from "./components/Chart";
 import YearTable from "./components/YearTable";
 import Compare from "./components/Compare";
@@ -36,6 +37,8 @@ function useMediaQuery(query: string): boolean {
 }
 
 export default function App() {
+  const isPrivacy = window.location.pathname.replace(/\/$/, "").endsWith("/privacy");
+
   const [state, setState] = useState<AppState>(() => readState(window.location.search));
   const [tab, setTab] = useState<Tab>("params");
   const [toast, setToast] = useState<{ text: string; visible: boolean } | null>(null);
@@ -61,8 +64,9 @@ export default function App() {
   }, [state]);
 
   useEffect(() => {
+    if (isPrivacy) return;
     document.title = "Triis — калькулятор ИИС";
-  }, []);
+  }, [isPrivacy]);
 
   // Нижняя плашка нужна, только когда блок с итогом ушёл за верх экрана.
   // На мобиле итог стоит сверху, на десктопе — в правой колонке, поэтому
@@ -177,6 +181,25 @@ export default function App() {
     setTab("params");
     flash("Параметры сброшены");
   };
+
+  if (isPrivacy) {
+    return (
+      <div className="app">
+        <header className="topbar">
+          <a className="topbar__brand" href="/" aria-label="Triis — на главную">
+            <span className="topbar__mark" aria-hidden="true">
+              3
+            </span>
+            <div>
+              <h1>Triis</h1>
+              <p>Калькулятор ИИС: вычеты, налоги, доходность</p>
+            </div>
+          </a>
+        </header>
+        <Privacy />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
@@ -330,6 +353,9 @@ export default function App() {
         <div className="footer__right">
           <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
           <span className="footer__updated">{updatedLabel}</span>
+          <a className="footer__link" href="/privacy">
+            Политика конфиденциальности
+          </a>
           <a
             className="footer__author"
             href="https://maletskiy-design.ru"

@@ -637,6 +637,37 @@ const metrics = (page) =>
     fail(`строка обновления неверная: ${JSON.stringify(updated)}`);
   } else ok(`подвал: «${updated}»`);
 
+  // ссылка на политику в подвале и сама страница
+  const privacyLink = await page.evaluate(() => {
+    const link = document.querySelector(".footer__link");
+    return { text: link?.textContent?.trim(), href: link?.getAttribute("href") };
+  });
+  if (privacyLink.href !== "/privacy" || !privacyLink.text?.includes("Политика")) {
+    fail(`ссылка на политику: ${JSON.stringify(privacyLink)}`);
+  } else ok(`подвал: ссылка «${privacyLink.text}» → ${privacyLink.href}`);
+
+  await page.goto(APP_URL + "privacy", { waitUntil: "networkidle0" });
+  await new Promise((r) => setTimeout(r, 400));
+  const privacyPage = await page.evaluate(() => ({
+    title: document.title,
+    sections: document.querySelectorAll(".legal__block").length,
+    calculator: !!document.querySelector(".params"),
+    back: document.querySelector(".legal__back")?.getAttribute("href"),
+    domain: document.querySelector(".legal")?.textContent?.includes("triis.ru"),
+  }));
+  if (
+    privacyPage.sections !== 12 ||
+    privacyPage.calculator ||
+    privacyPage.back !== "/" ||
+    !privacyPage.domain ||
+    !privacyPage.title.includes("Политика")
+  ) {
+    fail(`страница политики: ${JSON.stringify(privacyPage)}`);
+  } else ok(`страница политики: ${privacyPage.sections} разделов, калькулятора нет`);
+
+  await page.goto(APP_URL, { waitUntil: "networkidle0" });
+  await new Promise((r) => setTimeout(r, 400));
+
   // лайк в подвале: сердце, кольцо, конфетти и счётчик
   await page.evaluate(() => localStorage.setItem("triis-like", "0"));
   await page.reload({ waitUntil: "networkidle0" });
