@@ -429,7 +429,7 @@ a {
 .params {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 22px 28px;
 }
 
 @media (max-width: 720px) {
@@ -442,18 +442,21 @@ a {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 18px 20px 20px;
-  border-radius: var(--radius-16);
-  background: var(--surface);
-  border: 1px solid transparent;
-  transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease;
+  padding: 0;
+  background: none;
+  border: 0;
 }
 
-.param.is-focused {
-  background: var(--background);
-  border-color: var(--primary-30);
+/* разделители вместо плашек: структура сохраняется, фона нет */
+.param + .param,
+.param + .param--wide,
+.param--wide + .param {
+  padding-top: 22px;
+  border-top: 1px solid var(--primary-8);
+}
+
+.param.is-focused .param__value {
+  box-shadow: inset 0 -2px 0 var(--primary-10);
 }
 
 .param__label {
@@ -1499,7 +1502,7 @@ a {
   gap: 14px;
   width: min(672px, 100vw - 24px);
   margin: 0 auto calc(14px + env(safe-area-inset-bottom, 0px));
-  padding: 10px 10px 10px 18px;
+  padding: 10px 10px 10px 26px;
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-full);
   background: var(--background);
@@ -1546,6 +1549,26 @@ a {
   flex: none;
 }
 
+/* на десктопе вместо «Детали» — «Скачать PDF» */
+.bar__pdf {
+  display: none;
+}
+
+@media (min-width: 1025px) {
+  .bar__pdf {
+    display: inline-flex;
+  }
+
+  .bar__info {
+    display: none;
+  }
+}
+
+.bar__top {
+  width: 44px;
+  padding: 0;
+}
+
 .bar__info-icon {
   display: none;
   font-style: italic;
@@ -1569,7 +1592,27 @@ a {
     display: none;
   }
 
-  .bar__info-icon {
+  /* на десктопе вместо «Детали» — «Скачать PDF» */
+.bar__pdf {
+  display: none;
+}
+
+@media (min-width: 1025px) {
+  .bar__pdf {
+    display: inline-flex;
+  }
+
+  .bar__info {
+    display: none;
+  }
+}
+
+.bar__top {
+  width: 44px;
+  padding: 0;
+}
+
+.bar__info-icon {
     display: inline;
   }
 
@@ -1731,6 +1774,8 @@ a {
   .bar,
   .toast,
   .sheet,
+  .chart,
+  .table__actions,
   .footer {
     display: none !important;
   }
@@ -1778,16 +1823,47 @@ a {
   }
 
   .summary,
-  .chart,
   .section {
     break-inside: avoid;
-    border-color: #e2e2e2;
-    box-shadow: none;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    margin: 0 0 22px;
   }
 
-  .section {
-    margin-bottom: 14px;
-    padding: 16px 18px 18px;
+  .summary__hero {
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+  }
+
+  .summary__hero-value {
+    font-size: 30px;
+    line-height: 34px;
+  }
+
+  .stats {
+    gap: 14px 28px;
+  }
+
+  .section__title {
+    font-size: 16px;
+    line-height: 22px;
+    margin-bottom: 6px;
+  }
+
+  .section__hint {
+    margin: 0 0 10px;
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .table th,
+  .table td {
+    padding: 6px 10px 6px 0;
+  }
+
+  .print-head {
+    margin-bottom: 22px;
   }
 
   .section.is-collapsed .section__body-wrap {
@@ -2499,5 +2575,46 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .collapse {
     transition: none;
+  }
+}
+
+/* мобильный подвал: композиция в столбик, без рваных краёв */
+@media (max-width: 560px) {
+  .footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .footer__right {
+    align-items: flex-start;
+    text-align: left;
+    gap: 6px;
+  }
+
+  .like {
+    min-width: 0;
+    gap: 12px;
+  }
+
+  .like__hint {
+    font-size: 14px;
+    line-height: 20px;
+  }
+}
+
+/* на телефоне кнопка «наверх» не нужна: там своя навигация, а место дорого */
+@media (max-width: 560px) {
+  .bar {
+    padding-left: 16px;
+    gap: 8px;
+  }
+
+  .bar__top {
+    display: none;
+  }
+
+  .bar__number {
+    font-size: 15px;
   }
 }
