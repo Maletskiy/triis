@@ -29,14 +29,14 @@ export function collectWarnings(result: AccountResult, scenario: Scenario): Warn
   if (result.refunds < scenario.annualContribution * 0.13 * scenario.years * 0.999 && result.refunds > 0) {
     list.push({
       tone: "info",
-      text: "Вычет упёрся в предел: он считается только с 400 000 ₽ взносов в год и не больше уплаченного НДФЛ.",
+      text: "Вычет упёрся в предел: он считается только с 400 000 ₽ взносов в год и не больше уплаченного НДФЛ.",
     });
   }
 
   if (result.type !== "iis3" && scenario.annualContribution > 1_000_000) {
     list.push({
       tone: "info",
-      text: "У типов А и Б есть лимит взноса 1 млн ₽ в год — излишек в расчёте не участвует.",
+      text: "У типов А и Б есть лимит взноса 1 млн ₽ в год — излишек в расчёте не участвует.",
     });
   }
 
@@ -81,10 +81,10 @@ export default function Summary({ result, scenario }: Props) {
           </dd>
           <span className="stat__sub">
             {result.type === "iis3"
-              ? "прибыль освобождена до 30 млн ₽"
+              ? "прибыль освобождена до 30 млн ₽"
               : result.type === "iis2"
                 ? "прибыль не облагается"
-                : "13% с прибыли до 2,4 млн, дальше 15%"}
+                : "13% с прибыли до 2,4 млн, дальше 15%"}
           </span>
         </div>
         <div className="stat">

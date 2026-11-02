@@ -23,6 +23,9 @@ jobs:
       - name: Установить зависимости
         run: npm ci
 
+      - name: Типограф
+        run: python3 ../.dsh/skills/typograph/check.py src index.html README.md || true
+
       - name: Проверить расчёты
         run: npm run check
 

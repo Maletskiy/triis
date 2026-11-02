@@ -2216,8 +2216,9 @@ a {
 
 .roll {
   display: inline-flex;
-  align-items: baseline;
+  align-items: flex-end;
   font-variant-numeric: tabular-nums;
+  vertical-align: baseline;
 }
 
 .roll__digit {
@@ -2241,8 +2242,14 @@ a {
   line-height: 1;
 }
 
+/* знак валюты, пробелы и разделители — в таком же боксе, как цифры,
+   иначе они съезжают с базовой линии */
 .roll__static {
   display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  line-height: 1;
+  vertical-align: baseline;
 }
 
 /* быстрые изменения — без перехода: цифры обновляются мгновенно */

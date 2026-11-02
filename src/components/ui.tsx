@@ -115,7 +115,7 @@ function RollingNumberInner({
         /\d/.test(char) ? (
           <Digit key={index} digit={Number(char)} />
         ) : (
-          <span key={index} className="roll__static">
+          <span key={index} className="roll__static" aria-hidden="true">
             {char}
           </span>
         ),

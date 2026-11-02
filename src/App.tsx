@@ -311,7 +311,7 @@ export default function App() {
           <LikeButton hint="Если было полезно, поставь лайк" />
         </div>
         <div className="footer__right">
-          <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
+          <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
           <a
             className="footer__author"
             href="https://maletskiy-design.ru"
