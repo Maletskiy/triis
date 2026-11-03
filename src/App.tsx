@@ -3,6 +3,7 @@ import Inputs from "./components/Inputs";
 import Summary, { collectWarnings } from "./components/Summary";
 import LikeButton from "./components/LikeButton";
 import Privacy from "./pages/Privacy";
+import { downloadPdf } from "./lib/pdf";
 import Chart from "./components/Chart";
 import YearTable from "./components/YearTable";
 import Compare from "./components/Compare";
@@ -159,6 +160,18 @@ export default function App() {
       : "НДФЛ по доходу",
   ].join(" · ");
 
+  const handlePdf = () => {
+    downloadPdf({
+      scenario: state.scenario,
+      account: state.account,
+      result: active,
+      results,
+      best,
+      updatedLabel,
+    });
+    flash("PDF собирается…");
+  };
+
   const downloadCsv = () => {
     const header = "Год;Взнос;Вычет;Доход за год;Капитал";
     const body = active.rows
@@ -314,8 +327,8 @@ export default function App() {
             <button
               type="button"
               className="btn btn--ghost"
-              onClick={() => window.print()}
-              title="Откроется печать — выберите «Сохранить как PDF»"
+              onClick={handlePdf}
+              title="Готовый PDF с расчётом и таблицей по годам"
             >
               Скачать PDF
             </button>
@@ -401,8 +414,8 @@ export default function App() {
           <button
             type="button"
             className="btn btn--ghost bar__pdf"
-            onClick={() => window.print()}
-            title="Откроется печать — выберите «Сохранить как PDF»"
+            onClick={handlePdf}
+            title="Готовый PDF с расчётом и таблицей по годам"
           >
             Скачать PDF
           </button>

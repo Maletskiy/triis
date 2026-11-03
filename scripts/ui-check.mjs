@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer-core";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
@@ -642,6 +642,29 @@ const metrics = (page) =>
   const resetHeight = await page.$eval(".topbar__actions .btn", (el) => el.getBoundingClientRect().height);
   if (Math.round(btnHeight) !== 56) fail(`высота кнопки ${Math.round(btnHeight)}, ожидалась 56`);
   else ok(`высота кнопок 56 px, «Сбросить» — ${Math.round(resetHeight)} px`);
+
+  // PDF собирается в приложении: без браузерных колонтитулов и ссылок
+  const pdfDir = `${SHOTS}pdf-check`;
+  rmSync(pdfDir, { recursive: true, force: true });
+  mkdirSync(pdfDir, { recursive: true });
+  const pdfSession = await page.createCDPSession();
+  await pdfSession.send("Browser.setDownloadBehavior", { behavior: "allow", downloadPath: pdfDir });
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".actions .btn")].find((el) => el.textContent.includes("Скачать PDF"))?.click();
+  });
+  await new Promise((r) => setTimeout(r, 3500));
+  const pdfFiles = readdirSync(pdfDir);
+  if (pdfFiles.length !== 1) fail(`PDF не скачался: ${JSON.stringify(pdfFiles)}`);
+  else {
+    const raw = readFileSync(`${pdfDir}/${pdfFiles[0]}`).toString("latin1");
+    const pages = (raw.match(/\/Type\s*\/Page[^s]/g) || []).length;
+    const fonts = (raw.match(/\/FontFile\d?/g) || []).length;
+    if (!raw.startsWith("%PDF") || pages < 1 || fonts < 1 || /https?:\/\//.test(raw)) {
+      fail(`PDF собран неверно: страниц ${pages}, шрифтов ${fonts}`);
+    } else {
+      ok(`PDF: ${pdfFiles[0]}, ${pages} стр., шрифтов ${fonts}, ссылок нет`);
+    }
+  }
 
   // подвал сообщает, когда сервис обновляли
   const updated = await page.evaluate(() => document.querySelector(".footer__updated")?.textContent ?? "");
