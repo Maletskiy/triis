@@ -41,8 +41,12 @@ jobs:
             -e "ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes" \
             dist/ "${{ secrets.REGRU_USER }}@${{ secrets.REGRU_HOST }}:${{ secrets.REGRU_PATH }}"
 
-      - name: Проверить ответ сайта
+      # Проверяем файлы на сервере, а не ответ по HTTP: reg.ru отдаёт 500
+      # на запросы из дата-центров, внешняя проверка кода тут ничего не значит.
+      - name: Проверить файлы на сервере
         run: |
-          code=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: triis.ru' "http://${{ secrets.REGRU_IP }}/")
-          echo "index: $code"
-          test "$code" = "200"
+          MAIN=$(grep -o 'assets/main-[^"]*\.js' dist/index.html | head -1)
+          echo «ожидаемый бандл: $MAIN»
+          ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes \
+            "${{ secrets.REGRU_USER }}@${{ secrets.REGRU_HOST }}" \
+            "test -f '${{ secrets.REGRU_PATH }}$MAIN' && test -f '${{ secrets.REGRU_PATH }}.htaccess' && test -f '${{ secrets.REGRU_PATH }}privacy.html' && echo 'файлы на месте'"
