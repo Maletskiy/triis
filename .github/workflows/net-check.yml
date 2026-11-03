@@ -1,0 +1,27 @@
+name: Проверка снаружи
+
+# Ручная диагностика: смотрит, что отдаёт хостинг reg.ru для triis.ru,
+# с независимой машины (своя сеть может перехватывать TLS по SNI).
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Сертификат и ответы хостинга
+        run: |
+          IP=37.140.192.199
+          echo "── сертификат для SNI triis.ru ──"
+          echo | openssl s_client -connect $IP:443 -servername triis.ru 2>/dev/null \
+            | openssl x509 -noout -subject -issuer -dates || echo «рукопожатие не удалось»
+          echo "── HTTPS: заголовки ──"
+          curl -s -m 20 -o /dev/null -D — --resolve triis.ru:443:$IP https://triis.ru/ | head -12 || true
+          echo "── HTTP: код и размер ──"
+          curl -s -m 20 -o /dev/null -w 'код=%{http_code} размер=%{size_download} время=%{time_total}\n' \
+            -H 'Host: triis.ru' http://$IP/ || true
+          echo "── HTTP: CSS-файл ──"
+          CSS=$(curl -s -m 20 -H 'Host: triis.ru' http://$IP/ | grep -o 'assets/styles-[^"]*\.css' | head -1)
+          echo «файл: $CSS»
+          curl -s -m 20 -o /dev/null -w 'код=%{http_code} размер=%{size_download} время=%{time_total}\n' \
+            -H 'Host: triis.ru' "http://$IP/$CSS" || true
