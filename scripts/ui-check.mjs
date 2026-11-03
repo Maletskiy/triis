@@ -63,8 +63,20 @@ const metrics = (page) =>
   else ok(`нет горизонтального переполнения (${m.docWidth} ≤ ${m.innerWidth})`);
 
   const brand = await page.$eval(".topbar h1", (el) => el.textContent?.trim() ?? "");
-  if (brand !== "Triis") fail(`бренд в шапке: "${brand}"`);
+  if (brand !== "ТРИИС") fail(`бренд в шапке: "${brand}"`);
   else ok(`бренд: ${brand}`);
+
+  const logo = await page.evaluate(() => {
+    const img = document.querySelector(".topbar__mark");
+    return {
+      tag: img?.tagName,
+      src: img?.getAttribute("src"),
+      loaded: img instanceof HTMLImageElement ? img.complete && img.naturalWidth > 0 : false,
+    };
+  });
+  if (logo.tag !== "IMG" || logo.src !== "/logo.svg" || !logo.loaded) {
+    fail(`логотип в шапке: ${JSON.stringify(logo)}`);
+  } else ok("логотип triis-logo.svg загружен в шапке");
 
   const params = await page.$$eval(".params .param", (els) => els.length);
   if (params !== 6) fail(`параметров ${params} вместо 6`);

@@ -65,7 +65,7 @@ export default function App() {
 
   useEffect(() => {
     if (isPrivacy) return;
-    document.title = "Triis — калькулятор ИИС";
+    document.title = "ТРИИС — калькулятор ИИС";
   }, [isPrivacy]);
 
   // Нижняя плашка нужна, только когда блок с итогом ушёл за верх экрана.
@@ -186,12 +186,10 @@ export default function App() {
     return (
       <div className="app">
         <header className="topbar">
-          <a className="topbar__brand" href="/" aria-label="Triis — на главную">
-            <span className="topbar__mark" aria-hidden="true">
-              3
-            </span>
+          <a className="topbar__brand" href="/" aria-label="ТРИИС — на главную">
+            <img className="topbar__mark" src="/logo.svg" alt="" aria-hidden="true" />
             <div>
-              <h1>Triis</h1>
+              <h1>ТРИИС</h1>
               <p>Калькулятор ИИС: вычеты, налоги, доходность</p>
             </div>
           </a>
@@ -205,11 +203,9 @@ export default function App() {
     <div className="app">
       <header className="topbar">
         <div className="topbar__brand">
-          <span className="topbar__mark" aria-hidden="true">
-            3
-          </span>
+          <img className="topbar__mark" src="/logo.svg" alt="" aria-hidden="true" />
           <div>
-            <h1>Triis</h1>
+            <h1>ТРИИС</h1>
             <p>Калькулятор ИИС: вычеты, налоги, доходность</p>
           </div>
         </div>
@@ -222,7 +218,7 @@ export default function App() {
 
       <div className="print-head">
         <div>
-          <strong>Triis — калькулятор ИИС</strong>
+          <strong>ТРИИС — калькулятор ИИС</strong>
           <span>Расчёт от {new Date().toLocaleDateString("ru-RU")}</span>
         </div>
         <div className="print-head__params">{printParams}</div>
