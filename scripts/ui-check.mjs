@@ -726,11 +726,20 @@ const metrics = (page) =>
       buttonLeftOfHint: btn.right <= hint.left + 1,
       countInside: count.left >= btn.left && count.right <= btn.right,
       hintLines: Math.round(hint.height / parseFloat(getComputedStyle(document.querySelector(".like__hint")).lineHeight)),
+      footerBorder: getComputedStyle(document.querySelector(".footer")).borderTopWidth,
+      updatedSize: getComputedStyle(document.querySelector(".footer__updated")).fontSize,
+      updatedSameGray:
+        getComputedStyle(document.querySelector(".footer__updated")).color ===
+        getComputedStyle(document.querySelector(".footer__built")).color,
     };
   });
-  if (!likeLayout.buttonLeftOfHint || !likeLayout.countInside || likeLayout.hintLines !== 2) {
+  if (!likeLayout.buttonLeftOfHint || !likeLayout.countInside || likeLayout.hintLines !== 1) {
     fail(`раскладка лайка: ${JSON.stringify(likeLayout)}`);
-  } else ok("лайк: кнопка слева, подпись в две строки");
+  } else ok("лайк: кнопка слева, подпись в одну строку");
+
+  if (likeLayout.footerBorder !== "0px" || likeLayout.updatedSize !== "14px" || !likeLayout.updatedSameGray) {
+    fail(`подвал: ${JSON.stringify(likeLayout)}`);
+  } else ok("подвал без верхней линии, «обновлено» 14 px тем же серым");
 
   await page.click(".like__btn");
   await new Promise((r) => setTimeout(r, 120));

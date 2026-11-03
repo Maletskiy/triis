@@ -361,7 +361,7 @@ export default function App() {
 
       <footer className="footer">
         <div className="footer__top">
-          <LikeButton hint={"Если было полезно,\nпоставь лайк"} />
+          <LikeButton hint="Если было полезно, поставь лайк" />
           <a className="footer__link" href="/privacy">
             Политика конфиденциальности
           </a>
