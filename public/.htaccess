@@ -28,9 +28,11 @@ DirectorySlash Off
   # Существующие файлы отдаём как есть
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d
-  RewriteRule ^ — [L]
+  RewriteRule ^ - [L]
 
-  # Остальное — одностраничное приложение
+  # Остальное — одностраничное приложение.
+  # Проверка на наличие index.html защищает от цикла, если корень пуст.
+  RewriteCond %{DOCUMENT_ROOT}/index.html -f
   RewriteRule . /index.html [L]
 </IfModule>
 

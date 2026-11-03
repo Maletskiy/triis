@@ -11,7 +11,8 @@
     "deploy": "npm run build && node scripts/deploy.mjs",
     "ui-check": "vite preview --port 4173 --strictPort & sleep 2 && node scripts/ui-check.mjs",
     "typograph": "python3 ../.dsh/skills/typograph/check.py src index.html README.md",
-    "deploy:regru": "bash scripts/deploy-regru.sh"
+    "deploy:regru": "bash scripts/deploy-regru.sh",
+    "check:htaccess": "bash scripts/check-htaccess.sh"
   },
   "dependencies": {
     "@pdf-lib/fontkit": "^1.1.1",

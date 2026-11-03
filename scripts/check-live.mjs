@@ -45,7 +45,7 @@ async function check(label, url, fn) {
   return info;
 }
 
-await check("главная desktop", "http://www.triis.ru/", async (page) => {
+await check("главная desktop", "http://triis.ru/", async (page) => {
   await page.screenshot({ path: `${OUT}/live-desktop.png`, fullPage: true });
   return page.evaluate(() => ({
     title: document.title,
@@ -57,7 +57,7 @@ await check("главная desktop", "http://www.triis.ru/", async (page) => {
   }));
 });
 
-await check("политика", "http://www.triis.ru/privacy", async (page) => {
+await check("политика", "http://triis.ru/privacy", async (page) => {
   await page.screenshot({ path: `${OUT}/live-privacy.png`, fullPage: false });
   return page.evaluate(() => ({
     h1: document.querySelector("h1")?.textContent?.trim(),
@@ -65,7 +65,7 @@ await check("политика", "http://www.triis.ru/privacy", async (page) => {
   }));
 });
 
-await check("мобильная", "http://www.triis.ru/", async (page) => {
+await check("мобильная", "http://triis.ru/", async (page) => {
   await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.screenshot({ path: `${OUT}/live-mobile.png`, fullPage: true });

@@ -24,6 +24,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run build
+      - run: bash scripts/check-htaccess.sh
 
       - name: Настроить ключ
         env:

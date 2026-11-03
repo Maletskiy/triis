@@ -26,6 +26,8 @@ if [ ! -f "$LOCAL/index.html" ] || [ ! -f "$LOCAL/.htaccess" ]; then
   exit 1
 fi
 
+bash scripts/check-htaccess.sh
+
 echo "→ загрузка на $HOST"
 rsync -az --delete --itemize-changes \
   --exclude '.well-known' \
