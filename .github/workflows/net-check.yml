@@ -15,13 +15,13 @@ jobs:
           echo "── сертификат для SNI triis.ru ──"
           echo | openssl s_client -connect $IP:443 -servername triis.ru 2>/dev/null \
             | openssl x509 -noout -subject -issuer -dates || echo «рукопожатие не удалось»
-          echo "── HTTPS: заголовки ──"
-          curl -s -m 20 -o /dev/null -D — --resolve triis.ru:443:$IP https://triis.ru/ | head -12 || true
-          echo "── HTTP: код и размер ──"
-          curl -s -m 20 -o /dev/null -w 'код=%{http_code} размер=%{size_download} время=%{time_total}\n' \
+          echo "── наш сайт, Host triis.ru ──"
+          curl -s -m 20 -o /dev/null -w 'код=%{http_code} размер=%{size_download}\n' \
             -H 'Host: triis.ru' http://$IP/ || true
-          echo "── HTTP: CSS-файл ──"
-          CSS=$(curl -s -m 20 -H 'Host: triis.ru' http://$IP/ | grep -o 'assets/styles-[^"]*\.css' | head -1)
-          echo «файл: $CSS»
-          curl -s -m 20 -o /dev/null -w 'код=%{http_code} размер=%{size_download} время=%{time_total}\n' \
-            -H 'Host: triis.ru' "http://$IP/$CSS" || true
+          echo "── наш сайт, Host www.triis.ru ──"
+          curl -s -m 20 -o /dev/null -w 'код=%{http_code} размер=%{size_download}\n' \
+            -H 'Host: www.triis.ru' http://$IP/ || true
+          echo "── контроль: соседний сайт sborkaburo.ru по HTTPS ──"
+          curl -s -m 20 -o /dev/null -w 'код=%{http_code} размер=%{size_download}\n' https://sborkaburo.ru/ || true
+          echo "── контроль: reg.ru по HTTPS ──"
+          curl -s -m 20 -o /dev/null -w 'код=%{http_code} размер=%{size_download}\n' https://www.reg.ru/ || true
