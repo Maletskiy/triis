@@ -46,7 +46,7 @@ jobs:
       - name: Проверить файлы на сервере
         run: |
           MAIN=$(grep -o 'assets/main-[^"]*\.js' dist/index.html | head -1)
-          echo «ожидаемый бандл: $MAIN»
+          echo "«ожидаемый бандл: $MAIN»"
           ssh -i ~/.ssh/id_ed25519 -o IdentitiesOnly=yes \
             "${{ secrets.REGRU_USER }}@${{ secrets.REGRU_HOST }}" \
             "test -f '${{ secrets.REGRU_PATH }}$MAIN' && test -f '${{ secrets.REGRU_PATH }}.htaccess' && test -f '${{ secrets.REGRU_PATH }}privacy.html' && echo 'файлы на месте'"
