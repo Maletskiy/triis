@@ -1528,43 +1528,12 @@ a {
   pointer-events: none;
 }
 
-/* кнопка «наверх» — отдельная, слева от всей плашки */
-.to-top {
-  display: grid;
-  place-items: center;
-  width: 78px;
-  height: 78px;
-  flex: none;
-  border: 1px solid var(--primary-10);
-  border-radius: var(--radius-full);
-  background: var(--background);
-  color: var(--primary);
-  cursor: pointer;
-  opacity: 0;
-  transform: translateY(calc(100% + 20px));
-  pointer-events: none;
-  transition:
-    transform 0.34s cubic-bezier(0.2, 0.8, 0.2, 1),
-    opacity 0.24s ease,
-    border-color 0.2s ease;
-}
-
-.to-top:hover {
-  border-color: var(--primary-30);
-}
-
-.to-top.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
 .bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  width: min(660px, calc(100vw - 108px));
+  width: min(672px, calc(100vw - 24px));
   padding: 10px 10px 10px 26px;
   pointer-events: auto;
   border: 1px solid var(--primary-10);
@@ -1628,11 +1597,6 @@ a {
   }
 }
 
-.bar__top {
-  width: 44px;
-  padding: 0;
-}
-
 .bar__info-icon {
   display: none;
   font-style: italic;
@@ -1669,11 +1633,6 @@ a {
   .bar__info {
     display: none;
   }
-}
-
-.bar__top {
-  width: 44px;
-  padding: 0;
 }
 
 .bar__info-icon {
@@ -2680,16 +2639,6 @@ a {
 }
 
 /* на телефоне кнопка «наверх» не нужна: там своя навигация, а место дорого */
-@media (max-width: 1024px) {
-  .to-top {
-    display: none;
-  }
-
-  .bar {
-    width: calc(100vw - 24px);
-  }
-}
-
 @media (max-width: 560px) {
   .bar {
     padding-left: 16px;

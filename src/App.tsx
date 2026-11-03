@@ -383,25 +383,6 @@ export default function App() {
       </footer>
 
       <div className="bar-dock">
-        <button
-          type="button"
-          className={"to-top" + (barVisible ? " is-visible" : "")}
-          aria-label="Наверх"
-          title="Наверх"
-          tabIndex={barVisible ? 0 : -1}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M12 19V5M5 12l7-7 7 7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
 
       <div className={"bar" + (barVisible ? " is-visible" : "")} aria-hidden={!barVisible}>
         <div className="bar__value">

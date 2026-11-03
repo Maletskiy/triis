@@ -817,20 +817,13 @@ const metrics = (page) =>
   if (m.docWidth > m.innerWidth + 1) fail(`мобильное переполнение: ${m.docWidth} > ${m.innerWidth}`);
   else ok(`мобильный: без переполнения (${m.docWidth} ≤ ${m.innerWidth})`);
 
-  const dockState = await page.evaluate(() => {
-    const top = document.querySelector(".to-top");
-    const bar = document.querySelector(".bar");
-    const t = top.getBoundingClientRect();
-    const r = bar.getBoundingClientRect();
-    return {
-      visible: getComputedStyle(top).display !== "none",
-      outside: !bar.contains(top),
-      leftOfBar: t.right <= r.left + 1,
-      sameCenter: Math.abs(t.top + t.height / 2 - (r.top + r.height / 2)) < 2,
-    };
-  });
-  if (dockState.visible || dockState.outside === false) fail(`кнопка «наверх» на мобиле: ${JSON.stringify(dockState)}`);
-  else ok("на мобиле кнопка «наверх» скрыта, плашка на всю ширину");
+  const dockState = await page.evaluate(() => ({
+    hasToTop: !!document.querySelector(".to-top"),
+    barWidth: Math.round(document.querySelector(".bar").getBoundingClientRect().width),
+    viewport: window.innerWidth,
+  }));
+  if (dockState.hasToTop) fail(`на мобиле осталась кнопка «наверх»: ${JSON.stringify(dockState)}`);
+  else ok(`на мобиле кнопки «наверх» нет, плашка ${dockState.barWidth} из ${dockState.viewport} px`);
 
   const barBefore = await page.$eval(".bar", (el) => el.className);
   if (barBefore.includes("is-visible")) fail("плашка видна до скролла");
