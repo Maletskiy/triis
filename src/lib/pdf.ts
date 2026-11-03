@@ -106,8 +106,8 @@ export async function buildPdf(input: PdfInput): Promise<Blob> {
   const params = [
     `${ACCOUNT_LABELS[input.account]}, открыт ${formatHuman(input.scenario.openDate)}`,
     input.scenario.contributionMode === "custom"
-      ? `взносы по годам, всего ${rub(input.result.contributions)}`
-      : `${rub(input.scenario.annualContribution)} в год`,
+      ? `взносы по годам, всего ${rub(input.result.contributions)}`
+      : `${rub(input.scenario.annualContribution)} в год`,
     `${input.scenario.years} ${yearsWord(input.scenario.years)}`,
     `доходность ${input.scenario.returnPct}%`,
     `инфляция ${input.scenario.inflationPct}%`,
@@ -120,7 +120,7 @@ export async function buildPdf(input: PdfInput): Promise<Blob> {
   // главный итог
   draw("На руки после закрытия", { size: 9, color: MUTED, gap: 4 });
   draw(rub(input.result.net), { size: 26, font: bold, gap: 4 });
-  draw(`В ценах сегодняшнего дня — ${compactRub(input.result.netReal)}`, {
+  draw(`В ценах сегодняшнего дня — ${compactRub(input.result.netReal)}`, {
     size: 10,
     color: MUTED,
     gap: 16,
@@ -128,15 +128,15 @@ export async function buildPdf(input: PdfInput): Promise<Blob> {
 
   // статистика
   const stats: [string, string][] = [
-    ["Вычеты за срок", rub(input.result.refunds)],
-    ["Капитал на счёте", rub(input.result.grossCapital)],
-    ["Налог при закрытии", rub(input.result.exitTax)],
+    ["Вычеты за срок", rub(input.result.refunds)],
+    ["Капитал на счёте", rub(input.result.grossCapital)],
+    ["Налог при закрытии", rub(input.result.exitTax)],
     ["Ваши взносы", rub(input.result.contributions)],
   ];
   for (const [label, value] of stats) {
     draw(`${label}: ${value}`, { size: 11, font: semibold, gap: 7 });
   }
-  draw(`Минимальный срок владения — ${input.result.minHolding} ${yearsWord(input.result.minHolding)}`, {
+  draw(`Минимальный срок владения — ${input.result.minHolding} ${yearsWord(input.result.minHolding)}`, {
     size: 9,
     color: MUTED,
     gap: 16,
@@ -153,13 +153,13 @@ export async function buildPdf(input: PdfInput): Promise<Blob> {
 
   // таблица по годам
   const openYear = yearOf(input.scenario.openDate);
-  draw("Таблица по годам", { size: 13, font: bold, gap: 10 });
+  draw("Таблица по годам", { size: 13, font: bold, gap: 10 });
 
   const columns = [
     { title: "Год", width: 52, align: "left" as const, value: (row: any) => String(openYear + row.year - 1) },
     { title: "Взнос", width: 96, align: "right" as const, value: (row: any) => rub(row.contribution) },
     { title: "Вычет", width: 92, align: "right" as const, value: (row: any) => (row.refund > 0 ? rub(row.refund) : "—") },
-    { title: "Доход за год", width: 110, align: "right" as const, value: (row: any) => rub(row.growth) },
+    { title: "Доход за год", width: 110, align: "right" as const, value: (row: any) => rub(row.growth) },
     { title: "Капитал", width: 118, align: "right" as const, value: (row: any) => rub(row.capital) },
   ];
 

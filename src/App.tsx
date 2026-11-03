@@ -328,7 +328,7 @@ export default function App() {
               type="button"
               className="btn btn--ghost"
               onClick={handlePdf}
-              title="Готовый PDF с расчётом и таблицей по годам"
+              title="Готовый PDF с расчётом и таблицей по годам"
             >
               Скачать PDF
             </button>
@@ -415,7 +415,7 @@ export default function App() {
             type="button"
             className="btn btn--ghost bar__pdf"
             onClick={handlePdf}
-            title="Готовый PDF с расчётом и таблицей по годам"
+            title="Готовый PDF с расчётом и таблицей по годам"
           >
             Скачать PDF
           </button>
