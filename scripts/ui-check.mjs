@@ -681,6 +681,54 @@ const metrics = (page) =>
     fail(`ссылка на политику: ${JSON.stringify(privacyLink)}`);
   } else ok(`подвал: ссылка «${privacyLink.text}» → ${privacyLink.href}`);
 
+  const layoutCheck = await page.evaluate(() => {
+    const note = document.querySelector(".table__note");
+    const card = [...document.querySelectorAll(".section")].find((el) =>
+      el.textContent.replace(/[\u00A0\u202F]/g, " ").includes("Таблица по годам"),
+    );
+    const noteBox = note.getBoundingClientRect();
+    const cardBox = card.getBoundingClientRect();
+    const hint = document.querySelector(".like__hint");
+    const btn = document.querySelector(".like__btn").getBoundingClientRect();
+    const count = document.querySelector(".like__count").getBoundingClientRect();
+    const footer = document.querySelector(".footer");
+    const updated = document.querySelector(".footer__updated");
+    return {
+      noteLines: note.children.length,
+      noteOutsideCard: !card.contains(note),
+      noteBelowCard: noteBox.top >= cardBox.bottom - 1,
+      noteRightAligned: Math.abs(noteBox.right - cardBox.right) < 2,
+      likeButtonLeftOfHint: btn.right <= hint.getBoundingClientRect().left + 1,
+      countInsideButton: count.left >= btn.left && count.right <= btn.right,
+      hintLines: Math.round(hint.getBoundingClientRect().height / parseFloat(getComputedStyle(hint).lineHeight)),
+      footerBorder: getComputedStyle(footer).borderTopWidth,
+      updatedSize: getComputedStyle(updated).fontSize,
+      updatedSameGray: getComputedStyle(updated).color === getComputedStyle(document.querySelector(".footer__built")).color,
+      noToTop: !document.querySelector(".to-top"),
+      appWidth: Math.round(document.querySelector(".app").getBoundingClientRect().width),
+    };
+  });
+
+  if (
+    layoutCheck.noteLines !== 2 ||
+    !layoutCheck.noteOutsideCard ||
+    !layoutCheck.noteBelowCard ||
+    !layoutCheck.noteRightAligned
+  ) {
+    fail(`подпись под таблицей: ${JSON.stringify(layoutCheck)}`);
+  } else ok("подпись из двух строк — под плашкой таблицы, вне карточки");
+
+  if (!layoutCheck.likeButtonLeftOfHint || !layoutCheck.countInsideButton || layoutCheck.hintLines !== 1) {
+    fail(`лайк: ${JSON.stringify(layoutCheck)}`);
+  } else ok("лайк: кнопка слева, число внутри, подпись в одну строку");
+
+  if (layoutCheck.footerBorder !== "0px" || layoutCheck.updatedSize !== "14px" || !layoutCheck.updatedSameGray) {
+    fail(`подвал: ${JSON.stringify(layoutCheck)}`);
+  } else ok("подвал без верхней линии, дата 14 px тем же серым");
+
+  if (!layoutCheck.noToTop) fail("кнопка «наверх» вернулась");
+  else ok(`кнопки «наверх» нет, ширина лэйаута ${layoutCheck.appWidth}`);
+
   const privacyUrl = APP_URL.includes("vercel.app") ? APP_URL + "privacy" : APP_URL + "privacy.html";
   await page.goto(privacyUrl, { waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 400));

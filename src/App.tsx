@@ -341,10 +341,6 @@ export default function App() {
             hint="Разбор каждого года: взнос, вычет, доход, капитал"
           >
             <YearTable result={active} openYear={yearOf(state.scenario.openDate)} />
-            <div className="table__note">
-              <span>Правила 2026 года.</span>
-              <span>Не инвестиционная рекомендация</span>
-            </div>
             <div className="table__actions">
               <button
                 type="button"
@@ -356,6 +352,11 @@ export default function App() {
               </button>
             </div>
           </Section>
+
+          <div className="table__note">
+            <span>Правила 2026 года.</span>
+            <span>Не инвестиционная рекомендация</span>
+          </div>
         </aside>
       </main>
 

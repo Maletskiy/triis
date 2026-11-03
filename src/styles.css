@@ -961,16 +961,17 @@ a {
   margin: 0;
 }
 
+/* подпись живёт под белой плашкой таблицы, а не внутри неё */
 .table__note {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
-  margin-top: 16px;
+  margin-top: -16px;
   text-align: right;
   font-size: 13px;
   line-height: 18px;
-  color: var(--primary-30);
+  color: var(--primary-40);
 }
 
 .table__actions {
