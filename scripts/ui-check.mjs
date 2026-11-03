@@ -697,7 +697,8 @@ const metrics = (page) =>
       noteLines: note.children.length,
       noteOutsideCard: !card.contains(note),
       noteBelowCard: noteBox.top >= cardBox.bottom - 1,
-      noteRightAligned: Math.abs(noteBox.right - cardBox.right) < 2,
+      noteCentered:
+        Math.abs((noteBox.left + noteBox.right) / 2 - (cardBox.left + cardBox.right) / 2) < 2,
       likeButtonLeftOfHint: btn.right <= hint.getBoundingClientRect().left + 1,
       countInsideButton: count.left >= btn.left && count.right <= btn.right,
       hintLines: Math.round(hint.getBoundingClientRect().height / parseFloat(getComputedStyle(hint).lineHeight)),
@@ -713,10 +714,10 @@ const metrics = (page) =>
     layoutCheck.noteLines !== 2 ||
     !layoutCheck.noteOutsideCard ||
     !layoutCheck.noteBelowCard ||
-    !layoutCheck.noteRightAligned
+    !layoutCheck.noteCentered
   ) {
     fail(`подпись под таблицей: ${JSON.stringify(layoutCheck)}`);
-  } else ok("подпись из двух строк — под плашкой таблицы, вне карточки");
+  } else ok("подпись из двух строк — под плашкой таблицы, вне карточки, по центру");
 
   if (!layoutCheck.likeButtonLeftOfHint || !layoutCheck.countInsideButton || layoutCheck.hintLines !== 1) {
     fail(`лайк: ${JSON.stringify(layoutCheck)}`);
