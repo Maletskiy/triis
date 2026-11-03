@@ -207,7 +207,7 @@ export async function buildPdf(input: PdfInput): Promise<Blob> {
   ctx.y -= 8;
   for (const line of wrap(
     regular,
-    "Правила 2026 года. Не инвестиционная рекомендация.",
+    "Правила 2026 года. Не инвестиционная рекомендация.",
     8,
     width,
   )) {

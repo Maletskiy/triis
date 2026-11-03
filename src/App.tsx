@@ -354,7 +354,7 @@ export default function App() {
           </Section>
 
           <div className="table__note">
-            <span>Правила 2026 года.</span>
+            <span>Правила 2026 года.</span>
             <span>Не инвестиционная рекомендация</span>
           </div>
         </aside>

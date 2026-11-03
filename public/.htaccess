@@ -1,0 +1,62 @@
+# ТРИИС — правила для Apache на виртуальном хостинге reg.ru.
+# Файл кладётся в корень сайта рядом с index.html (копируется из public/ при сборке).
+
+# ─── Типы файлов ───
+# Без правильного MIME браузер откажется исполнять ES-модули (.mjs) и React не запустится.
+AddType text/javascript .mjs
+AddType application/javascript .js
+AddType application/json .json
+AddType image/svg+xml .svg
+AddType font/woff2 .woff2
+AddType font/otf .otf
+
+DirectoryIndex index.html
+DirectorySlash Off
+
+# ─── Страницы ───
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Один адрес сайта: www.triis.ru → triis.ru (схема сохраняется)
+  RewriteCond %{HTTP_HOST} ^www\.triis\.ru$ [NC]
+  RewriteRule ^ %{REQUEST_SCHEME}://triis.ru%{REQUEST_URI} [R=301,L]
+
+  # Политика конфиденциальности: /privacy и /privacy/ → privacy.html
+  RewriteRule ^privacy/?$ /privacy.html [L]
+
+  # Существующие файлы отдаём как есть
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ — [L]
+
+  # Остальное — одностраничное приложение
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# ─── Сжатие ───
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml \
+    text/javascript application/javascript application/json application/xml image/svg+xml
+</IfModule>
+
+# ─── Кеширование ───
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType text/javascript "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 month"
+  ExpiresByType font/otf "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 month"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+  <FilesMatch "\.(js|mjs|css|woff2|otf|svg)$">
+    Header set X-Content-Type-Options "nosniff"
+  </FilesMatch>
+</IfModule>
