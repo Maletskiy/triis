@@ -57,7 +57,7 @@ a {
 /* ------------------------------------------------------------------ */
 
 .app {
-  max-width: 1120px;
+  max-width: 1200px;
   margin: 0 auto;
   /* запас снизу: подвал не должен уходить под плавающую плашку */
   padding: 0 28px 104px;
@@ -134,24 +134,43 @@ a {
 
 .footer {
   margin-top: 32px;
-  padding-top: 20px;
+  padding-top: 22px;
   border-top: 1px solid var(--primary-10);
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px 24px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 18px;
   font-size: var(--subtitle-size);
   line-height: var(--subtitle-line);
   color: var(--primary-40);
 }
 
-.footer__right {
+.footer__top {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  text-align: right;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.footer__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--primary-8);
+}
+
+.footer__built {
+  color: var(--primary-40);
+}
+
+.footer__built .footer__author {
+  color: var(--primary);
+}
+
+/* подпись лайка в две строки */
+.like__hint {
+  white-space: pre-line;
 }
 
 .footer__author {
@@ -945,6 +964,18 @@ a {
   margin: 0;
 }
 
+.table__note {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  margin-top: 16px;
+  text-align: right;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--primary-30);
+}
+
 .table__actions {
   display: flex;
   margin-top: 12px;
@@ -1501,8 +1532,8 @@ a {
 .to-top {
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
+  width: 78px;
+  height: 78px;
   flex: none;
   border: 1px solid var(--primary-10);
   border-radius: var(--radius-full);
@@ -2433,10 +2464,11 @@ a {
 
 .like {
   display: flex;
+  flex-direction: row-reverse;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  min-width: min(100%, 420px);
+  justify-content: flex-end;
+  gap: 14px;
+  min-width: 0;
 }
 
 .like__btn {
@@ -2611,28 +2643,39 @@ a {
   }
 }
 
-/* мобильный подвал: композиция в столбик, без рваных краёв */
+/* мобильный подвал: лайк сверху, ссылка, затем правый блок */
 @media (max-width: 560px) {
   .footer {
+    gap: 16px;
+  }
+
+  .footer__top {
     flex-direction: column;
     align-items: stretch;
     gap: 14px;
   }
 
-  .footer__right {
-    align-items: flex-start;
-    text-align: left;
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-end;
     gap: 6px;
+    text-align: right;
   }
 
   .like {
+    flex-direction: row;
+    justify-content: space-between;
     min-width: 0;
     gap: 12px;
   }
 
   .like__hint {
-    font-size: 14px;
-    line-height: 20px;
+    font-size: 16px;
+    line-height: 24px;
+  }
+
+  .footer__link {
+    align-self: flex-start;
   }
 }
 

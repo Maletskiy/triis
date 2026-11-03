@@ -328,6 +328,10 @@ export default function App() {
             hint="Разбор каждого года: взнос, вычет, доход, капитал"
           >
             <YearTable result={active} openYear={yearOf(state.scenario.openDate)} />
+            <div className="table__note">
+              <span>Правила 2026 года.</span>
+              <span>Не инвестиционная рекомендация</span>
+            </div>
             <div className="table__actions">
               <button
                 type="button"
@@ -343,23 +347,25 @@ export default function App() {
       </main>
 
       <footer className="footer">
-        <div className="footer__left">
-          <LikeButton hint="Если было полезно, поставь лайк" />
-        </div>
-        <div className="footer__right">
-          <span>Правила 2026 года. Не инвестиционная рекомендация.</span>
-          <span className="footer__updated">{updatedLabel}</span>
+        <div className="footer__top">
+          <LikeButton hint={"Если было полезно,\nпоставь лайк"} />
           <a className="footer__link" href="/privacy">
             Политика конфиденциальности
           </a>
-          <a
-            className="footer__author"
-            href="https://maletskiy-design.ru"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Maletskiy Design
-          </a>
+        </div>
+        <div className="footer__bottom">
+          <span className="footer__updated">{updatedLabel}</span>
+          <span className="footer__built">
+            Built by{" "}
+            <a
+              className="footer__author"
+              href="https://maletskiy-design.ru"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Maletskiy Design
+            </a>
+          </span>
         </div>
       </footer>
 

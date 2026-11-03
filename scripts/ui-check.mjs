@@ -699,17 +699,15 @@ const metrics = (page) =>
     const hint = document.querySelector(".like__hint").getBoundingClientRect();
     const btn = document.querySelector(".like__btn").getBoundingClientRect();
     const count = document.querySelector(".like__count").getBoundingClientRect();
-    const right = document.querySelector(".footer__right");
-    const footer = document.querySelector(".footer").getBoundingClientRect();
     return {
-      hintLeftOfBtn: hint.right <= btn.left,
+      buttonLeftOfHint: btn.right <= hint.left + 1,
       countInside: count.left >= btn.left && count.right <= btn.right,
-      disclaimerRight: right ? Math.round(footer.right - right.getBoundingClientRect().right) < 2 : false,
+      hintLines: Math.round(hint.height / parseFloat(getComputedStyle(document.querySelector(".like__hint")).lineHeight)),
     };
   });
-  if (!likeLayout.hintLeftOfBtn || !likeLayout.countInside || !likeLayout.disclaimerRight) {
+  if (!likeLayout.buttonLeftOfHint || !likeLayout.countInside || likeLayout.hintLines !== 2) {
     fail(`раскладка лайка: ${JSON.stringify(likeLayout)}`);
-  } else ok("лайк: подпись слева, число внутри кнопки, служебный текст справа");
+  } else ok("лайк: кнопка слева, подпись в две строки");
 
   await page.click(".like__btn");
   await new Promise((r) => setTimeout(r, 120));
