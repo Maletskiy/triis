@@ -3,13 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>ТРИИС — калькулятор ИИС</title>
+    <title>Калькулятор ИИС-3: вычет и налог — ТРИИС</title>
     <meta
       name="description"
-      content="Посчитайте, сколько вернёт налоговая и что останется на руках при закрытии ИИС-3, счёта типа А или типа Б: вычеты, налог на прибыль, срок владения, инфляция."
+      content="Бесплатный калькулятор ИИС-3, счёта типа А и типа Б: вычет до 52 000 ₽ в год, налог при закрытии, срок владения и доходность с учётом инфляции. Правила 2026 года."
     />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="author" content="Maletskiy Design" />
+    <meta name="application-name" content="ТРИИС" />
     <meta name="theme-color" content="#f5f5f5" />
-    <meta property="og:title" content="ТРИИС — калькулятор ИИС" />
+    <meta property="og:title" content="Калькулятор ИИС-3: вычет и налог — ТРИИС" />
     <meta
       property="og:description"
       content="Вычеты, налог при закрытии, реальная доходность. Три типа счёта в одном расчёте."
@@ -22,9 +25,9 @@
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="ТРИИС — калькулятор ИИС" />
+    <meta property="og:image:alt" content="ТРИИС — калькулятор ИИС" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="ТРИИС — калькулятор ИИС" />
+    <meta name="twitter:title" content="Калькулятор ИИС-3: вычет и налог — ТРИИС" />
     <meta
       name="twitter:description"
       content="Вычеты, налог при закрытии, реальная доходность. Три типа счёта в одном расчёте."
@@ -32,6 +35,65 @@
     <meta name="twitter:image" content="https://triis.ru/og.png" />
     <link rel="canonical" href="https://triis.ru/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="preload"
+      href="/fonts/sbsans-ui-regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <link rel="preload" href="/fonts/sbsans-ui-semibold.woff2" as="font" type="font/woff2" crossorigin />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://triis.ru/#website",
+            "url": "https://triis.ru/",
+            "name": "ТРИИС",
+            "description": "Калькулятор ИИС-3, счёта типа А и типа Б",
+            "inLanguage": "ru-RU",
+            "publisher": { "@id": "https://triis.ru/#publisher" }
+          },
+          {
+            "@type": "Organization",
+            "@id": "https://triis.ru/#publisher",
+            "name": "Maletskiy Design",
+            "url": "https://maletskiy-design.ru"
+          },
+          {
+            "@type": "WebApplication",
+            "@id": "https://triis.ru/#app",
+            "name": "ТРИИС — калькулятор ИИС",
+            "url": "https://triis.ru/",
+            "description": "Считает вычеты, налог при закрытии и доходность для ИИС-3, счёта типа А и типа Б.",
+            "applicationCategory": "FinanceApplication",
+            "operatingSystem": "Any",
+            "browserRequirements": "Requires JavaScript",
+            "inLanguage": "ru-RU",
+            "isAccessibleForFree": true,
+            "image": "https://triis.ru/og.png",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "RUB"
+            },
+            "featureList": [
+              "Вычет на взнос по правилам 2026 года",
+              "Налог при закрытии счёта",
+              "Срок владения для ИИС-3 и старых счетов",
+              "Сравнение ИИС-3, типа А и типа Б",
+              "Доходность с учётом инфляции",
+              "Таблица по годам и выгрузка в PDF и CSV"
+            ],
+            "isPartOf": { "@id": "https://triis.ru/#website" },
+            "publisher": { "@id": "https://triis.ru/#publisher" }
+          }
+        ]
+      }
+    </script>
+    <!--jsonld:faq-->
   </head>
   <body>
     <div id="root"></div>

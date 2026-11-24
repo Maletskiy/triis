@@ -62,9 +62,18 @@ const metrics = (page) =>
   if (m.docWidth > m.innerWidth + 1) fail(`горизонтальное переполнение: ${m.docWidth} > ${m.innerWidth}`);
   else ok(`нет горизонтального переполнения (${m.docWidth} ≤ ${m.innerWidth})`);
 
-  const brand = await page.$eval(".topbar h1", (el) => el.textContent?.trim() ?? "");
-  if (brand !== "ТРИИС") fail(`бренд в шапке: "${brand}"`);
-  else ok(`бренд: ${brand}`);
+  // Заголовок страницы — единственный h1: внутри имя бренда и описание.
+  const heading = await page.$eval(".topbar h1", (el) => ({
+    name: el.querySelector(".topbar__name")?.textContent?.trim() ?? "",
+    lede: el.querySelector(".topbar__lede")?.textContent?.trim() ?? "",
+    count: document.querySelectorAll("h1").length,
+  }));
+  if (heading.name !== "ТРИИС") fail(`бренд в шапке: "${heading.name}"`);
+  else ok(`бренд: ${heading.name}`);
+  if (heading.count !== 1) fail(`на странице ${heading.count} заголовков h1`);
+  else ok("h1 на странице один");
+  if (!heading.lede.includes("Калькулятор ИИС")) fail(`в h1 нет описания: "${heading.lede}"`);
+  else ok(`h1 с описанием: ${heading.name} — ${heading.lede}`);
 
   const logo = await page.evaluate(() => {
     const img = document.querySelector(".topbar__mark");

@@ -52,14 +52,17 @@ npm run deploy     # ручная выкладка на Vercel (нужен VERCE
 
 ## Деплой
 
-Прод выкатывается самим Vercel: проект привязан к репозиторию `Maletskiy/triis`,
-пуш в `main` — деплой на прод, PR — превью-деплой. Сборка на стороне Vercel:
-`npm ci` → `npm run build` → `dist`.
+Прод живёт на хостинге reg.ru: `https://triis.ru`, каталог
+`/var/www/u3695402/data/www/triis.ru`. Пуш в `main` запускает
+`.github/workflows/deploy-regru.yml`: сборка, проверки, выгрузка `dist` по SSH
+через rsync. Вручную — `npm run deploy:regru`.
 
-Превью-деплои на PR публичные — ссылку можно отдать без логина в Vercel
-(защита Vercel Authentication для preview отключена).
+Ключ и адрес хостинга лежат в секретах репозитория (`REGRU_SSH_KEY`,
+`REGRU_HOST`, `REGRU_USER`, `REGRU_PATH`). Правки `.htaccess` проверяет
+`scripts/check-htaccess.sh`: типограф однажды заменил там дефис на тире,
+и Apache начал отдавать 500 на все адреса.
 
-Параллельно `.github/workflows/checks.yml` на каждый пуш и PR прогоняет
+Отдельно `.github/workflows/checks.yml` на каждый пуш и PR прогоняет
 `npm run check` и сборку — это проверка, а не деплой.
 
 ## Допущения
@@ -70,3 +73,27 @@ npm run deploy     # ручная выкладка на Vercel (нужен VERCE
 - Комиссии, купоны и дивиденды не учитываются.
 
 Правила зафиксированы на 2026 год. Это не инвестиционная рекомендация.
+
+## Поиск и ИИ-краулеры
+
+Сайт — клиентское приложение, поэтому HTML собирается заранее:
+`npm run build` после `vite build` запускает `scripts/prerender.mjs`, который
+рендерит те же компоненты на Node и вставляет разметку в `dist/index.html`
+и `dist/privacy.html`. Так поисковики, GPTBot, ClaudeBot и PerplexityBot видят
+текст без JavaScript. Клиент по-прежнему монтируется через `createRoot`
+и заменяет разметку своей.
+
+Что ещё есть:
+
+- блок текста под калькулятором (`src/components/About.tsx`) — объяснение
+  и восемь частых вопросов, тексты служат источником для разметки;
+- JSON-LD в `index.html`: WebSite, Organization, WebApplication; FAQPage
+  собирается в пререндере из того же массива вопросов;
+- `public/llms.txt` — краткая выжимка для языковых моделей;
+- `public/robots.txt` — открыт для ИИ-краулеров, со ссылкой на карту сайта;
+- `public/sitemap.xml` — дата последнего изменения проставляется при сборке.
+
+Проверка: `npm run check:seo` после сборки. Она смотрит заголовки, описание,
+canonical, Open Graph, наличие одного `h1`, объём статического текста, разметку
+Schema.org, совпадение вопросов из FAQPage с текстом страницы, а также
+`robots.txt`, `sitemap.xml`, `llms.txt` и размер картинки превью

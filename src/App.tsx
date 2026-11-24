@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Inputs from "./components/Inputs";
 import Summary, { collectWarnings } from "./components/Summary";
 import LikeButton from "./components/LikeButton";
+import Topbar from "./components/Topbar";
+import About from "./components/About";
 import Privacy from "./pages/Privacy";
 import { downloadPdf } from "./lib/pdf";
 import Chart from "./components/Chart";
@@ -63,11 +65,6 @@ export default function App() {
     const next = writeState(state);
     window.history.replaceState(null, "", window.location.pathname + next);
   }, [state]);
-
-  useEffect(() => {
-    if (isPrivacy) return;
-    document.title = "ТРИИС — калькулятор ИИС";
-  }, [isPrivacy]);
 
   // Нижняя плашка нужна, только когда блок с итогом ушёл за верх экрана.
   // На мобиле итог стоит сверху, на десктопе — в правой колонке, поэтому
@@ -198,15 +195,7 @@ export default function App() {
   if (isPrivacy) {
     return (
       <div className="app">
-        <header className="topbar">
-          <a className="topbar__brand" href="/" aria-label="ТРИИС — на главную">
-            <img className="topbar__mark" src="/logo.svg" alt="" aria-hidden="true" />
-            <div>
-              <h1>ТРИИС</h1>
-              <p>Калькулятор ИИС: вычеты, налоги, доходность</p>
-            </div>
-          </a>
-        </header>
+        <Topbar variant="plain" />
         <Privacy />
       </div>
     );
@@ -214,20 +203,13 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="topbar">
-        <div className="topbar__brand">
-          <img className="topbar__mark" src="/logo.svg" alt="" aria-hidden="true" />
-          <div>
-            <h1>ТРИИС</h1>
-            <p>Калькулятор ИИС: вычеты, налоги, доходность</p>
-          </div>
-        </div>
+      <Topbar variant="hero">
         <div className="topbar__actions">
           <button type="button" className="btn btn--ghost" onClick={reset}>
             Сбросить
           </button>
         </div>
-      </header>
+      </Topbar>
 
       <div className="print-head">
         <div>
@@ -359,6 +341,8 @@ export default function App() {
           </div>
         </aside>
       </main>
+
+      <About />
 
       <footer className="footer">
         <div className="footer__top">

@@ -85,16 +85,23 @@ a {
   flex: none;
 }
 
-.topbar h1 {
+.topbar__title {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.topbar__name {
   font-size: var(--title-20-size);
   line-height: var(--title-20-line);
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 
-.topbar p {
+.topbar__lede {
   font-size: var(--subtitle-size);
   line-height: var(--subtitle-line);
+  font-weight: 400;
   color: var(--primary-50);
 }
 
@@ -1712,7 +1719,7 @@ a {
     padding: 0 14px 96px;
   }
 
-  .topbar p {
+  .topbar__lede {
     display: none;
   }
 
@@ -2764,5 +2771,70 @@ a {
   .legal__title {
     font-size: 26px;
     line-height: 32px;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Текст под калькулятором                                             */
+/* Нужен поисковикам и ИИ-краулерам: они читают HTML без JavaScript.    */
+/* ------------------------------------------------------------------ */
+
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 48px 56px;
+  margin-top: 8px;
+  padding: 48px 0 8px;
+  border-top: 1px solid var(--primary-10);
+}
+
+.about__col {
+  min-width: 0;
+}
+
+.about__title {
+  margin-bottom: 16px;
+  font-size: var(--title-20-size);
+  line-height: var(--title-20-line);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.about__text {
+  max-width: 52ch;
+  margin-bottom: 12px;
+  font-size: var(--subtitle-size);
+  line-height: 1.55;
+  color: var(--primary-60);
+}
+
+.about__text--muted {
+  color: var(--primary-50);
+}
+
+.faq__item + .faq__item {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--primary-8);
+}
+
+.faq__question {
+  margin-bottom: 6px;
+  font-size: var(--body-size);
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.faq__answer {
+  max-width: 52ch;
+  font-size: var(--subtitle-size);
+  line-height: 1.55;
+  color: var(--primary-60);
+}
+
+@media (max-width: 1024px) {
+  .about {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 40px;
   }
 }
