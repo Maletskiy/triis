@@ -4,7 +4,9 @@ import {
   OLD_IIS_CONTRIBUTION_LIMIT,
   RULES_YEAR,
 } from "../lib/rules";
+import { useState } from "react";
 import { compactRub } from "../lib/format";
+import { Collapse } from "./ui";
 
 /**
  * Текстовый блок под калькулятором. Нужен не для красоты: поисковики
@@ -54,6 +56,9 @@ export const FAQ: { question: string; answer: string }[] = [
 ];
 
 export default function About() {
+  // Первый вопрос раскрыт: видно, что ответы есть и как они выглядят.
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
   return (
     <section className="about" aria-labelledby="about-title">
       <div className="about__col">
@@ -83,12 +88,45 @@ export default function About() {
           Частые вопросы
         </h2>
         <div className="faq">
-          {FAQ.map((item) => (
-            <div className="faq__item" key={item.question}>
-              <h3 className="faq__question">{item.question}</h3>
-              <p className="faq__answer">{item.answer}</p>
-            </div>
-          ))}
+          {FAQ.map((item, index) => {
+            const open = openIndex === index;
+            return (
+              <div className={"faq__item" + (open ? " is-open" : "")} key={item.question}>
+                <h3 className="faq__heading">
+                  <button
+                    type="button"
+                    className="faq__toggle"
+                    aria-expanded={open}
+                    aria-controls={`faq-panel-${index}`}
+                    onClick={() => setOpenIndex(open ? null : index)}
+                  >
+                    <span className="faq__question">{item.question}</span>
+                    <svg
+                      className="faq__chevron"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M6 9l6 6 6-6"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </h3>
+                <Collapse open={open}>
+                  <p className="faq__answer" id={`faq-panel-${index}`}>
+                    {item.answer}
+                  </p>
+                </Collapse>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

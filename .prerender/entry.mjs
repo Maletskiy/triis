@@ -3,7 +3,7 @@ import { StrictMode } from "react";
 import { renderToString } from "react-dom/server";
 
 // src/App.tsx
-import { useCallback as useCallback4, useEffect as useEffect7, useMemo as useMemo4, useRef as useRef5, useState as useState7 } from "react";
+import { useCallback as useCallback4, useEffect as useEffect7, useMemo as useMemo4, useRef as useRef5, useState as useState8 } from "react";
 
 // src/components/Inputs.tsx
 import { useEffect as useEffect4, useState as useState4 } from "react";
@@ -1515,6 +1515,7 @@ function Topbar({
 }
 
 // src/components/About.tsx
+import { useState as useState6 } from "react";
 import { jsx as jsx8, jsxs as jsxs7 } from "react/jsx-runtime";
 var FAQ = [
   {
@@ -1551,6 +1552,7 @@ var FAQ = [
   }
 ];
 function About() {
+  const [openIndex, setOpenIndex] = useState6(0);
   return /* @__PURE__ */ jsxs7("section", { className: "about", "aria-labelledby": "about-title", children: [
     /* @__PURE__ */ jsxs7("div", { className: "about__col", children: [
       /* @__PURE__ */ jsx8("h2", { className: "about__title", id: "about-title", children: "\u0427\u0442\u043E \u0441\u0447\u0438\u0442\u0430\u0435\u0442 \u043A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440" }),
@@ -1572,10 +1574,46 @@ function About() {
     ] }),
     /* @__PURE__ */ jsxs7("div", { className: "about__col", children: [
       /* @__PURE__ */ jsx8("h2", { className: "about__title", id: "faq-title", children: "\u0427\u0430\u0441\u0442\u044B\u0435 \u0432\u043E\u043F\u0440\u043E\u0441\u044B" }),
-      /* @__PURE__ */ jsx8("div", { className: "faq", children: FAQ.map((item) => /* @__PURE__ */ jsxs7("div", { className: "faq__item", children: [
-        /* @__PURE__ */ jsx8("h3", { className: "faq__question", children: item.question }),
-        /* @__PURE__ */ jsx8("p", { className: "faq__answer", children: item.answer })
-      ] }, item.question)) })
+      /* @__PURE__ */ jsx8("div", { className: "faq", children: FAQ.map((item, index) => {
+        const open = openIndex === index;
+        return /* @__PURE__ */ jsxs7("div", { className: "faq__item" + (open ? " is-open" : ""), children: [
+          /* @__PURE__ */ jsx8("h3", { className: "faq__heading", children: /* @__PURE__ */ jsxs7(
+            "button",
+            {
+              type: "button",
+              className: "faq__toggle",
+              "aria-expanded": open,
+              "aria-controls": `faq-panel-${index}`,
+              onClick: () => setOpenIndex(open ? null : index),
+              children: [
+                /* @__PURE__ */ jsx8("span", { className: "faq__question", children: item.question }),
+                /* @__PURE__ */ jsx8(
+                  "svg",
+                  {
+                    className: "faq__chevron",
+                    width: "18",
+                    height: "18",
+                    viewBox: "0 0 24 24",
+                    "aria-hidden": "true",
+                    children: /* @__PURE__ */ jsx8(
+                      "path",
+                      {
+                        d: "M6 9l6 6 6-6",
+                        fill: "none",
+                        stroke: "currentColor",
+                        strokeWidth: "2",
+                        strokeLinecap: "round",
+                        strokeLinejoin: "round"
+                      }
+                    )
+                  }
+                )
+              ]
+            }
+          ) }),
+          /* @__PURE__ */ jsx8(Collapse, { open, children: /* @__PURE__ */ jsx8("p", { className: "faq__answer", id: `faq-panel-${index}`, children: item.answer }) })
+        ] }, item.question);
+      }) })
     ] })
   ] });
 }
@@ -1964,13 +2002,13 @@ function downloadPdf(input) {
 }
 
 // src/components/Chart.tsx
-import { useMemo as useMemo3, useRef as useRef4, useState as useState6 } from "react";
+import { useMemo as useMemo3, useRef as useRef4, useState as useState7 } from "react";
 import { jsx as jsx10, jsxs as jsxs9 } from "react/jsx-runtime";
 var PAD = { top: 14, right: 10, bottom: 26, left: 6 };
 var W = 720;
 function Chart({ rows, height = 260 }) {
   const svgRef = useRef4(null);
-  const [hover, setHover] = useState6(null);
+  const [hover, setHover] = useState7(null);
   const H = height;
   const data = useMemo3(() => {
     if (rows.length === 0) return null;
@@ -2453,7 +2491,7 @@ function writeState(state) {
 // src/App.tsx
 import { jsx as jsx14, jsxs as jsxs13 } from "react/jsx-runtime";
 function useMediaQuery(query) {
-  const [matches, setMatches] = useState7(() => window.matchMedia(query).matches);
+  const [matches, setMatches] = useState8(() => window.matchMedia(query).matches);
   useEffect7(() => {
     const mql = window.matchMedia(query);
     const onChange = () => setMatches(mql.matches);
@@ -2465,11 +2503,11 @@ function useMediaQuery(query) {
 }
 function App() {
   const isPrivacy = window.location.pathname.replace(/\/$/, "").endsWith("/privacy");
-  const [state, setState] = useState7(() => readState(window.location.search));
-  const [tab, setTab] = useState7("params");
-  const [toast, setToast] = useState7(null);
-  const [sheetOpen, setSheetOpen] = useState7(false);
-  const [barVisible, setBarVisible] = useState7(false);
+  const [state, setState] = useState8(() => readState(window.location.search));
+  const [tab, setTab] = useState8("params");
+  const [toast, setToast] = useState8(null);
+  const [sheetOpen, setSheetOpen] = useState8(false);
+  const [barVisible, setBarVisible] = useState8(false);
   const toastTimer = useRef5(null);
   const isNarrow = useMediaQuery("(max-width: 1024px)");
   const mobileSummaryRef = useRef5(null);
@@ -2528,7 +2566,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.href;
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-24T18:59:12.964Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-24T21:35:13.084Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",

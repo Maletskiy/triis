@@ -97,6 +97,10 @@ if (faq) {
   check(broken.length === 0, "у всех вопросов есть внятный ответ");
   const missing = items.filter((item) => !flat(text).includes(flat(item.name)));
   check(missing.length === 0, "вопросы из разметки есть в тексте страницы");
+  // Ответы свёрнуты в аккордеон, но обязаны оставаться в HTML: иначе
+  // ИИ-краулер прочитает вопрос без ответа.
+  const hidden = items.filter((item) => !flat(text).includes(flat(item.acceptedAnswer.text)));
+  check(hidden.length === 0, "все ответы есть в HTML, хотя и свёрнуты");
 }
 
 /* ---------- политика ---------- */

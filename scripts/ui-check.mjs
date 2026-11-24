@@ -739,6 +739,54 @@ const metrics = (page) =>
   if (!layoutCheck.noToTop) fail("кнопка «наверх» вернулась");
   else ok(`кнопки «наверх» нет, ширина лэйаута ${layoutCheck.appWidth}`);
 
+  /* FAQ: ответы свёрнуты, но остаются в DOM — иначе ИИ-краулер прочитает
+     вопрос без ответа. Проверяем и разметку, и анимацию раскрытия. */
+  const faqBefore = await page.evaluate(() => {
+    const items = [...document.querySelectorAll(".faq__item")];
+    return {
+      count: items.length,
+      open: items.filter((el) => el.querySelector('[aria-expanded="true"]')).length,
+      answersInDom: [...document.querySelectorAll(".faq__answer")].filter((el) => el.textContent.trim().length > 40).length,
+      openHeight: Math.round(document.querySelector(".faq .collapse.is-open")?.getBoundingClientRect().height ?? 0),
+      closedHeight: Math.round(document.querySelector(".faq .collapse:not(.is-open)")?.getBoundingClientRect().height ?? 0),
+      chevronOpen: getComputedStyle(document.querySelector(".faq__item.is-open .faq__chevron")).transform,
+      chevronClosed: getComputedStyle(document.querySelector(".faq__item:not(.is-open) .faq__chevron")).transform,
+    };
+  });
+
+  if (faqBefore.count !== 8) fail(`вопросов в FAQ: ${faqBefore.count}`);
+  else ok(`вопросов в FAQ: ${faqBefore.count}`);
+
+  if (faqBefore.answersInDom !== 8) fail(`ответов в DOM: ${faqBefore.answersInDom}`);
+  else ok("все ответы остаются в DOM, хотя и свёрнуты");
+
+  if (faqBefore.open !== 1) fail(`раскрыто вопросов: ${faqBefore.open}`);
+  else ok("по умолчанию раскрыт один вопрос");
+
+  if (faqBefore.openHeight < 20 || faqBefore.closedHeight > 1) {
+    fail(`высоты панелей: открытая ${faqBefore.openHeight}, закрытая ${faqBefore.closedHeight}`);
+  } else ok(`панель: раскрытая ${faqBefore.openHeight} px, свёрнутая ${faqBefore.closedHeight} px`);
+
+  if (faqBefore.chevronOpen === faqBefore.chevronClosed) fail("шеврон не поворачивается при раскрытии");
+  else ok("шеврон поворачивается при раскрытии");
+
+  const secondToggle = await page.$(".faq__item:nth-child(2) .faq__toggle");
+  await secondToggle.click();
+  await new Promise((r) => setTimeout(r, 420));
+  const faqAfter = await page.evaluate(() => {
+    const items = [...document.querySelectorAll(".faq__item")];
+    return {
+      open: items.map((el) => el.querySelector('[aria-expanded="true"]') !== null),
+      secondHeight: Math.round(items[1].querySelector(".collapse").getBoundingClientRect().height),
+      firstHeight: Math.round(items[0].querySelector(".collapse").getBoundingClientRect().height),
+    };
+  });
+  if (!faqAfter.open[1] || faqAfter.open[0]) fail(`переключение вопросов: ${JSON.stringify(faqAfter.open)}`);
+  else ok("раскрытие переключается на другой вопрос");
+  if (faqAfter.secondHeight < 20 || faqAfter.firstHeight > 1) {
+    fail(`высоты после переключения: ${faqAfter.secondHeight} / ${faqAfter.firstHeight}`);
+  } else ok("предыдущий ответ плавно закрылся");
+
   const privacyUrl = APP_URL.includes("vercel.app") ? APP_URL + "privacy" : APP_URL + "privacy.html";
   await page.goto(privacyUrl, { waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 400));
