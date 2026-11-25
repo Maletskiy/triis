@@ -2566,7 +2566,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.href;
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-24T21:35:13.084Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-25T00:09:56.687Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
