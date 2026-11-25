@@ -9,7 +9,7 @@ export default function YearTable({
   openYear: number;
 }) {
   if (result.rows.length === 0) {
-    return <p className="table__empty">Пока нет данных для таблицы.</p>;
+    return <p className="table__empty">Пока нет данных для таблицы</p>;
   }
 
   return (

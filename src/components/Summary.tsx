@@ -15,28 +15,28 @@ export function collectWarnings(result: AccountResult, scenario: Scenario): Warn
   if (result.earlyClose) {
     list.push({
       tone: "warn",
-      text: `Счёт закрывается на ${scenario.years} ${yearsWord(scenario.years)} — это раньше минимального срока в ${result.minHolding} ${yearsWord(result.minHolding)}. Вычеты придётся вернуть (${rub(result.clawback)}), а с прибыли заплатить налог.`,
+      text: `Счёт закрывается на ${scenario.years} ${yearsWord(scenario.years)} — это раньше минимального срока в ${result.minHolding} ${yearsWord(result.minHolding)}. Вычеты придётся вернуть (${rub(result.clawback)}), а с прибыли заплатить налог`,
     });
   }
 
   if (scenario.officialIncome <= 0) {
     list.push({
       tone: "warn",
-      text: "Без официального дохода возвращать нечего: вычет ограничен уплаченным НДФЛ.",
+      text: "Без официального дохода возвращать нечего: вычет ограничен уплаченным НДФЛ",
     });
   }
 
   if (result.refunds < scenario.annualContribution * 0.13 * scenario.years * 0.999 && result.refunds > 0) {
     list.push({
       tone: "info",
-      text: "Вычет упёрся в предел: он считается только с 400 000 ₽ взносов в год и не больше уплаченного НДФЛ.",
+      text: "Вычет упёрся в предел: он считается только с 400 000 ₽ взносов в год и не больше уплаченного НДФЛ",
     });
   }
 
   if (result.type !== "iis3" && scenario.annualContribution > 1_000_000) {
     list.push({
       tone: "info",
-      text: "У типов А и Б есть лимит взноса 1 млн ₽ в год — излишек в расчёте не участвует.",
+      text: "У типов А и Б есть лимит взноса 1 млн ₽ в год — излишек в расчёте не участвует",
     });
   }
 
