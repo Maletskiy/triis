@@ -5,7 +5,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-KEY="../.secrets/deploy_key"
+KEY=".secrets/deploy_key"
 HOST="server37.hosting.reg.ru"
 USER="u3695402"
 REMOTE="/var/www/u3695402/data/www/triis.ru/"

@@ -7,3 +7,11 @@ scripts/check.mjs
 tsconfig.tsbuildinfo
 .vercel-cli
 .vercel
+
+# локальное окружение воркспейса (не часть проекта)
+.dsh/
+.secrets/
+.tools/
+AGENTS.md
+docs/
+.npm-cache/
