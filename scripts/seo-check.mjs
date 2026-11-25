@@ -1,6 +1,6 @@
 // Проверка собранного сайта на поисковую готовность.
 // Запуск: node scripts/seo-check.mjs (после npm run build)
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const DIST = resolve(import.meta.dirname, "../dist");
@@ -124,6 +124,24 @@ check(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(sitemap), "в карте са
 const llms = read("llms.txt");
 check(llms.length > 700, `llms.txt: ${llms.length} символов`);
 check(/https:\/\/triis\.ru\//.test(llms), "llms.txt ссылается на сайт");
+
+// Подтверждение владения в поисковых панелях: файл и мета-тег не должны
+// теряться при правках head или чистке public.
+// Google подтверждает владение отдельным файлом в корне: имя файла и строка
+// внутри должны совпадать, иначе проверка не пройдёт.
+const googleFiles = readdirSync(DIST).filter((name) => /^google[0-9a-f]+\.html$/.test(name));
+check(googleFiles.length > 0, `файл Google Search Console: ${googleFiles.join(", ") || "нет"}`);
+for (const name of googleFiles) {
+  const body = readFileSync(resolve(DIST, name), "utf8").trim();
+  check(
+    body === `google-site-verification: ${name}`,
+    `содержимое ${name} совпадает с именем`,
+  );
+}
+check(
+  /<meta name="yandex-verification" content="[0-9a-f]{16}" \/>/.test(index),
+  "в head есть yandex-verification",
+);
 
 check(existsSync(resolve(DIST, "og.png")), "есть og.png");
 const png = readFileSync(resolve(DIST, "og.png"));
