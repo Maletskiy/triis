@@ -27,6 +27,8 @@ import type { AppState } from "./lib/url";
 
 type Tab = "params" | "compare" | "rules";
 
+const STATE_KEY = "triis:state";
+
 function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
   useEffect(() => {
@@ -42,9 +44,12 @@ function useMediaQuery(query: string): boolean {
 export default function App() {
   const isPrivacy = window.location.pathname.replace(/\/$/, "").endsWith("/privacy");
 
-  const [state, setState] = useState<AppState>(() =>
-    readState(window.location.hash.slice(1) || window.location.search),
-  );
+  const [state, setState] = useState<AppState>(() => {
+    const fromLink = window.location.hash.slice(1) || window.location.search;
+    const saved =
+      typeof sessionStorage === "undefined" ? "" : sessionStorage.getItem(STATE_KEY) ?? "";
+    return readState(fromLink || saved);
+  });
   const [tab, setTab] = useState<Tab>("params");
   const [toast, setToast] = useState<{ text: string; visible: boolean } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -62,11 +67,17 @@ export default function App() {
   const active = results[state.account];
   const warnings = collectWarnings(active, state.scenario);
 
-  // Параметры в адресе после решётки: ссылкой можно поделиться, состояние не теряется,
-  // а сервер и счётчики этих данных не видят.
+  // Состояние живёт в памяти вкладки, а адрес остаётся чистым: ни сервер, ни счётчики
+  // не видят ни сумм, ни ставок. Ссылкой делимся по кнопке — там параметры добавляются.
   useEffect(() => {
-    const next = writeState(state);
-    window.history.replaceState(null, "", window.location.pathname + next);
+    try {
+      sessionStorage.setItem(STATE_KEY, writeState(state).slice(1));
+    } catch {
+      // приватный режим может запретить запись — расчёт от этого не страдает
+    }
+    if (window.location.hash || window.location.search) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
   }, [state]);
 
   // Нижняя плашка нужна, только когда блок с итогом ушёл за верх экрана.
@@ -121,7 +132,7 @@ export default function App() {
     setState((prev) => ({ ...prev, account }));
   }, []);
 
-  const shareUrl = () => window.location.href;
+  const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
 
   const updatedLabel = useMemo(() => {
     const stamp = new Date(__BUILD_TIME__);

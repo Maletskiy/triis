@@ -523,9 +523,9 @@ const metrics = (page) =>
     const opened = Math.round(block.getBoundingClientRect().height);
     items.find((el) => norm(el.textContent).trim() === "Одна сумма на все годы")?.click();
     const values = [];
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < 10; i += 1) {
       values.push(Math.round(block.getBoundingClientRect().height));
-      await new Promise((r) => setTimeout(r, 40));
+      await new Promise((r) => setTimeout(r, 45));
     }
     return { opened, values, distinct: new Set(values).size };
   });
@@ -574,9 +574,9 @@ const metrics = (page) =>
     const target = items.find((el) => norm(el.textContent).trim() === "Разные суммы по годам");
     const values = [];
     target?.click();
-    for (let i = 0; i < 8; i += 1) {
+    for (let i = 0; i < 12; i += 1) {
       values.push(Math.round(host.getBoundingClientRect().height));
-      await new Promise((r) => setTimeout(r, 40));
+      await new Promise((r) => setTimeout(r, 45));
     }
     return values;
   });
@@ -621,10 +621,12 @@ const metrics = (page) =>
   });
   await page.waitForSelector(".inputs .param__input");
 
-  // URL отражает состояние
+  // Адрес остаётся чистым: параметры живут в памяти вкладки, а не в строке браузера
   const url = page.url();
-  if (!url.includes("c=400000") || !url.includes("od=") || !url.includes("a=iis")) fail(`состояние не в адресе: ${url}`);
-  else ok("параметры расчёта в адресе");
+  const saved = await page.evaluate(() => sessionStorage.getItem("triis:state") ?? "");
+  if (url.includes("c=") || url.includes("od=") || url.includes("a=iis")) fail(`состояние просочилось в адрес: ${url}`);
+  else if (!saved.includes("c=") || !saved.includes("od=") || !saved.includes("a=iis")) fail(`состояние не сохраняется в памяти вкладки: "${saved}"`);
+  else ok("адрес чистый, состояние — в памяти вкладки");
 
   // копирование ссылки
   await browser.defaultBrowserContext().overridePermissions(APP_URL.replace(/\/$/, ""), [
@@ -638,6 +640,10 @@ const metrics = (page) =>
   const copyLabel = await page.$eval(".actions .btn", (el) => el.textContent?.trim() ?? "");
   if (!copyLabel.includes("Ссылка скопирована")) fail(`кнопка копирования не подтвердила: "${copyLabel}"`);
   else ok(`копирование подтверждается: "${copyLabel}"`);
+
+  const sharedLink = await page.evaluate(() => navigator.clipboard.readText().catch(() => ""));
+  if (!sharedLink.includes("#c=") || !sharedLink.includes("a=iis")) fail(`в ссылке нет параметров расчёта: "${sharedLink}"`);
+  else ok("в скопированной ссылке есть параметры расчёта");
 
   await page.screenshot({ path: `${SHOTS}desktop.png`, fullPage: false });
 
