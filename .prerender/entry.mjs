@@ -2582,7 +2582,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:45:37.518Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:49:36.934Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3067,7 +3067,7 @@ var PDS_FAQ = [
     answer: "\u0418\u0418\u0421-3 \u0434\u0430\u0451\u0442 \u0432\u044B\u0447\u0435\u0442 \u043D\u0430\xA0\u0432\u0437\u043D\u043E\u0441 \u0438\xA0\u043E\u0441\u0432\u043E\u0431\u043E\u0436\u0434\u0435\u043D\u0438\u0435 \u0434\u043E\u0445\u043E\u0434\u0430, \u043D\u043E\xA0\u043D\u0435\xA0\u0434\u0430\u0451\u0442 \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438\xA0\u043D\u0435\xA0\u043D\u0430\u0441\u043B\u0435\u0434\u0443\u0435\u0442\u0441\u044F. \u041F\u0414\u0421 \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 \u0434\u043E\xA036 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434 \u043E\u0442\xA0\u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u0430, \u043D\u0430\u0441\u043B\u0435\u0434\u0443\u0435\u0442\u0441\u044F, \u043D\u043E\xA0\u0434\u0435\u043D\u044C\u0433\u0438 \u0437\u0430\u043F\u0435\u0440\u0442\u044B \u0434\u043E\xA015\u202F\u043B\u0435\u0442 \u0438\u043B\u0438\xA055/60\u202F\u043B\u0435\u0442, \u0430\xA0\u043B\u0438\u043C\u0438\u0442 \u0432\u044B\u0447\u0435\u0442\u0430 \u0443\xA0\u043E\u0431\u043E\u0438\u0445 \u043E\u0431\u0449\u0438\u0439\xA0\u2014 400 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434"
   }
 ];
-var money2 = (value) => value > 0 ? value.toLocaleString("ru-RU") : "";
+var money2 = (value) => value.toLocaleString("ru-RU");
 var parseMoney2 = (raw) => parseNumber(raw.replace(/[^\d\s\u202F]/g, ""));
 function MoneyValue2({
   value,
@@ -3130,7 +3130,7 @@ function Pds({ initialTab = "params" }) {
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:45:37.518Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:49:36.934Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",

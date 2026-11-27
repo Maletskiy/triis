@@ -76,7 +76,7 @@ export const PDS_FAQ: { question: string; answer: string }[] = [
   },
 ];
 
-const money = (value: number) => (value > 0 ? value.toLocaleString("ru-RU") : "");
+const money = (value: number) => value.toLocaleString("ru-RU");
 const parseMoney = (raw: string) => parseNumber(raw.replace(/[^\d\s\u202F]/g, ""));
 
 /** Крупное поле значения: то же, что в параметрах калькулятора ИИС. */
