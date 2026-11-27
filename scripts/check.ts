@@ -1,6 +1,7 @@
 import { compare, simulate, type Scenario } from "../src/lib/calc";
 import { iis3MinYears, marginalRate, ndfl } from "../src/lib/rules";
 import { DEFAULTS, readState, writeState } from "../src/lib/url";
+import { PDS_DEFAULTS, cofinancingFor, cofinancingRate, simulatePds } from "../src/lib/pds";
 
 let failures = 0;
 
@@ -154,6 +155,68 @@ check("адрес: взнос пережил кодирование", roundTrip.
 const legacy = readState("?c=250000&y=4&a=iis1");
 check("адрес: старая ?-ссылка читается", legacy.scenario.annualContribution, 250_000);
 check("адрес: тип счёта из старой ссылки", legacy.account === "iis1" ? 1 : 0, 1);
+
+// 16. ПДС: коэффициенты софинансирования по доходу
+check("ПДС: доход 80 000 — рубль на рубль", cofinancingRate(80_000), 1);
+check("ПДС: доход 80 001 — половина", cofinancingRate(80_001), 0.5);
+check("ПДС: доход 150 000 — половина", cofinancingRate(150_000), 0.5);
+check("ПДС: доход 150 001 — четверть", cofinancingRate(150_001), 0.25);
+
+// 17. ПДС: потолок господдержки, минимальный взнос и срок программы
+check("ПДС: потолок 36 000 в год", cofinancingFor(100_000, 50_000, 1), 36_000);
+check("ПДС: взнос меньше 2 000 — без софинансирования", cofinancingFor(1_000, 50_000, 1), 0);
+check("ПДС: после десятого года софинансирования нет", cofinancingFor(100_000, 50_000, 11), 0);
+check("ПДС: низкий доход — рубль на рубль", cofinancingFor(20_000, 60_000, 1), 20_000);
+
+// 18. ПДС: десять лет по 120 000 без доходности
+const pdsBase = simulatePds({
+  ...PDS_DEFAULTS,
+  monthlyIncome: 100_000,
+  annualContribution: 120_000,
+  contributionYears: 10,
+  holdingYears: 10,
+  returnPct: 0,
+  inflationPct: 0,
+  reinvestRefunds: false,
+  iis3Contribution: 0,
+});
+check("ПДС: свои взносы", pdsBase.contributions, 1_200_000);
+check("ПДС: софинансирование за десять лет", pdsBase.cofinancing, 360_000);
+check("ПДС: вычеты за десять лет", pdsBase.refunds, 156_000);
+check("ПДС: капитал без доходности", pdsBase.capital, 1_560_000);
+check("ПДС: налог при выплатах", pdsBase.exitTax, 0);
+check("ПДС: на руки с вычетами", pdsBase.net, 1_716_000);
+
+// 19. ПДС: общий лимит вычета с ИИС-3
+const pdsShared = simulatePds({
+  ...PDS_DEFAULTS,
+  monthlyIncome: 100_000,
+  annualContribution: 120_000,
+  contributionYears: 1,
+  holdingYears: 15,
+  returnPct: 0,
+  inflationPct: 0,
+  reinvestRefunds: false,
+  iis3Contribution: 350_000,
+});
+check("ПДС: остаток лимита после ИИС-3", pdsShared.deductionRoom, 50_000);
+check("ПДС: вычет с остатка лимита", pdsShared.refunds, 6_500);
+
+// 20. ПДС: без условий освобождения доход облагается
+const pdsTaxed = simulatePds({
+  ...PDS_DEFAULTS,
+  monthlyIncome: 100_000,
+  annualContribution: 120_000,
+  contributionYears: 9,
+  holdingYears: 9,
+  returnPct: 0,
+  inflationPct: 0,
+  reinvestRefunds: false,
+  iis3Contribution: 0,
+});
+check("ПДС: срок меньше 10 лет — льготы нет", pdsTaxed.taxExempt ? 1 : 0, 0);
+check("ПДС: налог с дохода при досрочных выплатах", pdsTaxed.exitTax > 0 ? 1 : 0, 1);
+check("ПДС: до выплат по сроку осталось", pdsTaxed.yearsToPayout, 6);
 
 console.log(`\n${failures === 0 ? "Все проверки пройдены" : `Провалено проверок: ${failures}`}`);
 if (failures > 0) throw new Error("Проверки не пройдены");

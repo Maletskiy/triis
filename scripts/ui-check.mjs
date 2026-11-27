@@ -688,10 +688,15 @@ const metrics = (page) =>
   } else ok(`подвал: «${updated}»`);
 
   // ссылка на политику в подвале и сама страница
-  const privacyLink = await page.evaluate(() => {
-    const link = document.querySelector(".footer__link");
-    return { text: link?.textContent?.trim(), href: link?.getAttribute("href") };
-  });
+  const footerLinks = await page.evaluate(() =>
+    [...document.querySelectorAll(".footer__link")].map((link) => ({
+      text: link.textContent?.trim(),
+      href: link.getAttribute("href"),
+    })),
+  );
+  const privacyLink = footerLinks.find((link) => link.href === "/privacy") ?? {};
+  const pdsLink = footerLinks.find((link) => link.href === "/pds") ?? {};
+  if (!pdsLink.text?.includes("ПДС")) fail(`ссылка на ПДС в подвале: ${JSON.stringify(footerLinks)}`);
   if (privacyLink.href !== "/privacy" || !privacyLink.text?.includes("Политика")) {
     fail(`ссылка на политику: ${JSON.stringify(privacyLink)}`);
   } else ok(`подвал: ссылка «${privacyLink.text}» → ${privacyLink.href}`);
@@ -812,6 +817,49 @@ const metrics = (page) =>
   ) {
     fail(`страница политики: ${JSON.stringify(privacyPage)}`);
   } else ok(`страница политики: ${privacyPage.sections} разделов, калькулятора нет`);
+
+  // страница ПДС: считается, считается честно и не ломается на мобиле
+  const pdsUrl = APP_URL + "pds.html";
+  await page.goto(pdsUrl, { waitUntil: "networkidle0" });
+  await new Promise((r) => setTimeout(r, 500));
+  const pdsStart = await page.evaluate(() => ({
+    title: document.title,
+    h1: document.querySelector("h1")?.textContent?.trim(),
+    rows: document.querySelectorAll(".pds__table-el tbody tr").length,
+    cofinancing: document.querySelectorAll(".pds__stat dd")[0]?.textContent?.trim(),
+    linkHome: document.querySelector('.topbar__nav a[href="/"]') !== null,
+    hasFaq: document.querySelectorAll(".pds__faq-item").length,
+  }));
+  if (!pdsStart.title.includes("ПДС") || !pdsStart.h1?.includes("ПДС")) {
+    fail(`страница ПДС: заголовки ${JSON.stringify({ title: pdsStart.title, h1: pdsStart.h1 })}`);
+  } else if (pdsStart.rows !== 15 || pdsStart.hasFaq < 5 || !pdsStart.linkHome) {
+    fail(`страница ПДС: ${JSON.stringify(pdsStart)}`);
+  } else ok(`страница ПДС: ${pdsStart.rows} строк, ${pdsStart.hasFaq} вопросов, ссылка на ИИС есть`);
+
+  // сумма софинансирования не должна превышать 36 000 ₽ в год
+  const pdsMax = await page.evaluate(() => {
+    const input = document.querySelectorAll(".pds__input")[1];
+    const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
+    setter.call(input, "400000");
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    return new Promise((resolve) =>
+      setTimeout(() => {
+        const rows = [...document.querySelectorAll(".pds__table-el tbody tr")];
+        const max = Math.max(...rows.map((row) => Number((row.children[2].textContent || "0").replace(/\D/g, ""))));
+        resolve(max);
+      }, 300),
+    );
+  });
+  if (pdsMax > 36_000) fail(`софинансирование больше потолка: ${pdsMax}`);
+  else ok(`софинансирование в потолке: максимум ${pdsMax} ₽ в год`);
+
+  await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
+  await page.reload({ waitUntil: "networkidle0" });
+  await new Promise((r) => setTimeout(r, 500));
+  const pdsMobile = await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  if (!pdsMobile) fail("страница ПДС на мобиле переполняется по ширине");
+  else ok("страница ПДС: на 390 px без переполнения");
+  await page.setViewport({ width: 1440, height: 900, deviceScaleFactor: 1 });
 
   await page.goto(APP_URL, { waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 400));

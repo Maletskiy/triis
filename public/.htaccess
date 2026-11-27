@@ -25,6 +25,9 @@ DirectorySlash Off
   # Политика конфиденциальности: /privacy и /privacy/ → privacy.html
   RewriteRule ^privacy/?$ /privacy.html [L]
 
+  # Калькулятор ПДС: /pds и /pds/ → pds.html
+  RewriteRule ^pds/?$ /pds.html [L]
+
   # Существующие файлы отдаём как есть
   RewriteCond %{REQUEST_FILENAME} -f [OR]
   RewriteCond %{REQUEST_FILENAME} -d

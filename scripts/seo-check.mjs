@@ -118,7 +118,7 @@ for (const bot of ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"]) {
 }
 
 const sitemap = read("sitemap.xml");
-check((sitemap.match(/<loc>/g) ?? []).length === 2, "два адреса в карте сайта");
+check((sitemap.match(/<loc>/g) ?? []).length === 3, "три адреса в карте сайта");
 check(/<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(sitemap), "в карте сайта есть lastmod");
 
 const llms = read("llms.txt");
@@ -146,6 +146,40 @@ check(
 check(existsSync(resolve(DIST, "og.png")), "есть og.png");
 const png = readFileSync(resolve(DIST, "og.png"));
 check(png.readUInt32BE(16) === 1200 && png.readUInt32BE(20) === 630, "og.png размером 1200×630");
+
+/* ---------- калькулятор ПДС ---------- */
+const pds = read("pds.html");
+const pdsText = visibleText(pds);
+const pdsWords = pdsText.split(" ").filter(Boolean).length;
+
+const pdsTitle = pds.match(/<title>([^<]*)<\/title>/)?.[1] ?? "";
+check(pdsTitle.length >= 20 && pdsTitle.length <= 70, `ПДС: title ${pdsTitle.length} символов: ${pdsTitle}`);
+
+const pdsDescription = pds.match(/<meta\s+name="description"\s+content="([^"]*)"/s)?.[1] ?? "";
+check(pdsDescription.length >= 70 && pdsDescription.length <= 200, `ПДС: description ${pdsDescription.length} символов`);
+
+check(/<link rel="canonical" href="https:\/\/triis\.ru\/pds"/.test(pds), "ПДС: canonical");
+check((pds.match(/<h1[\s>]/g) ?? []).length === 1, "ПДС: один h1");
+check(/<h1[^>]*>[\s\S]{0,200}?ПДС/.test(pds), "ПДС: в h1 есть запрос");
+check(pdsWords >= 600, `ПДС: текст без JavaScript — ${pdsWords} слов`);
+check(/<!--prerender:start-->/.test(pds), "ПДС: разметка вставлена пререндером");
+for (const phrase of ["софинансирование", "400 000", "30 млн", "15 лет"]) {
+  check(pdsText.toLowerCase().includes(phrase.toLowerCase()), `ПДС: в тексте есть «${phrase}»`);
+}
+
+const pdsFaq = pds.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1] ?? "";
+let pdsFaqOk = false;
+try {
+  const parsed = JSON.parse(pdsFaq);
+  pdsFaqOk = parsed["@type"] === "FAQPage" && Array.isArray(parsed.mainEntity) && parsed.mainEntity.length >= 5;
+} catch {
+  pdsFaqOk = false;
+}
+check(pdsFaqOk, "ПДС: разметка FAQPage с вопросами");
+
+check(/https:\/\/triis\.ru\/pds<\/loc>/.test(sitemap), "ПДС: адрес в карте сайта");
+
+check(/pds/i.test(llms), "llms.txt знает про калькулятор ПДС");
 
 /* ---------- итог ---------- */
 if (failures > 0) {

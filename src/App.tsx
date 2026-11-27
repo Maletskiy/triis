@@ -358,9 +358,26 @@ export default function App() {
 
       <About />
 
+      <aside className="cross-link" aria-label="Другой калькулятор">
+        <a className="cross-link__a" href="/pds">
+          <span className="cross-link__body">
+            <span className="cross-link__title">Программа долгосрочных сбережений</span>
+            <span className="cross-link__text">
+              Софинансирование до 36 000 ₽ в год, вычет и выплаты — калькулятор ПДС
+            </span>
+          </span>
+          <span className="cross-link__arrow" aria-hidden="true">
+            →
+          </span>
+        </a>
+      </aside>
+
       <footer className="footer">
         <div className="footer__top">
           <LikeButton hint="Если было полезно, поставь лайк" />
+          <a className="footer__link" href="/pds">
+            Калькулятор ПДС
+          </a>
           <a className="footer__link" href="/privacy">
             Политика конфиденциальности
           </a>

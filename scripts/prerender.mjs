@@ -106,13 +106,14 @@ function inject(htmlPath, markup) {
 }
 
 /** FAQPage в head: те же вопросы и ответы, что в блоке под калькулятором. */
-function injectFaq(htmlPath, json) {
+function injectFaq(htmlPath, json, markerName = "faq") {
   const html = readFileSync(htmlPath, "utf8");
   const tag = `    <script type="application/ld+json">\n${json}\n    </script>`;
-  if (!html.includes("<!--jsonld:faq-->")) {
-    throw new Error("в index.html нет места под разметку FAQ");
+  const marker = `<!--jsonld:${markerName}-->`;
+  if (!html.includes(marker)) {
+    throw new Error(`в ${htmlPath} нет места под разметку FAQ (${marker})`);
   }
-  writeFileSync(htmlPath, html.replace("<!--jsonld:faq-->", tag));
+  writeFileSync(htmlPath, html.replace(marker, tag));
 }
 
 /** Дата последнего изменения в карте сайта — по времени сборки. */
@@ -156,11 +157,16 @@ async function main() {
   installDomStubs("/privacy");
   const privacy = mod.renderPrivacyPage();
 
+  installDomStubs("/pds");
+  const pds = mod.renderPdsPage();
+
   console.error = origError;
 
   const homeLen = inject(resolve(ROOT, "dist/index.html"), home);
   const privacyLen = inject(resolve(ROOT, "dist/privacy.html"), privacy);
+  const pdsLen = inject(resolve(ROOT, "dist/pds.html"), pds);
   injectFaq(resolve(ROOT, "dist/index.html"), mod.faqJsonLd());
+  injectFaq(resolve(ROOT, "dist/pds.html"), mod.pdsFaqJsonLd(), "faq-pds");
   stampSitemap(resolve(ROOT, "dist/sitemap.xml"), time);
 
   const text = (html) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -168,6 +174,7 @@ async function main() {
   for (const [name, markup, len] of [
     ["главная", home, homeLen],
     ["политика", privacy, privacyLen],
+    ["пдс", pds, pdsLen],
   ]) {
     const words = text(markup).split(" ").filter(Boolean).length;
     console.log(`${name}: ${words} слов текста, файл ${(len / 1024).toFixed(1)} КБ`);
