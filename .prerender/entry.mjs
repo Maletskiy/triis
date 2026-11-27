@@ -980,7 +980,7 @@ function MoneyValue({
     /* @__PURE__ */ jsx4(
       "input",
       {
-        className: "param__input",
+        className: "param__input ym-disable-keys",
         inputMode: "numeric",
         "aria-label": label,
         value: draft,
@@ -1188,7 +1188,7 @@ function Inputs({ scenario, onChange, account, onAccountChange }) {
                         /* @__PURE__ */ jsx4(
                           "input",
                           {
-                            className: "plan__input",
+                            className: "plan__input ym-disable-keys",
                             inputMode: "numeric",
                             "aria-label": `\u0412\u0437\u043D\u043E\u0441 \u0432 ${openYear + index} \u0433\u043E\u0434\u0443`,
                             value: money(scenario.contributions[index] ?? 0),
@@ -2572,7 +2572,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.href;
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T21:36:49.567Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T21:51:45.624Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",

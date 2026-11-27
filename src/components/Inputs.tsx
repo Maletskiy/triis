@@ -44,7 +44,7 @@ function MoneyValue({
   return (
     <div className="param__value">
       <input
-        className="param__input"
+        className="param__input ym-disable-keys"
         inputMode="numeric"
         aria-label={label}
         value={draft}
@@ -270,7 +270,7 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
                     <span className="plan__year">{openYear + index}</span>
                     <span className="plan__field">
                       <input
-                        className="plan__input"
+                        className="plan__input ym-disable-keys"
                         inputMode="numeric"
                         aria-label={`Взнос в ${openYear + index} году`}
                         value={money(scenario.contributions[index] ?? 0)}
