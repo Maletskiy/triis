@@ -42,7 +42,9 @@ function useMediaQuery(query: string): boolean {
 export default function App() {
   const isPrivacy = window.location.pathname.replace(/\/$/, "").endsWith("/privacy");
 
-  const [state, setState] = useState<AppState>(() => readState(window.location.search));
+  const [state, setState] = useState<AppState>(() =>
+    readState(window.location.hash.slice(1) || window.location.search),
+  );
   const [tab, setTab] = useState<Tab>("params");
   const [toast, setToast] = useState<{ text: string; visible: boolean } | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -60,7 +62,8 @@ export default function App() {
   const active = results[state.account];
   const warnings = collectWarnings(active, state.scenario);
 
-  // Параметры в адресе: ссылкой можно поделиться, состояние не теряется.
+  // Параметры в адресе после решётки: ссылкой можно поделиться, состояние не теряется,
+  // а сервер и счётчики этих данных не видят.
   useEffect(() => {
     const next = writeState(state);
     window.history.replaceState(null, "", window.location.pathname + next);

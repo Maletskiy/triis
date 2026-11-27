@@ -1,5 +1,6 @@
 import { compare, simulate, type Scenario } from "../src/lib/calc";
 import { iis3MinYears, marginalRate, ndfl } from "../src/lib/rules";
+import { DEFAULTS, readState, writeState } from "../src/lib/url";
 
 let failures = 0;
 
@@ -143,6 +144,16 @@ check("свои суммы: вычеты с базы 400 000 в год", plan.re
 // 14. Сравнение возвращает три счёта
 const all = compare(base);
 check("сравнение: три результата", Object.keys(all).length, 3);
+
+// 15. Состояние в адресе: пишем после решётки, читаем обратно, старые ?-ссылки живы
+const encoded = writeState({ ...DEFAULTS, scenario: { ...base, years: 7 } });
+check("адрес: параметры после решётки", encoded.startsWith("#") ? 1 : 0, 1);
+const roundTrip = readState(encoded.slice(1));
+check("адрес: годы пережили кодирование", roundTrip.scenario.years, 7);
+check("адрес: взнос пережил кодирование", roundTrip.scenario.annualContribution, 400_000);
+const legacy = readState("?c=250000&y=4&a=iis1");
+check("адрес: старая ?-ссылка читается", legacy.scenario.annualContribution, 250_000);
+check("адрес: тип счёта из старой ссылки", legacy.account === "iis1" ? 1 : 0, 1);
 
 console.log(`\n${failures === 0 ? "Все проверки пройдены" : `Провалено проверок: ${failures}`}`);
 if (failures > 0) throw new Error("Проверки не пройдены");

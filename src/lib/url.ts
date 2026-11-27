@@ -97,6 +97,10 @@ export function readState(search: string): AppState {
   };
 }
 
+/**
+ * Состояние расчёта живёт после решётки: такие параметры не уходят на сервер
+ * и не попадают в статистику как часть адреса страницы.
+ */
 export function writeState(state: AppState): string {
   const params = new URLSearchParams();
   const { scenario } = state;
@@ -117,5 +121,5 @@ export function writeState(state: AppState): string {
   params.set(PARAM_KEYS.periodsPerYear, String(scenario.periodsPerYear ?? 1));
   if (scenario.manualRate) params.set(PARAM_KEYS.manualRate, String(scenario.manualRate));
   params.set("a", state.account);
-  return `?${params.toString()}`;
+  return `#${params.toString()}`;
 }
