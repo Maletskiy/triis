@@ -1499,28 +1499,15 @@ function LikeButton({ hint }) {
 // src/components/Topbar.tsx
 import { jsx as jsx7, jsxs as jsxs6 } from "react/jsx-runtime";
 function Topbar({
-  variant = "hero",
+  tagline = "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440\u044B \u0418\u0418\u0421 \u0438 \u041F\u0414\u0421",
   children
 }) {
-  const mark = /* @__PURE__ */ jsx7("img", { className: "topbar__mark", src: "/logo.svg", alt: "", "aria-hidden": "true" });
-  if (variant === "hero") {
-    return /* @__PURE__ */ jsxs6("header", { className: "topbar", children: [
-      /* @__PURE__ */ jsxs6("div", { className: "topbar__brand", children: [
-        mark,
-        /* @__PURE__ */ jsxs6("h1", { className: "topbar__title", children: [
-          /* @__PURE__ */ jsx7("span", { className: "topbar__name", children: "\u0422\u0420\u0418\u0418\u0421" }),
-          /* @__PURE__ */ jsx7("span", { className: "topbar__lede", children: "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0418\u0418\u0421: \u0432\u044B\u0447\u0435\u0442\u044B, \u043D\u0430\u043B\u043E\u0433\u0438, \u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C" })
-        ] })
-      ] }),
-      children
-    ] });
-  }
   return /* @__PURE__ */ jsxs6("header", { className: "topbar", children: [
-    /* @__PURE__ */ jsxs6("a", { className: "topbar__brand", href: "/", "aria-label": "\u0422\u0420\u0418\u0418\u0421\xA0\u2014 \u043D\u0430\xA0\u0433\u043B\u0430\u0432\u043D\u0443\u044E", children: [
-      mark,
+    /* @__PURE__ */ jsxs6("a", { className: "topbar__brand", href: "/", "aria-label": "\u0422\u0420\u0418\u0418\u0421 \u2014 \u043D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E", children: [
+      /* @__PURE__ */ jsx7("img", { className: "topbar__mark", src: "/logo.svg", alt: "", "aria-hidden": "true" }),
       /* @__PURE__ */ jsxs6("span", { className: "topbar__title", children: [
         /* @__PURE__ */ jsx7("span", { className: "topbar__name", children: "\u0422\u0420\u0418\u0418\u0421" }),
-        /* @__PURE__ */ jsx7("span", { className: "topbar__lede", children: "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0418\u0418\u0421: \u0432\u044B\u0447\u0435\u0442\u044B, \u043D\u0430\u043B\u043E\u0433\u0438, \u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C" })
+        /* @__PURE__ */ jsx7("span", { className: "topbar__lede", children: tagline })
       ] })
     ] }),
     children
@@ -2595,7 +2582,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:26:08.533Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:40:42.112Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -2651,15 +2638,19 @@ ${body}`], { type: "text/csv;charset=utf-8" });
   };
   if (isPrivacy) {
     return /* @__PURE__ */ jsxs13("div", { className: "app", children: [
-      /* @__PURE__ */ jsx14(Topbar, { variant: "plain" }),
+      /* @__PURE__ */ jsx14(Topbar, {}),
       /* @__PURE__ */ jsx14(Privacy, {})
     ] });
   }
   return /* @__PURE__ */ jsxs13("div", { className: "app", children: [
-    /* @__PURE__ */ jsx14(Topbar, { variant: "hero", children: /* @__PURE__ */ jsxs13("nav", { className: "topbar__nav", "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B", children: [
+    /* @__PURE__ */ jsx14(Topbar, { children: /* @__PURE__ */ jsxs13("nav", { className: "topbar__nav", "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B", children: [
       /* @__PURE__ */ jsx14("span", { className: "topbar__link is-current", children: "\u0418\u0418\u0421-3" }),
       /* @__PURE__ */ jsx14("a", { className: "topbar__link", href: "/pds", children: "\u041F\u0414\u0421" })
     ] }) }),
+    /* @__PURE__ */ jsxs13("div", { className: "page-head", children: [
+      /* @__PURE__ */ jsx14("h1", { className: "page-title", children: "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0418\u0418\u0421-3: \u0432\u044B\u0447\u0435\u0442\u044B, \u043D\u0430\u043B\u043E\u0433\u0438, \u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C" }),
+      /* @__PURE__ */ jsx14("p", { className: "page-lede", children: "\u0422\u0440\u0438 \u0442\u0438\u043F\u0430 \u0441\u0447\u0451\u0442\u0430 \u043D\u0430 \u043E\u0434\u043D\u043E\u043C \u043D\u0430\u0431\u043E\u0440\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432: \u0432\u044B\u0447\u0435\u0442\u044B \u043F\u043E \u0433\u043E\u0434\u0430\u043C, \u043D\u0430\u043B\u043E\u0433 \u043F\u0440\u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u0438\u0438 \u0438 \u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C \u0441 \u043F\u043E\u043F\u0440\u0430\u0432\u043A\u043E\u0439 \u043D\u0430 \u0438\u043D\u0444\u043B\u044F\u0446\u0438\u044E. \u041F\u0440\u0430\u0432\u0438\u043B\u0430 2026 \u0433\u043E\u0434\u0430" })
+    ] }),
     /* @__PURE__ */ jsxs13("div", { className: "print-head", children: [
       /* @__PURE__ */ jsxs13("div", { children: [
         /* @__PURE__ */ jsx14("strong", { children: "\u0422\u0420\u0418\u0418\u0421\xA0\u2014 \u043A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0418\u0418\u0421" }),
@@ -3139,7 +3130,7 @@ function Pds({ initialTab = "params" }) {
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:26:08.533Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:40:42.112Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3202,13 +3193,13 @@ function Pds({ initialTab = "params" }) {
   const taxRate = ndfl(scenario.monthlyIncome * 12) / Math.max(1, scenario.monthlyIncome * 12);
   const payoutBigger = result.net >= iis.net;
   return /* @__PURE__ */ jsxs14("div", { className: "app pds", children: [
-    /* @__PURE__ */ jsx15(Topbar, { variant: "plain", children: /* @__PURE__ */ jsxs14("nav", { className: "topbar__nav", "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B", children: [
+    /* @__PURE__ */ jsx15(Topbar, { children: /* @__PURE__ */ jsxs14("nav", { className: "topbar__nav", "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B", children: [
       /* @__PURE__ */ jsx15("a", { className: "topbar__link", href: "/", children: "\u0418\u0418\u0421-3" }),
       /* @__PURE__ */ jsx15("span", { className: "topbar__link is-current", children: "\u041F\u0414\u0421" })
     ] }) }),
     /* @__PURE__ */ jsxs14("main", { children: [
-      /* @__PURE__ */ jsx15("h1", { className: "pds__title", children: "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u041F\u0414\u0421: \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435, \u0432\u044B\u0447\u0435\u0442 \u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B" }),
-      /* @__PURE__ */ jsx15("p", { className: "pds__lede", children: "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0430 \u0434\u043E\u043B\u0433\u043E\u0441\u0440\u043E\u0447\u043D\u044B\u0445 \u0441\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u0439: \u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0434\u043E\u0431\u0430\u0432\u0438\u0442 \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E, \u0447\u0442\u043E\xA0\u0432\u0435\u0440\u043D\u0451\u0442 \u043D\u0430\u043B\u043E\u0433\u043E\u0432\u0430\u044F \u0438\xA0\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043E\u0441\u0442\u0430\u043D\u0435\u0442\u0441\u044F \u043A\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u043C. \u041F\u0440\u0430\u0432\u0438\u043B\u0430 2026\u202F\u0433\u043E\u0434\u0430" }),
+      /* @__PURE__ */ jsx15("h1", { className: "page-title", children: "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u041F\u0414\u0421: \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435, \u0432\u044B\u0447\u0435\u0442 \u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B" }),
+      /* @__PURE__ */ jsx15("p", { className: "page-lede", children: "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0430 \u0434\u043E\u043B\u0433\u043E\u0441\u0440\u043E\u0447\u043D\u044B\u0445 \u0441\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u0439: \u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0434\u043E\u0431\u0430\u0432\u0438\u0442 \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E, \u0447\u0442\u043E\xA0\u0432\u0435\u0440\u043D\u0451\u0442 \u043D\u0430\u043B\u043E\u0433\u043E\u0432\u0430\u044F \u0438\xA0\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043E\u0441\u0442\u0430\u043D\u0435\u0442\u0441\u044F \u043A\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u043C. \u041F\u0440\u0430\u0432\u0438\u043B\u0430 2026\u202F\u0433\u043E\u0434\u0430" }),
       /* @__PURE__ */ jsxs14("div", { className: "layout pds__layout", children: [
         /* @__PURE__ */ jsxs14("div", { className: "layout__main", children: [
           /* @__PURE__ */ jsx15("div", { className: "tabs", ref: tabsRef, children: /* @__PURE__ */ jsx15("div", { className: "tabs__inner", children: /* @__PURE__ */ jsxs14("div", { className: "segmented", role: "tablist", "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B", children: [
@@ -3846,7 +3837,7 @@ function renderHome() {
 function renderPrivacyPage() {
   return renderToString(
     /* @__PURE__ */ jsx16(StrictMode, { children: /* @__PURE__ */ jsxs15("div", { className: "app", children: [
-      /* @__PURE__ */ jsx16(Topbar, { variant: "plain" }),
+      /* @__PURE__ */ jsx16(Topbar, {}),
       /* @__PURE__ */ jsx16(Privacy, {})
     ] }) })
   );

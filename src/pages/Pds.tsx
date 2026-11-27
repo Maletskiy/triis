@@ -233,7 +233,7 @@ export default function Pds({ initialTab = "params" }: { initialTab?: Tab }) {
 
   return (
     <div className="app pds">
-      <Topbar variant="plain">
+      <Topbar>
         <nav className="topbar__nav" aria-label="Разделы">
           <a className="topbar__link" href="/">
             ИИС-3
@@ -243,8 +243,8 @@ export default function Pds({ initialTab = "params" }: { initialTab?: Tab }) {
       </Topbar>
 
       <main>
-        <h1 className="pds__title">Калькулятор ПДС: софинансирование, вычет и выплаты</h1>
-        <p className="pds__lede">
+        <h1 className="page-title">Калькулятор ПДС: софинансирование, вычет и выплаты</h1>
+        <p className="page-lede">
           Программа долгосрочных сбережений: сколько добавит государство, что вернёт налоговая
           и сколько останется к выплатам. Правила 2026 года
         </p>

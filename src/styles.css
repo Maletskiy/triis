@@ -2910,16 +2910,21 @@ a {
 
 /* Калькулятор ПДС: только каркас страницы, всё остальное — общая система */
 
-.pds__title {
-  margin: 36px 0 14px;
+/* Заголовок и описание страницы: одинаковые на ИИС-3 и ПДС */
+.page-head {
+  margin: 36px 0 28px;
+}
+
+.page-title {
+  margin: 0;
   max-width: 30ch;
   font-size: var(--title-40-size);
   line-height: 1.06;
   letter-spacing: -0.02em;
 }
 
-.pds__lede {
-  margin: 0 0 28px;
+.page-lede {
+  margin: 12px 0 0;
   max-width: 64ch;
   color: var(--primary-60);
   font-size: var(--subtitle-size);
@@ -2971,8 +2976,11 @@ a {
 }
 
 @media (max-width: 900px) {
-  .pds__title {
+  .page-head {
     margin-top: 24px;
+  }
+
+  .page-title {
     font-size: var(--title-32-size);
     line-height: 1.1;
   }

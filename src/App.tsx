@@ -209,7 +209,7 @@ export default function App() {
   if (isPrivacy) {
     return (
       <div className="app">
-        <Topbar variant="plain" />
+        <Topbar />
         <Privacy />
       </div>
     );
@@ -217,7 +217,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Topbar variant="hero">
+      <Topbar>
         <nav className="topbar__nav" aria-label="Разделы">
           <span className="topbar__link is-current">ИИС-3</span>
           <a className="topbar__link" href="/pds">
@@ -225,6 +225,14 @@ export default function App() {
           </a>
         </nav>
       </Topbar>
+
+      <div className="page-head">
+        <h1 className="page-title">Калькулятор ИИС-3: вычеты, налоги, доходность</h1>
+        <p className="page-lede">
+          Три типа счёта на одном наборе параметров: вычеты по годам, налог при закрытии
+          и доходность с поправкой на инфляцию. Правила 2026 года
+        </p>
+      </div>
 
       <div className="print-head">
         <div>

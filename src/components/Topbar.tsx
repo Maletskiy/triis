@@ -1,44 +1,24 @@
 import type { ReactNode } from "react";
 
 /**
- * Шапка сайта.
- *
- * hero — главная: единственный h1 страницы, внутри имя бренда и описание,
- *        поэтому в заголовке есть и название, и ключевой запрос.
- * plain — политика: бренд это ссылка на главную, а h1 остаётся за заголовком
- *        документа, чтобы на странице не было двух h1.
+ * Шапка сайта: бренд-ссылка на главную и универсальное описание.
+ * Одинакова на всех страницах — заголовок страницы задаётся ниже, в её теле,
+ * чтобы h1 всегда был один и нёс ключевой запрос конкретной страницы.
  */
 export default function Topbar({
-  variant = "hero",
+  tagline = "Калькуляторы ИИС и ПДС",
   children,
 }: {
-  variant?: "hero" | "plain";
+  tagline?: string;
   children?: ReactNode;
 }) {
-  const mark = <img className="topbar__mark" src="/logo.svg" alt="" aria-hidden="true" />;
-
-  if (variant === "hero") {
-    return (
-      <header className="topbar">
-        <div className="topbar__brand">
-          {mark}
-          <h1 className="topbar__title">
-            <span className="topbar__name">ТРИИС</span>
-            <span className="topbar__lede">Калькулятор ИИС: вычеты, налоги, доходность</span>
-          </h1>
-        </div>
-        {children}
-      </header>
-    );
-  }
-
   return (
     <header className="topbar">
-      <a className="topbar__brand" href="/" aria-label="ТРИИС — на главную">
-        {mark}
+      <a className="topbar__brand" href="/" aria-label="ТРИИС — на главную">
+        <img className="topbar__mark" src="/logo.svg" alt="" aria-hidden="true" />
         <span className="topbar__title">
           <span className="topbar__name">ТРИИС</span>
-          <span className="topbar__lede">Калькулятор ИИС: вычеты, налоги, доходность</span>
+          <span className="topbar__lede">{tagline}</span>
         </span>
       </a>
       {children}

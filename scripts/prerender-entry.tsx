@@ -20,7 +20,7 @@ export function renderPrivacyPage(): string {
   return renderToString(
     <StrictMode>
       <div className="app">
-        <Topbar variant="plain" />
+        <Topbar />
         <Privacy />
       </div>
     </StrictMode>,

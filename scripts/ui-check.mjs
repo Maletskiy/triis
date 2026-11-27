@@ -62,18 +62,19 @@ const metrics = (page) =>
   if (m.docWidth > m.innerWidth + 1) fail(`горизонтальное переполнение: ${m.docWidth} > ${m.innerWidth}`);
   else ok(`нет горизонтального переполнения (${m.docWidth} ≤ ${m.innerWidth})`);
 
-  // Заголовок страницы — единственный h1: внутри имя бренда и описание.
-  const heading = await page.$eval(".topbar h1", (el) => ({
-    name: el.querySelector(".topbar__name")?.textContent?.trim() ?? "",
-    lede: el.querySelector(".topbar__lede")?.textContent?.trim() ?? "",
+  // Заголовок страницы — единственный h1 в теле, шапка несёт бренд и общее описание.
+  const heading = await page.evaluate(() => ({
+    name: document.querySelector(".page-title")?.textContent?.trim() ?? "",
+    lede: document.querySelector(".page-lede")?.textContent?.trim() ?? "",
+    brand: document.querySelector(".topbar__lede")?.textContent?.trim() ?? "",
     count: document.querySelectorAll("h1").length,
   }));
-  if (heading.name !== "ТРИИС") fail(`бренд в шапке: "${heading.name}"`);
-  else ok(`бренд: ${heading.name}`);
   if (heading.count !== 1) fail(`на странице ${heading.count} заголовков h1`);
   else ok("h1 на странице один");
-  if (!heading.lede.includes("Калькулятор ИИС")) fail(`в h1 нет описания: "${heading.lede}"`);
-  else ok(`h1 с описанием: ${heading.name} — ${heading.lede}`);
+  if (!heading.name.includes("Калькулятор ИИС")) fail(`h1 без запроса: "${heading.name}"`);
+  else if (!heading.lede.includes("вычеты по годам")) fail(`у заголовка нет описания: "${heading.lede}"`);
+  else if (heading.brand !== "Калькуляторы ИИС и ПДС") fail(`в шапке другое описание: "${heading.brand}"`);
+  else ok(`h1 с описанием: ${heading.name}`);
 
   const logo = await page.evaluate(() => {
     const img = document.querySelector(".topbar__mark");
@@ -252,6 +253,8 @@ const metrics = (page) =>
   if (barGeometry.bottomGap < 14) fail(`низ слайдера слишком близко к подсказке: ${barGeometry.bottomGap}`);
   else ok(`отступ снизу от слайдера — ${barGeometry.bottomGap} px`);
 
+  await page.$eval(".wks", (el) => el.scrollIntoView({ block: "center" }));
+  await new Promise((r) => setTimeout(r, 250));
   const wakeBox = await page.$eval(".wks", (el) => {
     const rect = el.getBoundingClientRect();
     return { x: rect.x, y: rect.y, w: rect.width, h: rect.height };
