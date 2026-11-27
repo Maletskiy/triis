@@ -112,6 +112,12 @@
         webvisor: true,
         trackHash: false,
         ecommerce: false,
+        // хит отправляем сами: в адресе после # лежат параметры расчёта,
+        // а они не должны попадать в статистику даже как часть page-url
+        defer: true,
+      });
+      ym(114730146, "hit", window.location.origin + window.location.pathname, {
+        title: document.title,
       });
     </script>
     <!-- /Yandex.Metrika counter -->
