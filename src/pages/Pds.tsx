@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import Topbar from "../components/Topbar";
+import LikeButton from "../components/LikeButton";
 import WakeSlider from "../components/WakeSlider";
 import { RollingNumber, Toggle } from "../components/ui";
 import { parseNumber, rub, yearsWord } from "../lib/format";
@@ -162,6 +163,22 @@ export default function Pds() {
 
   const result = useMemo(() => simulatePds(scenario), [scenario]);
 
+  const updatedLabel = useMemo(() => {
+    const stamp = new Date(__BUILD_TIME__);
+    const date = new Intl.DateTimeFormat("ru-RU", {
+      timeZone: "Europe/Moscow",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }).format(stamp);
+    const time = new Intl.DateTimeFormat("ru-RU", {
+      timeZone: "Europe/Moscow",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(stamp);
+    return `Обновлено ${date.replace(/\s*г\.$/, "")}, ${time}\u00A0МСК`;
+  }, []);
+
   // ИИС-3 на тех же параметрах — для сравнения
   const iis = useMemo(() => {
     const contributions = Array.from({ length: scenario.holdingYears }, (_, index) =>
@@ -213,7 +230,7 @@ export default function Pds() {
   const taxRate = ndfl(scenario.monthlyIncome * 12) / Math.max(1, scenario.monthlyIncome * 12);
 
   return (
-    <main className="app pds">
+    <div className="app pds">
       <Topbar variant="plain">
         <nav className="topbar__nav" aria-label="Разделы">
           <a className="topbar__link" href="/">
@@ -223,6 +240,7 @@ export default function Pds() {
         </nav>
       </Topbar>
 
+      <main>
       <h1 className="pds__title">Калькулятор ПДС: софинансирование, вычет и выплаты</h1>
       <p className="pds__lede">
         Программа долгосрочных сбережений: сколько добавит государство, что вернёт налоговая
@@ -465,11 +483,37 @@ export default function Pds() {
         ))}
       </section>
 
-      <p className="pds__note-inline">
-        Правила 2026 года. Расчёт не учитывает комиссии фонда, смену правил и индивидуальные
-        условия договора. Не инвестиционная рекомендация. Про ИИС-3 считает{" "}
-        <a href="/">калькулятор ТРИИС</a>
-      </p>
-    </main>
+      </main>
+
+      <footer className="footer">
+        <div className="footer__top">
+          <LikeButton hint="Если было полезно, поставь лайк" />
+          <a className="footer__link" href="/">
+            Калькулятор ИИС-3
+          </a>
+          <a className="footer__link" href="/privacy">
+            Политика конфиденциальности
+          </a>
+        </div>
+        <p className="footer__note">
+          Правила 2026 года. Расчёт не учитывает комиссии фонда, смену правил и индивидуальные
+          условия договора. Не инвестиционная рекомендация
+        </p>
+        <div className="footer__bottom">
+          <span className="footer__updated">{updatedLabel}</span>
+          <span className="footer__built">
+            Built by{" "}
+            <a
+              className="footer__author"
+              href="https://maletskiy-design.ru"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Maletskiy Design
+            </a>
+          </span>
+        </div>
+      </footer>
+    </div>
   );
 }

@@ -867,6 +867,27 @@ const metrics = (page) =>
   if (pdsMax > 36_000) fail(`софинансирование больше потолка: ${pdsMax}`);
   else ok(`софинансирование в потолке: максимум ${pdsMax} ₽ в год`);
 
+  const pdsFooter = await page.evaluate(() => {
+    const footer = document.querySelector(".footer");
+    if (!footer) return null;
+    return {
+      links: [...footer.querySelectorAll(".footer__link")].map((a) => a.getAttribute("href")),
+      note: footer.querySelector(".footer__note")?.textContent?.trim() ?? "",
+      updated: footer.querySelector(".footer__updated")?.textContent?.trim() ?? "",
+      hasLike: !!footer.querySelector(".like__btn"),
+    };
+  });
+  if (
+    !pdsFooter ||
+    !pdsFooter.links.includes("/") ||
+    !pdsFooter.links.includes("/privacy") ||
+    !pdsFooter.hasLike ||
+    !pdsFooter.note.includes("Не инвестиционная рекомендация") ||
+    !/^Обновлено \d/.test(pdsFooter.updated)
+  ) {
+    fail(`подвал ПДС: ${JSON.stringify(pdsFooter)}`);
+  } else ok("ПДС: подвал с лайком, ссылками, дисклеймером и датой обновления");
+
   await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 });
   await page.reload({ waitUntil: "networkidle0" });
   await new Promise((r) => setTimeout(r, 500));

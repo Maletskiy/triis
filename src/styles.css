@@ -3326,3 +3326,11 @@ a {
 .section__head .btn--sm {
   margin-left: auto;
 }
+
+.footer__note {
+  margin: 0;
+  max-width: 96ch;
+  color: var(--primary-50);
+  font-size: 14px;
+  line-height: 20px;
+}
