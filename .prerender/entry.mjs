@@ -2595,7 +2595,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T22:59:16.020Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:07:32.227Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -2907,7 +2907,16 @@ var PDS_RULES = {
   /** Государственная гарантия АСВ на счёт, ₽ */
   guaranteeLimit: 28e5,
   /** Больше трёх договоров — вычет не положен */
-  maxContracts: 3
+  maxContracts: 3,
+  /** Ожидаемый период пожизненной выплаты, месяцев — ориентир для оценки */
+  lifetimeMonths: 264
+};
+var PAYOUT_LABELS = {
+  term1: "1\u202F\u0433\u043E\u0434",
+  term5: "5\u202F\u043B\u0435\u0442",
+  term10: "10\u202F\u043B\u0435\u0442",
+  lifetime: "\u041F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u043E",
+  lump: "\u0415\u0434\u0438\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E"
 };
 function nonNegative2(value) {
   return Number.isFinite(value) && value > 0 ? value : 0;
@@ -2935,7 +2944,8 @@ function simulatePds(scenario) {
   const baseRate = marginalRate(annualIncome);
   const deductionRoom = Math.max(0, DEDUCTION_BASE_LIMIT - iis3);
   const rows = [];
-  let capital = 0;
+  const opsIncluded = scenario.useOps ? nonNegative2(scenario.opsAmount) : 0;
+  let capital = opsIncluded;
   let contributionsTotal = 0;
   let cofinancingTotal = 0;
   let refundsTotal = 0;
@@ -2969,7 +2979,7 @@ function simulatePds(scenario) {
     });
   }
   const capitalFinal = capital;
-  const profit = Math.max(0, capitalFinal - contributionsTotal);
+  const profit = Math.max(0, capitalFinal - contributionsTotal - opsIncluded);
   const taxExempt = scenario.ownContract && scenario.fewContracts && holdingYears >= 10;
   const taxableProfit = taxExempt ? Math.max(0, profit - PDS_RULES.profitExemptLimit) : profit;
   const exitTax = taxOnGains(taxableProfit);
@@ -2977,6 +2987,14 @@ function simulatePds(scenario) {
   const net = capitalFinal - exitTax + cashRefunds;
   const inflation = nonNegative2(scenario.inflationPct) / 100;
   const netReal = net / Math.pow(1 + inflation, holdingYears);
+  const payoutAge = scenario.gender === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
+  const yearsByAge = Math.max(0, payoutAge - Math.floor(nonNegative2(scenario.age)));
+  const earliestYears = Math.min(PDS_RULES.payoutYears, yearsByAge);
+  const payoutType = scenario.payoutType;
+  const payoutMonths = payoutType === "term1" ? 12 : payoutType === "term5" ? 60 : payoutType === "term10" ? 120 : payoutType === "lifetime" ? PDS_RULES.lifetimeMonths : 0;
+  const payoutBase = Math.max(0, capitalFinal - exitTax + cashRefunds);
+  const payoutMonthly = payoutType === "lump" ? payoutBase : payoutMonths > 0 ? payoutBase / payoutMonths : 0;
+  const payoutTotal = payoutType === "lump" ? payoutBase : payoutMonthly * payoutMonths;
   return {
     rows,
     contributions: contributionsTotal,
@@ -2990,10 +3008,19 @@ function simulatePds(scenario) {
     cofinancingRate: cofinancingRate(monthlyIncome),
     deductionRoom,
     taxExempt,
-    yearsToPayout: Math.max(0, PDS_RULES.payoutYears - holdingYears)
+    yearsToPayout: Math.max(0, PDS_RULES.payoutYears - holdingYears),
+    payoutAge,
+    yearsByAge,
+    earliestYears,
+    payoutMonthly,
+    payoutTotal,
+    payoutMonths,
+    opsIncluded
   };
 }
 var PDS_DEFAULTS = {
+  gender: "m",
+  age: 35,
   monthlyIncome: 1e5,
   annualContribution: 12e4,
   contributionYears: 10,
@@ -3003,7 +3030,10 @@ var PDS_DEFAULTS = {
   reinvestRefunds: false,
   iis3Contribution: 0,
   ownContract: true,
-  fewContracts: true
+  fewContracts: true,
+  useOps: false,
+  opsAmount: 3e5,
+  payoutType: "term10"
 };
 
 // src/pages/Pds.tsx
@@ -3028,6 +3058,18 @@ var PDS_FAQ = [
   {
     question: "\u0427\u0442\u043E \u0435\u0441\u043B\u0438 \u043F\u043B\u0430\u0442\u0438\u0442\u044C \u043C\u0435\u043D\u044C\u0448\u0435 2 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434?",
     answer: "\u0421\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u043D\u0435\xA0\u0431\u0443\u0434\u0435\u0442 \u0441\u043E\u0432\u0441\u0435\u043C. \u041F\u0440\u0430\u0432\u043E \u043D\u0430\xA0\u0432\u044B\u0447\u0435\u0442 \u043F\u0440\u0438\xA0\u044D\u0442\u043E\u043C \u0441\u043E\u0445\u0440\u0430\u043D\u044F\u0435\u0442\u0441\u044F: \u043E\u043D\xA0\u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0441\xA0\u043B\u044E\u0431\u043E\u0439 \u0441\u0443\u043C\u043C\u044B \u043B\u0438\u0447\u043D\u044B\u0445 \u0432\u0437\u043D\u043E\u0441\u043E\u0432 \u0432\xA0\u043F\u0440\u0435\u0434\u0435\u043B\u0430\u0445 \u043E\u0431\u0449\u0435\u0433\u043E \u043B\u0438\u043C\u0438\u0442\u0430"
+  },
+  {
+    question: "\u0427\u0442\u043E \u0442\u0430\u043A\u043E\u0435 \u041E\u041F\u0421 \u0438\xA0\u0437\u0430\u0447\u0435\u043C \u0435\u0433\u043E\xA0\u043F\u0435\u0440\u0435\u0432\u043E\u0434\u0438\u0442\u044C?",
+    answer: "\u041E\u041F\u0421\xA0\u2014 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0435 \u043F\u0435\u043D\u0441\u0438\u043E\u043D\u043D\u043E\u0435 \u0441\u0442\u0440\u0430\u0445\u043E\u0432\u0430\u043D\u0438\u0435, \u0442\u0435 \u0441\u0430\u043C\u044B\u0435 \u043D\u0430\u043A\u043E\u043F\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0432\u0437\u043D\u043E\u0441\u044B 2002\u20132013 \u0433\u043E\u0434\u043E\u0432, \u0437\u0430\u043C\u043E\u0440\u043E\u0436\u0435\u043D\u043D\u044B\u0435 \u0441\xA02014\u202F\u0433\u043E\u0434\u0430. \u0418\u0445 \u043C\u043E\u0436\u043D\u043E \u043F\u0435\u0440\u0435\u0432\u0435\u0441\u0442\u0438 \u043D\u0430\xA0\u0441\u0447\u0451\u0442 \u041F\u0414\u0421 \u0435\u0434\u0438\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u043C \u0432\u0437\u043D\u043E\u0441\u043E\u043C: \u0441\u0443\u043C\u043C\u0430 \u0441\u0440\u0430\u0437\u0443 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442, \u043D\u0435\xA0\u043E\u0431\u043B\u0430\u0433\u0430\u0435\u0442\u0441\u044F \u043D\u0430\u043B\u043E\u0433\u043E\u043C \u043F\u0440\u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u0445 \u0438\xA0\u0433\u0430\u0440\u0430\u043D\u0442\u0438\u0440\u0443\u0435\u0442\u0441\u044F \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E\u043C \u0431\u0435\u0437\xA0\u043B\u0438\u043C\u0438\u0442\u0430 2,8\u202F\u043C\u043B\u043D \u20BD. \u041D\u043E \u043E\u043D\u0430 \u043D\u0435\xA0\u0434\u0430\u0451\u0442 \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438\xA0\u0432\u044B\u0447\u0435\u0442\u0430 \u0438\xA0\u043D\u0435\xA0\u0432\u044B\u0434\u0430\u0451\u0442\u0441\u044F \u0434\u043E\u0441\u0440\u043E\u0447\u043D\u043E\xA0\u2014 \u0442\u043E\u043B\u044C\u043A\u043E \u0432\u043C\u0435\u0441\u0442\u0435 \u0441\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u043C\u0438"
+  },
+  {
+    question: "\u041A\u0430\u043A\u0438\u0435 \u0431\u044B\u0432\u0430\u044E\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B \u0438\xA0\u043E\u0442\xA0\u0447\u0435\u0433\u043E \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u0440\u0430\u0437\u043C\u0435\u0440?",
+    answer: "\u0421\u0440\u043E\u0447\u043D\u0430\u044F \u043D\u0430\xA0\u0441\u0440\u043E\u043A \u043E\u0442\xA010\u202F\u043B\u0435\u0442 (\u043A\u043E\u0440\u043E\u0447\u0435\xA0\u2014 \u0435\u0441\u043B\u0438 \u0444\u043E\u043D\u0434 \u0440\u0430\u0437\u0440\u0435\u0448\u0430\u0435\u0442), \u043F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u0430\u044F \u0438\u043B\u0438\xA0\u0435\u0434\u0438\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u0430\u044F. \u0420\u0430\u0437\u043C\u0435\u0440\xA0\u2014 \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u043D\u0430\u044F \u0441\u0443\u043C\u043C\u0430, \u043F\u043E\u0434\u0435\u043B\u0451\u043D\u043D\u0430\u044F \u043D\u0430\xA0\u0441\u0440\u043E\u043A: \u0437\u0430\xA010\u202F\u043B\u0435\u0442 \u044D\u0442\u043E\xA0120 \u043C\u0435\u0441\u044F\u0446\u0435\u0432, \u043F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u0430\u044F \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u043F\u043E\xA0\u043E\u0436\u0438\u0434\u0430\u0435\u043C\u043E\u043C\u0443 \u043F\u0435\u0440\u0438\u043E\u0434\u0443 \u0432\u044B\u043F\u043B\u0430\u0442\u044B (\u043E\u0440\u0438\u0435\u043D\u0442\u0438\u0440\xA0\u2014 22\u202F\u0433\u043E\u0434\u0430). \u0427\u0435\u043C \u0434\u043B\u0438\u043D\u043D\u0435\u0435 \u0441\u0440\u043E\u043A, \u0442\u0435\u043C \u043C\u0435\u043D\u044C\u0448\u0435 \u043F\u043B\u0430\u0442\u0451\u0436, \u043D\u043E\xA0\u0434\u043E\u043B\u044C\u0448\u0435 \u043F\u043B\u0430\u0442\u044F\u0442"
+  },
+  {
+    question: "\u041F\u043E\u0447\u0435\u043C\u0443 \u0432\u0430\u0436\u043D\u044B \u0432\u043E\u0437\u0440\u0430\u0441\u0442 \u0438\xA0\u043F\u043E\u043B?",
+    answer: "\u041F\u0440\u0430\u0432\u043E \u043D\u0430\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B \u0434\u0430\u0451\u0442 \u0432\u043E\u0437\u0440\u0430\u0441\u0442\xA0\u2014 55\u202F\u043B\u0435\u0442 \u0436\u0435\u043D\u0449\u0438\u043D\u0430\u043C \u0438\xA060 \u043C\u0443\u0436\u0447\u0438\u043D\u0430\u043C\xA0\u2014 \u0438\u043B\u0438\xA015\u202F\u043B\u0435\u0442 \u0441\xA0\u0434\u0430\u0442\u044B \u043F\u0435\u0440\u0432\u043E\u0433\u043E \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430, \u0447\u0442\u043E\xA0\u043D\u0430\u0441\u0442\u0443\u043F\u0438\u0442 \u0440\u0430\u043D\u044C\u0448\u0435. \u041E\u0442 \u0432\u043E\u0437\u0440\u0430\u0441\u0442\u0430 \u0437\u0430\u0432\u0438\u0441\u0438\u0442, \u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043B\u0435\u0442 \u043A\u043E\u043F\u0438\u0442\u0441\u044F \u0441\u0443\u043C\u043C\u0430 \u0434\u043E\xA0\u0432\u044B\u043F\u043B\u0430\u0442 \u0438\xA0\u043A\u0430\u043A\u0438\u043C \u043F\u043E\u043B\u0443\u0447\u0438\u0442\u0441\u044F \u043F\u043B\u0430\u0442\u0451\u0436"
   },
   {
     question: "\u0427\u0435\u043C \u041F\u0414\u0421 \u043E\u0442\u043B\u0438\u0447\u0430\u0435\u0442\u0441\u044F \u043E\u0442\xA0\u0418\u0418\u0421-3?",
@@ -3093,7 +3135,7 @@ function Pds() {
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T22:59:16.020Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:07:32.227Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3144,7 +3186,16 @@ function Pds() {
       `\u041B\u0438\u043C\u0438\u0442 \u0432\u044B\u0447\u0435\u0442\u0430 \u043E\u0431\u0449\u0438\u0439 \u0441\xA0\u0418\u0418\u0421-3: \u0438\u0437\xA0400 000\u202F\u20BD \u043D\u0430\xA0\u041F\u0414\u0421 \u043E\u0441\u0442\u0430\u0451\u0442\u0441\u044F ${rub(result.deductionRoom)}`
     );
   }
-  if (scenario.holdingYears < PDS_RULES.payoutYears) {
+  if (scenario.age >= result.payoutAge) {
+    warnings.push(
+      `\u0412\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442 \u0443\u0436\u0435 \u043D\u0430\u0441\u0442\u0443\u043F\u0438\u043B: \u0437\u0430\u0431\u0440\u0430\u0442\u044C \u0441\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u044F \u043C\u043E\u0436\u043D\u043E \u0432\xA0\u043B\u044E\u0431\u043E\u0439 \u043C\u043E\u043C\u0435\u043D\u0442, \u0432\u0437\u043D\u043E\u0441\u044B \u043F\u043E\u0441\u043B\u0435 \u044D\u0442\u043E\u0433\u043E \u0441\u043C\u044B\u0441\u043B\u0430 \u043D\u0435\xA0\u0438\u043C\u0435\u044E\u0442`
+    );
+  } else if (result.earliestYears === PDS_RULES.payoutYears && scenario.holdingYears === PDS_RULES.payoutYears) {
+    warnings.push(
+      `\u0412\u044B\u043F\u043B\u0430\u0442\u044B \u043D\u0430\u0447\u043D\u0443\u0442\u0441\u044F \u0447\u0435\u0440\u0435\u0437\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430: \u0434\u043E ${result.payoutAge} \u043B\u0435\u0442 \u0432\u044B\xA0\u0435\u0449\u0451 \u043D\u0435\xA0\u0434\u043E\u0439\u0434\u0451\u0442\u0435`
+    );
+  }
+  if (scenario.holdingYears < PDS_RULES.payoutYears && scenario.age < result.payoutAge) {
     warnings.push(
       `\u0414\u043E \u0432\u044B\u043F\u043B\u0430\u0442 \u043F\u043E\xA0\u0441\u0440\u043E\u043A\u0443 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430 \u0435\u0449\u0451 ${result.yearsToPayout} ${yearsWord(result.yearsToPayout)} \u2014 \u0437\u0430\u0431\u0440\u0430\u0442\u044C \u0432\u0441\u0451 \u043C\u043E\u0436\u043D\u043E \u0442\u043E\u043B\u044C\u043A\u043E \u0432\xA055/60\u202F\u043B\u0435\u0442 \u0438\u043B\u0438\xA0\u0432\xA0\u043E\u0441\u043E\u0431\u043E\u0439 \u0436\u0438\u0437\u043D\u0435\u043D\u043D\u043E\u0439 \u0441\u0438\u0442\u0443\u0430\u0446\u0438\u0438`
     );
@@ -3160,6 +3211,53 @@ function Pds() {
       /* @__PURE__ */ jsx15("p", { className: "pds__lede", children: "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0430 \u0434\u043E\u043B\u0433\u043E\u0441\u0440\u043E\u0447\u043D\u044B\u0445 \u0441\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u0439: \u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0434\u043E\u0431\u0430\u0432\u0438\u0442 \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E, \u0447\u0442\u043E\xA0\u0432\u0435\u0440\u043D\u0451\u0442 \u043D\u0430\u043B\u043E\u0433\u043E\u0432\u0430\u044F \u0438\xA0\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043E\u0441\u0442\u0430\u043D\u0435\u0442\u0441\u044F \u043A\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u043C. \u041F\u0440\u0430\u0432\u0438\u043B\u0430 2026\u202F\u0433\u043E\u0434\u0430" }),
       /* @__PURE__ */ jsxs14("div", { className: "layout pds__layout", children: [
         /* @__PURE__ */ jsx15("div", { children: /* @__PURE__ */ jsxs14(Section, { title: "\u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", children: [
+          /* @__PURE__ */ jsxs14("div", { className: "pds__pair", children: [
+            /* @__PURE__ */ jsxs14("div", { className: "param", children: [
+              /* @__PURE__ */ jsx15("span", { className: "param__label", children: "\u041F\u043E\u043B" }),
+              /* @__PURE__ */ jsx15(
+                Segmented,
+                {
+                  label: "\u041F\u043E\u043B",
+                  value: scenario.gender,
+                  onChange: (value) => {
+                    const payoutAge = value === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
+                    const earliest = Math.min(
+                      PDS_RULES.payoutYears,
+                      Math.max(0, payoutAge - scenario.age)
+                    );
+                    patch({
+                      gender: value,
+                      holdingYears: Math.max(scenario.holdingYears, earliest)
+                    });
+                  },
+                  options: [
+                    { value: "m", label: "\u041C\u0443\u0436\u0441\u043A\u043E\u0439" },
+                    { value: "f", label: "\u0416\u0435\u043D\u0441\u043A\u0438\u0439" }
+                  ]
+                }
+              ),
+              /* @__PURE__ */ jsx15("span", { className: "param__hint", children: "\u043E\u0442\xA0\u043F\u043E\u043B\u0430 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u0432\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\xA0\u2014 60 \u0438\u043B\u0438\xA055\u202F\u043B\u0435\u0442" })
+            ] }),
+            /* @__PURE__ */ jsx15(
+              Param2,
+              {
+                label: "\u0412\u043E\u0437\u0440\u0430\u0441\u0442",
+                value: scenario.age,
+                min: 18,
+                max: 70,
+                step: 1,
+                suffix: "\u043B\u0435\u0442",
+                onChange: (value) => {
+                  const payoutAge = scenario.gender === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
+                  const earliest = Math.min(
+                    PDS_RULES.payoutYears,
+                    Math.max(0, payoutAge - value)
+                  );
+                  patch({ age: value, holdingYears: Math.max(scenario.holdingYears, earliest) });
+                }
+              }
+            )
+          ] }),
           /* @__PURE__ */ jsx15(
             Param2,
             {
@@ -3190,25 +3288,32 @@ function Pds() {
             /* @__PURE__ */ jsx15(
               Param2,
               {
-                label: "\u041B\u0435\u0442 \u043F\u043E\u043F\u043E\u043B\u043D\u044F\u0435\u043C",
+                label: "\u0421\u0440\u043E\u043A \u043F\u043E\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F",
+                hint: "\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043B\u0435\u0442 \u0432\u043D\u043E\u0441\u0438\u0442\u0435 \u0432\u0437\u043D\u043E\u0441\u044B",
                 value: scenario.contributionYears,
                 min: 1,
                 max: 20,
                 step: 1,
                 suffix: "\u043B\u0435\u0442",
-                onChange: (value) => patch({ contributionYears: value })
+                onChange: (value) => patch({
+                  contributionYears: value,
+                  holdingYears: Math.max(scenario.holdingYears, value)
+                })
               }
             ),
             /* @__PURE__ */ jsx15(
               Param2,
               {
-                label: "\u041B\u0435\u0442 \u0434\u043E\xA0\u0432\u044B\u043F\u043B\u0430\u0442",
+                label: "\u0421\u0440\u043E\u043A \u0434\u043E\xA0\u0432\u044B\u043F\u043B\u0430\u0442",
+                hint: `\u043D\u0435\xA0\u0440\u0430\u043D\u044C\u0448\u0435 ${result.earliestYears} \u043B\u0435\u0442: \u0432\u043E\u0437\u0440\u0430\u0441\u0442 ${result.payoutAge} \u0438\u043B\u0438\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430`,
                 value: scenario.holdingYears,
-                min: 1,
-                max: 30,
+                min: Math.max(1, result.earliestYears),
+                max: 40,
                 step: 1,
                 suffix: "\u043B\u0435\u0442",
-                onChange: (value) => patch({ holdingYears: value })
+                onChange: (value) => patch({
+                  holdingYears: Math.max(value, result.earliestYears, scenario.contributionYears)
+                })
               }
             )
           ] }),
@@ -3251,6 +3356,47 @@ function Pds() {
               onChange: (value) => patch({ iis3Contribution: value })
             }
           ),
+          /* @__PURE__ */ jsxs14("div", { className: "param", children: [
+            /* @__PURE__ */ jsx15("span", { className: "param__label", children: "\u0412\u0430\u0440\u0438\u0430\u043D\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B" }),
+            /* @__PURE__ */ jsx15(
+              Segmented,
+              {
+                label: "\u0412\u0430\u0440\u0438\u0430\u043D\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B",
+                value: scenario.payoutType,
+                onChange: (value) => patch({ payoutType: value }),
+                options: [
+                  { value: "term1", label: "1\u202F\u0433\u043E\u0434" },
+                  { value: "term5", label: "5\u202F\u043B\u0435\u0442" },
+                  { value: "term10", label: "10\u202F\u043B\u0435\u0442" },
+                  { value: "lifetime", label: "\u041F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u043E" },
+                  { value: "lump", label: "\u0420\u0430\u0437\u043E\u043C" }
+                ]
+              }
+            ),
+            /* @__PURE__ */ jsx15("span", { className: "param__hint", children: "\u0441\u0440\u043E\u0447\u043D\u0430\u044F \u0432\u044B\u043F\u043B\u0430\u0442\u0430\xA0\u2014 \u043D\u0435\xA0\u043C\u0435\u043D\u044C\u0448\u0435 10\u202F\u043B\u0435\u0442 \u043F\u043E\xA0\u0437\u0430\u043A\u043E\u043D\u0443; \u043A\u043E\u0440\u043E\u0447\u0435 \u043C\u043E\u0436\u043D\u043E, \u0435\u0441\u043B\u0438 \u0444\u043E\u043D\u0434 \u0440\u0430\u0437\u0440\u0435\u0448\u0430\u0435\u0442" })
+          ] }),
+          /* @__PURE__ */ jsx15("div", { className: "param", children: /* @__PURE__ */ jsx15(
+            Toggle,
+            {
+              checked: scenario.useOps,
+              onChange: (value) => patch({ useOps: value }),
+              label: "\u0423\u0447\u0438\u0442\u044B\u0432\u0430\u0442\u044C \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u041E\u041F\u0421",
+              hint: "\u043F\u0435\u0440\u0435\u0432\u0435\u0434\u0451\u043D\u043D\u0430\u044F \u043D\u0430\u043A\u043E\u043F\u0438\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0447\u0430\u0441\u0442\u044C \u0440\u0430\u0441\u0442\u0451\u0442 \u0432\u043C\u0435\u0441\u0442\u0435 \u0441\u043E\xA0\u0441\u0447\u0451\u0442\u043E\u043C, \u043D\u043E\xA0\u043D\u0435\xA0\u0434\u0430\u0451\u0442 \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438\xA0\u0432\u044B\u0447\u0435\u0442\u0430"
+            }
+          ) }),
+          scenario.useOps ? /* @__PURE__ */ jsx15(
+            Param2,
+            {
+              label: "\u041D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u041E\u041F\u0421",
+              hint: "\u0441\u0443\u043C\u043C\u0443 \u043C\u043E\u0436\u043D\u043E \u0443\u0437\u043D\u0430\u0442\u044C \u043D\u0430\xA0\u0413\u043E\u0441\u0443\u0441\u043B\u0443\u0433\u0430\u0445 \u0432\xA0\u0440\u0430\u0437\u0434\u0435\u043B\u0435 \u043F\u0435\u043D\u0441\u0438\u043E\u043D\u043D\u044B\u0445 \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u0439",
+              value: scenario.opsAmount,
+              min: 0,
+              max: 3e6,
+              step: 5e4,
+              suffix: "\u20BD",
+              onChange: (value) => patch({ opsAmount: value })
+            }
+          ) : null,
           /* @__PURE__ */ jsxs14("div", { className: "pds__toggles", children: [
             /* @__PURE__ */ jsx15(
               Toggle,
@@ -3308,13 +3454,11 @@ function Pds() {
               /* @__PURE__ */ jsx15("span", { className: "stat__sub", children: result.taxExempt ? "\u0434\u043E\u0445\u043E\u0434 \u043E\u0441\u0432\u043E\u0431\u043E\u0436\u0434\u0451\u043D \u0434\u043E\xA030\u202F\u043C\u043B\u043D" : "\u043B\u044C\u0433\u043E\u0442\u044B \u043D\u0435\u0442" })
             ] }),
             /* @__PURE__ */ jsxs14("div", { className: "stat", children: [
-              /* @__PURE__ */ jsx15("dt", { children: "\u0412\u0430\u0448\u0438 \u0432\u0437\u043D\u043E\u0441\u044B" }),
-              /* @__PURE__ */ jsx15("dd", { children: rub(result.contributions) }),
+              /* @__PURE__ */ jsx15("dt", { children: "\u0412\u044B\u043F\u043B\u0430\u0442\u0430" }),
+              /* @__PURE__ */ jsx15("dd", { className: "is-ok", children: scenario.payoutType === "lump" ? rub(result.payoutMonthly) : `${rub(Math.round(result.payoutMonthly))} / \u043C\u0435\u0441` }),
               /* @__PURE__ */ jsxs14("span", { className: "stat__sub", children: [
-                "\u0437\u0430 ",
-                scenario.contributionYears,
-                " ",
-                yearsWord(scenario.contributionYears)
+                PAYOUT_LABELS[scenario.payoutType],
+                scenario.payoutType === "lifetime" ? " \xB7 \u043E\u0440\u0438\u0435\u043D\u0442\u0438\u0440 \u043D\u0430\xA022\u202F\u0433\u043E\u0434\u0430" : ""
               ] })
             ] })
           ] }),
@@ -3383,6 +3527,7 @@ function Pds() {
           /* @__PURE__ */ jsx15("h2", { className: "about__title", id: "pds-about", children: "\u041A\u0430\u043A \u044D\u0442\u043E\xA0\u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442" }),
           /* @__PURE__ */ jsx15("p", { className: "about__text", children: "\u0413\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 \u0434\u043E\xA036 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434 \u0434\u0435\u0441\u044F\u0442\u044C \u043B\u0435\u0442 \u043F\u043E\u0434\u0440\u044F\u0434, \u0435\u0441\u043B\u0438 \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u043D\u0435\xA0\u043C\u0435\u043D\u044C\u0448\u0435 2 000\u202F\u20BD \u0437\u0430\xA0\u0433\u043E\u0434. \u041A\u043E\u044D\u0444\u0444\u0438\u0446\u0438\u0435\u043D\u0442 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u043E\u0442\xA0\u0441\u0440\u0435\u0434\u043D\u0435\u043C\u0435\u0441\u044F\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0445\u043E\u0434\u0430: \u0434\u043E\xA080 000\u202F\u20BD \u2014 \u0440\u0443\u0431\u043B\u044C \u043D\u0430\xA0\u0440\u0443\u0431\u043B\u044C, \u0434\u043E\xA0150 000\u202F\u20BD \u2014 \u043F\u043E\u043B\u043E\u0432\u0438\u043D\u0430, \u0432\u044B\u0448\u0435\xA0\u2014 \u0447\u0435\u0442\u0432\u0435\u0440\u0442\u044C" }),
           /* @__PURE__ */ jsx15("p", { className: "about__text", children: "\u0412\u044B\u0447\u0435\u0442 \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0441\xA0\u043B\u0438\u0447\u043D\u044B\u0445 \u0432\u0437\u043D\u043E\u0441\u043E\u0432 \u0432\xA0\u043F\u0440\u0435\u0434\u0435\u043B\u0430\u0445 400 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434 \u0438\xA0\u043D\u0435\xA0\u0431\u043E\u043B\u044C\u0448\u0435 \u0443\u043F\u043B\u0430\u0447\u0435\u043D\u043D\u043E\u0433\u043E \u041D\u0414\u0424\u041B. \u041B\u0438\u043C\u0438\u0442 \u043E\u0431\u0449\u0438\u0439 \u0441\xA0\u0418\u0418\u0421-3 \u0438\xA0\u041D\u041F\u041E, \u043F\u043E\u044D\u0442\u043E\u043C\u0443 \u0447\u0430\u0441\u0442\u044C \u0432\u0437\u043D\u043E\u0441\u043E\u0432 \u043C\u043E\u0436\u0435\u0442 \u0443\u0439\u0442\u0438 \u0432\xA0\u0434\u0440\u0443\u0433\u043E\u0439 \u043F\u0440\u043E\u0434\u0443\u043A\u0442\xA0\u2014 \u043A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u044D\u0442\u043E\xA0\u0443\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442" }),
+          /* @__PURE__ */ jsx15("p", { className: "about__text", children: "\u041F\u0440\u0430\u0432\u043E \u043D\u0430\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B \u0434\u0430\u0451\u0442 \u0432\u043E\u0437\u0440\u0430\u0441\u0442\xA0\u2014 55\u202F\u043B\u0435\u0442 \u0436\u0435\u043D\u0449\u0438\u043D\u0430\u043C \u0438\xA060 \u043C\u0443\u0436\u0447\u0438\u043D\u0430\u043C\xA0\u2014 \u0438\u043B\u0438\xA015\u202F\u043B\u0435\u0442 \u0441\xA0\u0434\u0430\u0442\u044B \u043F\u0435\u0440\u0432\u043E\u0433\u043E \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430, \u0447\u0442\u043E\xA0\u043D\u0430\u0441\u0442\u0443\u043F\u0438\u0442 \u0440\u0430\u043D\u044C\u0448\u0435. \u0421\u0440\u043E\u043A \u0434\u043E\xA0\u0432\u044B\u043F\u043B\u0430\u0442 \u043A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0441\u0447\u0438\u0442\u0430\u0435\u0442 \u0441\u0430\u043C, \u0430\xA0\u0432\u0430\u0440\u0438\u0430\u043D\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B\xA0\u2014 \u0441\u0440\u043E\u0447\u043D\u044B\u0439, \u043F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u044B\u0439 \u0438\u043B\u0438\xA0\u0440\u0430\u0437\u043E\u0432\u044B\u0439\xA0\u2014 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442 \u0440\u0430\u0437\u043C\u0435\u0440 \u043F\u043B\u0430\u0442\u0435\u0436\u0430" }),
           /* @__PURE__ */ jsx15("p", { className: "about__text about__text--muted", children: "\u0412\u044B\u043F\u043B\u0430\u0442\u044B\xA0\u2014 \u0447\u0435\u0440\u0435\u0437\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430 \u0438\u043B\u0438\xA0\u0432\xA055/60\u202F\u043B\u0435\u0442. \u0414\u043E\u0445\u043E\u0434 \u043F\u0440\u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u0445 \u043D\u0435\xA0\u043E\u0431\u043B\u0430\u0433\u0430\u0435\u0442\u0441\u044F \u041D\u0414\u0424\u041B \u0432\xA0\u043F\u0440\u0435\u0434\u0435\u043B\u0430\u0445 30\u202F\u043C\u043B\u043D \u20BD, \u0435\u0441\u043B\u0438 \u0434\u043E\u0433\u043E\u0432\u043E\u0440 \u0432\xA0\u0441\u0432\u043E\u044E \u043F\u043E\u043B\u044C\u0437\u0443 \u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B \u043D\u0435\xA0\u0440\u0430\u043D\u044C\u0448\u0435 \u0447\u0435\u043C \u0447\u0435\u0440\u0435\u0437 10\u202F\u043B\u0435\u0442. \u041F\u0440\u0438 \u0434\u043E\u0441\u0440\u043E\u0447\u043D\u043E\u043C \u0440\u0430\u0441\u0442\u043E\u0440\u0436\u0435\u043D\u0438\u0438 \u043B\u044C\u0433\u043E\u0442\u044B \u0442\u0435\u0440\u044F\u044E\u0442\u0441\u044F" })
         ] }),
         /* @__PURE__ */ jsxs14("div", { className: "about__col", children: [

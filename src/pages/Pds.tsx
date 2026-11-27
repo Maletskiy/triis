@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import Topbar from "../components/Topbar";
 import LikeButton from "../components/LikeButton";
 import WakeSlider from "../components/WakeSlider";
-import { Collapse, RollingNumber, Section, Toggle } from "../components/ui";
+import { Collapse, RollingNumber, Section, Segmented, Toggle } from "../components/ui";
 import { compactRub, parseNumber, rub, yearsWord } from "../lib/format";
 import { ndfl } from "../lib/rules";
 import { simulate } from "../lib/calc";
@@ -10,8 +10,10 @@ import type { Scenario } from "../lib/calc";
 import {
   PDS_DEFAULTS,
   PDS_RULES,
+  PAYOUT_LABELS,
   cofinancingRate,
   simulatePds,
+  type PayoutType,
   type PdsScenario,
 } from "../lib/pds";
 
@@ -41,6 +43,21 @@ export const PDS_FAQ: { question: string; answer: string }[] = [
     question: "Что если платить меньше 2 000 ₽ в год?",
     answer:
       "Софинансирования не будет совсем. Право на вычет при этом сохраняется: он считается с любой суммы личных взносов в пределах общего лимита",
+  },
+  {
+    question: "Что такое ОПС и зачем его переводить?",
+    answer:
+      "ОПС — обязательное пенсионное страхование, те самые накопительные взносы 2002–2013 годов, замороженные с 2014 года. Их можно перевести на счёт ПДС единовременным взносом: сумма сразу работает, не облагается налогом при выплатах и гарантируется государством без лимита 2,8 млн ₽. Но она не даёт софинансирования и вычета и не выдаётся досрочно — только вместе с выплатами",
+  },
+  {
+    question: "Какие бывают выплаты и от чего зависит размер?",
+    answer:
+      "Срочная на срок от 10 лет (короче — если фонд разрешает), пожизненная или единовременная. Размер — накопленная сумма, поделённая на срок: за 10 лет это 120 месяцев, пожизненная считается по ожидаемому периоду выплаты (ориентир — 22 года). Чем длиннее срок, тем меньше платёж, но дольше платят",
+  },
+  {
+    question: "Почему важны возраст и пол?",
+    answer:
+      "Право на выплаты даёт возраст — 55 лет женщинам и 60 мужчинам — или 15 лет с даты первого договора, что наступит раньше. От возраста зависит, сколько лет копится сумма до выплат и каким получится платёж",
   },
   {
     question: "Чем ПДС отличается от ИИС-3?",
@@ -186,7 +203,17 @@ export default function Pds() {
       `Лимит вычета общий с ИИС-3: из 400 000 ₽ на ПДС остаётся ${rub(result.deductionRoom)}`,
     );
   }
-  if (scenario.holdingYears < PDS_RULES.payoutYears) {
+  if (scenario.age >= result.payoutAge) {
+    warnings.push(
+      `Возраст выплат уже наступил: забрать сбережения можно в любой момент, взносы после этого смысла не имеют`,
+    );
+  } else if (result.earliestYears === PDS_RULES.payoutYears && scenario.holdingYears === PDS_RULES.payoutYears) {
+    warnings.push(
+      `Выплаты начнутся через 15 лет договора: до ${result.payoutAge} лет вы ещё не дойдёте`,
+    );
+  }
+  if (scenario.holdingYears < PDS_RULES.payoutYears && scenario.age < result.payoutAge) {
+
     warnings.push(
       `До выплат по сроку договора ещё ${result.yearsToPayout} ${yearsWord(result.yearsToPayout)} — забрать всё можно только в 55/60 лет или в особой жизненной ситуации`,
     );
@@ -215,6 +242,49 @@ export default function Pds() {
         <div className="layout pds__layout">
           <div>
             <Section title="Параметры">
+              <div className="pds__pair">
+                <div className="param">
+                  <span className="param__label">Пол</span>
+                  <Segmented
+                    label="Пол"
+                    value={scenario.gender}
+                    onChange={(value) => {
+                      const payoutAge =
+                        value === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
+                      const earliest = Math.min(
+                        PDS_RULES.payoutYears,
+                        Math.max(0, payoutAge - scenario.age),
+                      );
+                      patch({
+                        gender: value as "m" | "f",
+                        holdingYears: Math.max(scenario.holdingYears, earliest),
+                      });
+                    }}
+                    options={[
+                      { value: "m", label: "Мужской" },
+                      { value: "f", label: "Женский" },
+                    ]}
+                  />
+                  <span className="param__hint">от пола зависит возраст выплат — 60 или 55 лет</span>
+                </div>
+                <Param
+                  label="Возраст"
+                  value={scenario.age}
+                  min={18}
+                  max={70}
+                  step={1}
+                  suffix="лет"
+                  onChange={(value) => {
+                    const payoutAge =
+                      scenario.gender === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
+                    const earliest = Math.min(
+                      PDS_RULES.payoutYears,
+                      Math.max(0, payoutAge - value),
+                    );
+                    patch({ age: value, holdingYears: Math.max(scenario.holdingYears, earliest) });
+                  }}
+                />
+              </div>
               <Param
                 label="Доход в месяц"
                 hint="до вычета НДФЛ"
@@ -238,22 +308,33 @@ export default function Pds() {
 
               <div className="pds__pair">
                 <Param
-                  label="Лет пополняем"
+                  label="Срок пополнения"
+                  hint="сколько лет вносите взносы"
                   value={scenario.contributionYears}
                   min={1}
                   max={20}
                   step={1}
                   suffix="лет"
-                  onChange={(value) => patch({ contributionYears: value })}
+                  onChange={(value) =>
+                    patch({
+                      contributionYears: value,
+                      holdingYears: Math.max(scenario.holdingYears, value),
+                    })
+                  }
                 />
                 <Param
-                  label="Лет до выплат"
+                  label="Срок до выплат"
+                  hint={`не раньше ${result.earliestYears} лет: возраст ${result.payoutAge} или 15 лет договора`}
                   value={scenario.holdingYears}
-                  min={1}
-                  max={30}
+                  min={Math.max(1, result.earliestYears)}
+                  max={40}
                   step={1}
                   suffix="лет"
-                  onChange={(value) => patch({ holdingYears: value })}
+                  onChange={(value) =>
+                    patch({
+                      holdingYears: Math.max(value, result.earliestYears, scenario.contributionYears),
+                    })
+                  }
                 />
               </div>
 
@@ -288,6 +369,47 @@ export default function Pds() {
                 suffix="₽"
                 onChange={(value) => patch({ iis3Contribution: value })}
               />
+
+              <div className="param">
+                <span className="param__label">Вариант выплаты</span>
+                <Segmented
+                  label="Вариант выплаты"
+                  value={scenario.payoutType}
+                  onChange={(value) => patch({ payoutType: value as PayoutType })}
+                  options={[
+                    { value: "term1", label: "1 год" },
+                    { value: "term5", label: "5 лет" },
+                    { value: "term10", label: "10 лет" },
+                    { value: "lifetime", label: "Пожизненно" },
+                    { value: "lump", label: "Разом" },
+                  ]}
+                />
+                <span className="param__hint">
+                  срочная выплата — не меньше 10 лет по закону; короче можно, если фонд разрешает
+                </span>
+              </div>
+
+              <div className="param">
+                <Toggle
+                  checked={scenario.useOps}
+                  onChange={(value) => patch({ useOps: value })}
+                  label="Учитывать накопления ОПС"
+                  hint="переведённая накопительная часть растёт вместе со счётом, но не даёт софинансирования и вычета"
+                />
+              </div>
+
+              {scenario.useOps ? (
+                <Param
+                  label="Накопления ОПС"
+                  hint="сумму можно узнать на Госуслугах в разделе пенсионных накоплений"
+                  value={scenario.opsAmount}
+                  min={0}
+                  max={3_000_000}
+                  step={50_000}
+                  suffix="₽"
+                  onChange={(value) => patch({ opsAmount: value })}
+                />
+              ) : null}
 
               <div className="pds__toggles">
                 <Toggle
@@ -348,10 +470,15 @@ export default function Pds() {
                   </span>
                 </div>
                 <div className="stat">
-                  <dt>Ваши взносы</dt>
-                  <dd>{rub(result.contributions)}</dd>
+                  <dt>Выплата</dt>
+                  <dd className="is-ok">
+                    {scenario.payoutType === "lump"
+                      ? rub(result.payoutMonthly)
+                      : `${rub(Math.round(result.payoutMonthly))} / мес`}
+                  </dd>
                   <span className="stat__sub">
-                    за {scenario.contributionYears} {yearsWord(scenario.contributionYears)}
+                    {PAYOUT_LABELS[scenario.payoutType]}
+                    {scenario.payoutType === "lifetime" ? " · ориентир на 22 года" : ""}
                   </span>
                 </div>
               </dl>
@@ -441,6 +568,11 @@ export default function Pds() {
               Вычет считается с личных взносов в пределах 400 000 ₽ в год и не больше уплаченного
               НДФЛ. Лимит общий с ИИС-3 и НПО, поэтому часть взносов может уйти в другой продукт —
               калькулятор это учитывает
+            </p>
+            <p className="about__text">
+              Право на выплаты даёт возраст — 55 лет женщинам и 60 мужчинам — или 15 лет с даты
+              первого договора, что наступит раньше. Срок до выплат калькулятор считает сам,
+              а вариант выплаты — срочный, пожизненный или разовый — определяет размер платежа
             </p>
             <p className="about__text about__text--muted">
               Выплаты — через 15 лет договора или в 55/60 лет. Доход при выплатах не облагается

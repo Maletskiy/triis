@@ -841,6 +841,15 @@ const metrics = (page) =>
     h1: document.querySelector("h1")?.textContent?.trim(),
     rows: document.querySelectorAll(".table tbody tr").length,
     cofinancing: document.querySelectorAll(".stat dd")[0]?.textContent?.trim(),
+    labels: [...document.querySelectorAll(".param__label")].map((el) =>
+      el.textContent.replace(/[\u00A0\u202F]/g, " ").trim(),
+    ),
+    payoutOptions: [...document.querySelectorAll(".param .segmented__item")].map((el) =>
+      el.textContent.replace(/[\u00A0\u202F]/g, " ").trim(),
+    ),
+    payment: [...document.querySelectorAll(".stat")].map((el) =>
+      el.querySelector("dt")?.textContent?.replace(/[\u00A0\u202F]/g, " ").trim(),
+    ),
     linkHome: document.querySelector('.topbar__nav a[href="/"]') !== null,
     hasFaq: document.querySelectorAll(".faq__item").length,
     columnsAligned: (() => {
@@ -854,6 +863,15 @@ const metrics = (page) =>
     fail(`страница ПДС: заголовки ${JSON.stringify({ title: pdsStart.title, h1: pdsStart.h1 })}`);
   } else if (pdsStart.rows !== 15 || pdsStart.hasFaq < 5 || !pdsStart.linkHome) {
     fail(`страница ПДС: ${JSON.stringify(pdsStart)}`);
+  } else if (
+    !pdsStart.labels.includes("Срок пополнения") ||
+    !pdsStart.labels.includes("Срок до выплат") ||
+    !pdsStart.labels.includes("Возраст") ||
+    !pdsStart.payoutOptions.includes("Пожизненно") ||
+    !pdsStart.payoutOptions.includes("Разом") ||
+    !pdsStart.payment.includes("Выплата")
+  ) {
+    fail(`страница ПДС: нет новых полей — ${JSON.stringify({ labels: pdsStart.labels, payout: pdsStart.payoutOptions, payment: pdsStart.payment })}`);
   } else if (!pdsStart.columnsAligned) {
     fail("страница ПДС: колонки разной высоты");
   } else if (!/SB Sans Interface/.test(pdsStart.font)) {
@@ -862,7 +880,10 @@ const metrics = (page) =>
 
   // сумма софинансирования не должна превышать 36 000 ₽ в год
   const pdsMax = await page.evaluate(() => {
-    const input = document.querySelectorAll(".param__input")[0];
+    const input = [...document.querySelectorAll(".param__input")].find(
+      (el) => (el.getAttribute("aria-label") || "").replace(/[\u00A0\u202F]/g, " ") === "Взнос в год",
+    );
+    if (!input) return -1;
     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
     setter.call(input, "400000");
     input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -874,7 +895,8 @@ const metrics = (page) =>
       }, 300),
     );
   });
-  if (pdsMax > 36_000) fail(`софинансирование больше потолка: ${pdsMax}`);
+  if (pdsMax < 0) fail("страница ПДС: не нашлось поле «Взнос в год»");
+  else if (pdsMax > 36_000) fail(`софинансирование больше потолка: ${pdsMax}`);
   else ok(`софинансирование в потолке: максимум ${pdsMax} ₽ в год`);
 
   const pdsFooter = await page.evaluate(() => {

@@ -218,5 +218,49 @@ check("ПДС: срок меньше 10 лет — льготы нет", pdsTaxe
 check("ПДС: налог с дохода при досрочных выплатах", pdsTaxed.exitTax > 0 ? 1 : 0, 1);
 check("ПДС: до выплат по сроку осталось", pdsTaxed.yearsToPayout, 6);
 
+// 21. ПДС: возраст, пол и варианты выплат
+const pdsYoung = simulatePds({ ...PDS_DEFAULTS, age: 35, gender: "m", holdingYears: 15 });
+check("ПДС: возраст 35, мужчина — до выплат по 15 годам", pdsYoung.earliestYears, 15);
+const pdsWoman50 = simulatePds({ ...PDS_DEFAULTS, age: 50, gender: "f", holdingYears: 15 });
+check("ПДС: женщина 50 — до выплат 5 лет", pdsWoman50.earliestYears, 5);
+const pdsMan50 = simulatePds({ ...PDS_DEFAULTS, age: 50, gender: "m", holdingYears: 15 });
+check("ПДС: мужчина 50 — до выплат 10 лет", pdsMan50.earliestYears, 10);
+const pdsOld = simulatePds({ ...PDS_DEFAULTS, age: 65, gender: "m", holdingYears: 5 });
+check("ПДС: возраст выплат уже наступил", pdsOld.earliestYears, 0);
+
+const pdsScenario10 = {
+  ...PDS_DEFAULTS,
+  monthlyIncome: 100_000,
+  annualContribution: 120_000,
+  contributionYears: 10,
+  holdingYears: 10,
+  returnPct: 0,
+  inflationPct: 0,
+  payoutType: "term10" as const,
+};
+const pdsTerm10 = simulatePds(pdsScenario10);
+check("ПДС: срочная на 10 лет — месяцев 120", pdsTerm10.payoutMonths, 120);
+check("ПДС: срочная — платёж = сумма / 120", pdsTerm10.payoutMonthly, pdsTerm10.payoutTotal / 120);
+const pdsLump = simulatePds({ ...pdsScenario10, payoutType: "lump" });
+check("ПДС: разовая выплата — вся сумма", pdsLump.payoutTotal, pdsTerm10.payoutTotal);
+const pdsLife = simulatePds({ ...pdsTerm10, payoutType: "lifetime" });
+check("ПДС: пожизненная — период 264 месяца", pdsLife.payoutMonths, 264);
+
+// 22. ПДС: накопления ОПС входят в капитал и не дают вычета
+const pdsOps = simulatePds({
+  ...PDS_DEFAULTS,
+  monthlyIncome: 100_000,
+  annualContribution: 0,
+  contributionYears: 10,
+  holdingYears: 10,
+  returnPct: 0,
+  inflationPct: 0,
+  useOps: true,
+  opsAmount: 300_000,
+});
+check("ПДС: ОПС попали в капитал", pdsOps.capital, 300_000);
+check("ПДС: ОПС не дают вычета", pdsOps.refunds, 0);
+check("ПДС: ОПС не дают софинансирования", pdsOps.cofinancing, 0);
+
 console.log(`\n${failures === 0 ? "Все проверки пройдены" : `Провалено проверок: ${failures}`}`);
 if (failures > 0) throw new Error("Проверки не пройдены");

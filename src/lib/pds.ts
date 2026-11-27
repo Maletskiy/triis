@@ -31,9 +31,26 @@ export const PDS_RULES = {
   guaranteeLimit: 2_800_000,
   /** Больше трёх договоров — вычет не положен */
   maxContracts: 3,
+  /** Ожидаемый период пожизненной выплаты, месяцев — ориентир для оценки */
+  lifetimeMonths: 264,
 } as const;
 
+/** Варианты выплат: срок в годах, пожизненно или единовременно. */
+export type PayoutType = "term1" | "term5" | "term10" | "lifetime" | "lump";
+
+export const PAYOUT_LABELS: Record<PayoutType, string> = {
+  term1: "1 год",
+  term5: "5 лет",
+  term10: "10 лет",
+  lifetime: "Пожизненно",
+  lump: "Единовременно",
+};
+
 export type PdsScenario = {
+  /** Пол: от него зависит возраст права на выплаты — 55 или 60 лет */
+  gender: "m" | "f";
+  /** Возраст вкладчика на момент расчёта */
+  age: number;
   /** Среднемесячный доход до НДФЛ, ₽ — от него зависят коэффициент и ставка */
   monthlyIncome: number;
   /** Взнос в год, ₽ */
@@ -54,6 +71,12 @@ export type PdsScenario = {
   ownContract: boolean;
   /** Договоров ПДС не больше трёх */
   fewContracts: boolean;
+  /** Учитывать пенсионные накопления из ОПС */
+  useOps: boolean;
+  /** Сумма накоплений ОПС, ₽ */
+  opsAmount: number;
+  /** Как получать деньги: срок, пожизненно или разом */
+  payoutType: PayoutType;
 };
 
 export type PdsRow = {
@@ -91,6 +114,20 @@ export type PdsResult = {
   taxExempt: boolean;
   /** Сколько лет осталось до выплат по сроку договора */
   yearsToPayout: number;
+  /** Возраст права на выплаты: 55 или 60 */
+  payoutAge: number;
+  /** Через сколько лет наступит возраст права на выплаты */
+  yearsByAge: number;
+  /** Самый ранний срок выплат: 15 лет договора или возраст */
+  earliestYears: number;
+  /** Размер выплаты: в месяц для срочных и пожизненных, вся сумма для разовой */
+  payoutMonthly: number;
+  /** Сколько всего выплатят за срок (для срочных и разовой) */
+  payoutTotal: number;
+  /** Сколько месяцев длится выплата; 0 — пожизненно */
+  payoutMonths: number;
+  /** Взнос на счёт от ОПС включён в расчёт */
+  opsIncluded: number;
 };
 
 function nonNegative(value: number): number {
@@ -133,7 +170,9 @@ export function simulatePds(scenario: PdsScenario): PdsResult {
   const deductionRoom = Math.max(0, DEDUCTION_BASE_LIMIT - iis3);
 
   const rows: PdsRow[] = [];
-  let capital = 0;
+  // Накопления ОПС приходят на счёт сразу и дальше растут вместе с остальным
+  const opsIncluded = scenario.useOps ? nonNegative(scenario.opsAmount) : 0;
+  let capital = opsIncluded;
   let contributionsTotal = 0;
   let cofinancingTotal = 0;
   let refundsTotal = 0;
@@ -176,7 +215,7 @@ export function simulatePds(scenario: PdsScenario): PdsResult {
   }
 
   const capitalFinal = capital;
-  const profit = Math.max(0, capitalFinal - contributionsTotal);
+  const profit = Math.max(0, capitalFinal - contributionsTotal - opsIncluded);
   const taxExempt =
     scenario.ownContract &&
     scenario.fewContracts &&
@@ -195,6 +234,20 @@ export function simulatePds(scenario: PdsScenario): PdsResult {
   const inflation = nonNegative(scenario.inflationPct) / 100;
   const netReal = net / Math.pow(1 + inflation, holdingYears);
 
+  // Право на выплаты: возраст 55/60 лет или 15 лет договора — что раньше.
+  const payoutAge = scenario.gender === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
+  const yearsByAge = Math.max(0, payoutAge - Math.floor(nonNegative(scenario.age)));
+  const earliestYears = Math.min(PDS_RULES.payoutYears, yearsByAge);
+
+  // Размер выплаты зависит от выбранного варианта.
+  const payoutType = scenario.payoutType;
+  const payoutMonths =
+    payoutType === "term1" ? 12 : payoutType === "term5" ? 60 : payoutType === "term10" ? 120 : payoutType === "lifetime" ? PDS_RULES.lifetimeMonths : 0;
+  const payoutBase = Math.max(0, capitalFinal - exitTax + cashRefunds);
+  const payoutMonthly =
+    payoutType === "lump" ? payoutBase : payoutMonths > 0 ? payoutBase / payoutMonths : 0;
+  const payoutTotal = payoutType === "lump" ? payoutBase : payoutMonthly * payoutMonths;
+
   return {
     rows,
     contributions: contributionsTotal,
@@ -209,10 +262,19 @@ export function simulatePds(scenario: PdsScenario): PdsResult {
     deductionRoom,
     taxExempt,
     yearsToPayout: Math.max(0, PDS_RULES.payoutYears - holdingYears),
+    payoutAge,
+    yearsByAge,
+    earliestYears,
+    payoutMonthly,
+    payoutTotal,
+    payoutMonths,
+    opsIncluded,
   };
 }
 
 export const PDS_DEFAULTS: PdsScenario = {
+  gender: "m",
+  age: 35,
   monthlyIncome: 100_000,
   annualContribution: 120_000,
   contributionYears: 10,
@@ -223,4 +285,7 @@ export const PDS_DEFAULTS: PdsScenario = {
   iis3Contribution: 0,
   ownContract: true,
   fewContracts: true,
+  useOps: false,
+  opsAmount: 300_000,
+  payoutType: "term10",
 };
