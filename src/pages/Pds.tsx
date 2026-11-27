@@ -506,8 +506,10 @@ export default function Pds() {
               </div>
 
               <div className="summary__meta">
-                <span>Правила ПДС {PDS_RULES.payoutYears} лет или 55/60</span>
-                <span>До выплат — {result.yearsToPayout} {yearsWord(result.yearsToPayout)}</span>
+                <span>Возраст выплат — {result.payoutAge} лет</span>
+                <span>
+                  До выплат — {scenario.holdingYears} {yearsWord(scenario.holdingYears)}
+                </span>
               </div>
             </div>
           </aside>

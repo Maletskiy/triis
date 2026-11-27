@@ -2926,23 +2926,18 @@ a {
   line-height: var(--subtitle-line);
 }
 
-/* Колонки одной высоты: итог тянется до низа блока параметров */
+/* Итог держится в поле зрения, пока листаешь длинные параметры.
+   Растягивать карточку на всю высоту колонки нельзя: внутри остаётся пустота. */
 .pds__layout {
-  align-items: stretch;
+  align-items: start;
 }
 
 .pds__layout .layout__aside {
-  display: flex;
-}
-
-.pds__layout .summary {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  position: sticky;
+  top: 16px;
 }
 
 .pds__layout .summary__meta {
-  margin-top: auto;
   padding-top: 20px;
 }
 
@@ -3060,10 +3055,7 @@ a {
   line-height: 20px;
 }
 
-/* сравнение прижато к низу колонки: высота колонок одинаковая */
-.pds__layout .pds__compare {
-  margin-top: auto;
-}
+
 
 /* короткие факты в итоге: заполняют колонку до общей высоты */
 .pds__facts {

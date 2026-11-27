@@ -2595,7 +2595,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:09:32.337Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:17:15.128Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3135,7 +3135,7 @@ function Pds() {
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:09:32.337Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:17:15.128Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3483,15 +3483,15 @@ function Pds() {
           ] }),
           /* @__PURE__ */ jsxs14("div", { className: "summary__meta", children: [
             /* @__PURE__ */ jsxs14("span", { children: [
-              "\u041F\u0440\u0430\u0432\u0438\u043B\u0430 \u041F\u0414\u0421 ",
-              PDS_RULES.payoutYears,
-              " \u043B\u0435\u0442 \u0438\u043B\u0438 55/60"
+              "\u0412\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442 \u2014 ",
+              result.payoutAge,
+              " \u043B\u0435\u0442"
             ] }),
             /* @__PURE__ */ jsxs14("span", { children: [
               "\u0414\u043E \u0432\u044B\u043F\u043B\u0430\u0442 \u2014 ",
-              result.yearsToPayout,
+              scenario.holdingYears,
               " ",
-              yearsWord(result.yearsToPayout)
+              yearsWord(scenario.holdingYears)
             ] })
           ] })
         ] }) })

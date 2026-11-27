@@ -852,10 +852,17 @@ const metrics = (page) =>
     ),
     linkHome: document.querySelector('.topbar__nav a[href="/"]') !== null,
     hasFaq: document.querySelectorAll(".faq__item").length,
-    columnsAligned: (() => {
+    asideSticky: (() => {
+      const aside = document.querySelector(".pds__layout .layout__aside");
+      const summary = document.querySelector(".summary")?.getBoundingClientRect();
       const left = document.querySelector(".pds__layout > div")?.getBoundingClientRect();
-      const right = document.querySelector(".pds__layout .layout__aside")?.getBoundingClientRect();
-      return !!left && !!right && Math.abs(left.height - right.height) < 2;
+      return (
+        !!aside &&
+        getComputedStyle(aside).position === "sticky" &&
+        !!summary &&
+        !!left &&
+        summary.height < left.height
+      );
     })(),
     font: getComputedStyle(document.querySelector(".param__input")).fontFamily,
   }));
@@ -872,11 +879,11 @@ const metrics = (page) =>
     !pdsStart.payment.includes("Выплата")
   ) {
     fail(`страница ПДС: нет новых полей — ${JSON.stringify({ labels: pdsStart.labels, payout: pdsStart.payoutOptions, payment: pdsStart.payment })}`);
-  } else if (!pdsStart.columnsAligned) {
-    fail("страница ПДС: колонки разной высоты");
+  } else if (!pdsStart.asideSticky) {
+    fail("страница ПДС: итог не закреплён и растянут на всю колонку");
   } else if (!/SB Sans Interface/.test(pdsStart.font)) {
     fail(`страница ПДС: шрифт не из системы — ${pdsStart.font}`);
-  } else ok(`страница ПДС: ${pdsStart.rows} строк, ${pdsStart.hasFaq} вопросов, колонки вровень, шрифт системный`);
+  } else ok(`страница ПДС: ${pdsStart.rows} строк, ${pdsStart.hasFaq} вопросов, итог липкий, шрифт системный`);
 
   // сумма софинансирования не должна превышать 36 000 ₽ в год
   const pdsMax = await page.evaluate(() => {
