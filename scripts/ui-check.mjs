@@ -856,6 +856,7 @@ const metrics = (page) =>
     payment: [...document.querySelectorAll(".stat")].map((el) =>
       el.querySelector("dt")?.textContent?.replace(/[\u00A0\u202F]/g, " ").trim(),
     ),
+    rollingStats: [...document.querySelectorAll(".stat dd")].filter((el) => el.querySelector(".roll")).length,
     linkHome: document.querySelector('.topbar__nav a[href="/"]') !== null,
     asideSticky: (() => {
       const aside = document.querySelector(".pds__layout .layout__aside");
@@ -881,7 +882,8 @@ const metrics = (page) =>
     !pdsStart.labels.includes("Возраст") ||
     !pdsStart.payoutOptions.includes("Пожизненно") ||
     !pdsStart.payoutOptions.includes("Разом") ||
-    !pdsStart.payment.includes("Выплата")
+    !pdsStart.payment.includes("Выплата") ||
+    pdsStart.rollingStats !== 4
   ) {
     fail(`страница ПДС: нет новых полей — ${JSON.stringify({ labels: pdsStart.labels, payout: pdsStart.payoutOptions, payment: pdsStart.payment })}`);
   } else if (!pdsStart.asideSticky) {

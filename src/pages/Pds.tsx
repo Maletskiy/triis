@@ -861,7 +861,7 @@ export default function Pds({ initialTab = "params" }: { initialTab?: Tab }) {
                 <div className="stat">
                   <dt>Налог при выплатах</dt>
                   <dd className={result.exitTax > 0 ? "is-warn" : "is-ok"}>
-                    {result.exitTax > 0 ? rub(result.exitTax) : "0 ₽"}
+                    <RollingNumber value={Math.round(result.exitTax)} format={(n) => rub(n)} />
                   </dd>
                   <span className="stat__sub">
                     {result.taxExempt ? "доход освобождён до 30 млн" : "льготы нет"}
@@ -870,9 +870,13 @@ export default function Pds({ initialTab = "params" }: { initialTab?: Tab }) {
                 <div className="stat">
                   <dt>Выплата</dt>
                   <dd className="is-ok">
-                    {scenario.payoutType === "lump"
-                      ? rub(result.payoutMonthly)
-                      : `${rub(Math.round(result.payoutMonthly))} / мес`}
+                    <RollingNumber
+                      value={Math.round(result.payoutMonthly)}
+                      format={(n) => rub(n)}
+                    />
+                    {scenario.payoutType === "lump" ? null : (
+                      <span className="stat__unit"> / мес</span>
+                    )}
                   </dd>
                   <span className="stat__sub">
                     {PAYOUT_LABELS[scenario.payoutType]}

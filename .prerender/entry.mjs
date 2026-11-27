@@ -2582,7 +2582,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:49:36.934Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:54:14.141Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3130,7 +3130,7 @@ function Pds({ initialTab = "params" }) {
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:49:36.934Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:54:14.141Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3752,12 +3752,21 @@ function Pds({ initialTab = "params" }) {
             ] }),
             /* @__PURE__ */ jsxs14("div", { className: "stat", children: [
               /* @__PURE__ */ jsx15("dt", { children: "\u041D\u0430\u043B\u043E\u0433 \u043F\u0440\u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u0445" }),
-              /* @__PURE__ */ jsx15("dd", { className: result.exitTax > 0 ? "is-warn" : "is-ok", children: result.exitTax > 0 ? rub(result.exitTax) : "0 \u20BD" }),
+              /* @__PURE__ */ jsx15("dd", { className: result.exitTax > 0 ? "is-warn" : "is-ok", children: /* @__PURE__ */ jsx15(RollingNumber, { value: Math.round(result.exitTax), format: (n) => rub(n) }) }),
               /* @__PURE__ */ jsx15("span", { className: "stat__sub", children: result.taxExempt ? "\u0434\u043E\u0445\u043E\u0434 \u043E\u0441\u0432\u043E\u0431\u043E\u0436\u0434\u0451\u043D \u0434\u043E\xA030\u202F\u043C\u043B\u043D" : "\u043B\u044C\u0433\u043E\u0442\u044B \u043D\u0435\u0442" })
             ] }),
             /* @__PURE__ */ jsxs14("div", { className: "stat", children: [
               /* @__PURE__ */ jsx15("dt", { children: "\u0412\u044B\u043F\u043B\u0430\u0442\u0430" }),
-              /* @__PURE__ */ jsx15("dd", { className: "is-ok", children: scenario.payoutType === "lump" ? rub(result.payoutMonthly) : `${rub(Math.round(result.payoutMonthly))} / \u043C\u0435\u0441` }),
+              /* @__PURE__ */ jsxs14("dd", { className: "is-ok", children: [
+                /* @__PURE__ */ jsx15(
+                  RollingNumber,
+                  {
+                    value: Math.round(result.payoutMonthly),
+                    format: (n) => rub(n)
+                  }
+                ),
+                scenario.payoutType === "lump" ? null : /* @__PURE__ */ jsx15("span", { className: "stat__unit", children: " / \u043C\u0435\u0441" })
+              ] }),
               /* @__PURE__ */ jsxs14("span", { className: "stat__sub", children: [
                 PAYOUT_LABELS[scenario.payoutType],
                 scenario.payoutType === "lifetime" ? " \xB7 \u043E\u0440\u0438\u0435\u043D\u0442\u0438\u0440 \u043D\u0430\xA022\u202F\u0433\u043E\u0434\u0430" : ""
