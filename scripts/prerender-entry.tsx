@@ -29,9 +29,11 @@ export function renderPrivacyPage(): string {
 
 /** Калькулятор ПДС — своя страница со своей шапкой и навигацией. */
 export function renderPdsPage(): string {
+  // Для поисковиков и ИИ-краулеров рендерим вкладку с правилами:
+  // в ней вся фактура, а клиент всё равно монтируется заново и открывает параметры.
   return renderToString(
     <StrictMode>
-      <Pds />
+      <Pds initialTab="rules" />
     </StrictMode>,
   );
 }

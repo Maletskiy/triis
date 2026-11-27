@@ -851,7 +851,6 @@ const metrics = (page) =>
       el.querySelector("dt")?.textContent?.replace(/[\u00A0\u202F]/g, " ").trim(),
     ),
     linkHome: document.querySelector('.topbar__nav a[href="/"]') !== null,
-    hasFaq: document.querySelectorAll(".faq__item").length,
     asideSticky: (() => {
       const aside = document.querySelector(".pds__layout .layout__aside");
       const summary = document.querySelector(".summary")?.getBoundingClientRect();
@@ -868,7 +867,7 @@ const metrics = (page) =>
   }));
   if (!pdsStart.title.includes("ПДС") || !pdsStart.h1?.includes("ПДС")) {
     fail(`страница ПДС: заголовки ${JSON.stringify({ title: pdsStart.title, h1: pdsStart.h1 })}`);
-  } else if (pdsStart.rows !== 15 || pdsStart.hasFaq < 5 || !pdsStart.linkHome) {
+  } else if (pdsStart.rows !== 15 || !pdsStart.linkHome) {
     fail(`страница ПДС: ${JSON.stringify(pdsStart)}`);
   } else if (
     !pdsStart.labels.includes("Срок пополнения") ||
@@ -883,7 +882,47 @@ const metrics = (page) =>
     fail("страница ПДС: итог не закреплён и растянут на всю колонку");
   } else if (!/SB Sans Interface/.test(pdsStart.font)) {
     fail(`страница ПДС: шрифт не из системы — ${pdsStart.font}`);
-  } else ok(`страница ПДС: ${pdsStart.rows} строк, ${pdsStart.hasFaq} вопросов, итог липкий, шрифт системный`);
+  } else ok(`страница ПДС: ${pdsStart.rows} строк, итог липкий, шрифт системный`);
+
+  // вкладка «Сравнение»: карточки, таблица и переход на калькулятор ИИС-3
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".tabs .segmented__item")]
+      .find((el) => el.textContent.trim() === "Сравнение")
+      ?.click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
+  const pdsCompare = await page.evaluate(() => ({
+    cards: document.querySelectorAll(".pds-compare__card").length,
+    rows: document.querySelectorAll(".pds-compare__table tr").length,
+    cta: document.querySelector(".pds-cta")?.getAttribute("href"),
+  }));
+  if (pdsCompare.cards !== 2 || pdsCompare.rows < 5 || pdsCompare.cta !== "/") {
+    fail(`вкладка «Сравнение»: ${JSON.stringify(pdsCompare)}`);
+  } else ok(`ПДС: сравнение — ${pdsCompare.rows} строк, переход на ИИС-3`);
+
+  // вкладка «Правила»: блоки фактов и вопросы
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".tabs .segmented__item")]
+      .find((el) => el.textContent.trim() === "Правила")
+      ?.click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
+  const pdsRules = await page.evaluate(() => ({
+    blocks: document.querySelectorAll(".rules__block").length,
+    faq: document.querySelectorAll(".faq__item").length,
+    sources: document.querySelector(".rules__sources")?.textContent?.includes("Банк России"),
+  }));
+  if (pdsRules.blocks < 5 || pdsRules.faq < 5 || !pdsRules.sources) {
+    fail(`вкладка «Правила»: ${JSON.stringify(pdsRules)}`);
+  } else ok(`ПДС: правила — ${pdsRules.blocks} блоков, ${pdsRules.faq} вопросов, источники`);
+
+  // назад в параметры
+  await page.evaluate(() => {
+    [...document.querySelectorAll(".tabs .segmented__item")]
+      .find((el) => el.textContent.trim() === "Параметры")
+      ?.click();
+  });
+  await new Promise((r) => setTimeout(r, 600));
 
   // сумма софинансирования не должна превышать 36 000 ₽ в год
   const pdsMax = await page.evaluate(() => {

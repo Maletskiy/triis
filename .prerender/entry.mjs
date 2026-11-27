@@ -2595,7 +2595,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:17:15.128Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:23:03.271Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -2887,7 +2887,7 @@ ${body}`], { type: "text/csv;charset=utf-8" });
 }
 
 // src/pages/Pds.tsx
-import { useMemo as useMemo5, useState as useState9 } from "react";
+import { useMemo as useMemo5, useRef as useRef6, useState as useState9 } from "react";
 
 // src/lib/pds.ts
 var PDS_RULES = {
@@ -3086,7 +3086,7 @@ function MoneyValue2({
 }) {
   const [draft, setDraft] = useState9(() => money2(value));
   const [focused, setFocused] = useState9(false);
-  return /* @__PURE__ */ jsxs14("span", { className: "param__value" + (focused ? "" : ""), children: [
+  return /* @__PURE__ */ jsxs14("span", { className: "param__value", children: [
     /* @__PURE__ */ jsx15(
       "input",
       {
@@ -3125,17 +3125,21 @@ function Param2({
   return /* @__PURE__ */ jsxs14("div", { className: "param", children: [
     /* @__PURE__ */ jsx15("span", { className: "param__label", children: label }),
     /* @__PURE__ */ jsx15(MoneyValue2, { value, onChange, label, suffix }),
+    suffix ? null : null,
     /* @__PURE__ */ jsx15(WakeSlider, { value, min, max, step, label, onChange }),
     hint ? /* @__PURE__ */ jsx15("span", { className: "param__hint", children: hint }) : null
   ] });
 }
-function Pds() {
+function Pds({ initialTab = "params" }) {
   const [scenario, setScenario] = useState9(PDS_DEFAULTS);
+  const [tab, setTab] = useState9(initialTab);
   const [openFaq, setOpenFaq] = useState9(0);
+  const tabsRef = useRef6(null);
+  const thumb = useSlidingThumb(tabsRef, ".segmented__item.is-active", [tab]);
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:17:15.128Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:23:03.271Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3188,19 +3192,15 @@ function Pds() {
   }
   if (scenario.age >= result.payoutAge) {
     warnings.push(
-      `\u0412\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442 \u0443\u0436\u0435 \u043D\u0430\u0441\u0442\u0443\u043F\u0438\u043B: \u0437\u0430\u0431\u0440\u0430\u0442\u044C \u0441\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u044F \u043C\u043E\u0436\u043D\u043E \u0432\xA0\u043B\u044E\u0431\u043E\u0439 \u043C\u043E\u043C\u0435\u043D\u0442, \u0432\u0437\u043D\u043E\u0441\u044B \u043F\u043E\u0441\u043B\u0435 \u044D\u0442\u043E\u0433\u043E \u0441\u043C\u044B\u0441\u043B\u0430 \u043D\u0435\xA0\u0438\u043C\u0435\u044E\u0442`
+      "\u0412\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442 \u0443\u0436\u0435 \u043D\u0430\u0441\u0442\u0443\u043F\u0438\u043B: \u0437\u0430\u0431\u0440\u0430\u0442\u044C \u0441\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u044F \u043C\u043E\u0436\u043D\u043E \u0432\xA0\u043B\u044E\u0431\u043E\u0439 \u043C\u043E\u043C\u0435\u043D\u0442, \u0432\u0437\u043D\u043E\u0441\u044B \u043F\u043E\u0441\u043B\u0435 \u044D\u0442\u043E\u0433\u043E \u0441\u043C\u044B\u0441\u043B\u0430 \u043D\u0435\xA0\u0438\u043C\u0435\u044E\u0442"
     );
   } else if (result.earliestYears === PDS_RULES.payoutYears && scenario.holdingYears === PDS_RULES.payoutYears) {
     warnings.push(
       `\u0412\u044B\u043F\u043B\u0430\u0442\u044B \u043D\u0430\u0447\u043D\u0443\u0442\u0441\u044F \u0447\u0435\u0440\u0435\u0437\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430: \u0434\u043E ${result.payoutAge} \u043B\u0435\u0442 \u0432\u044B\xA0\u0435\u0449\u0451 \u043D\u0435\xA0\u0434\u043E\u0439\u0434\u0451\u0442\u0435`
     );
   }
-  if (scenario.holdingYears < PDS_RULES.payoutYears && scenario.age < result.payoutAge) {
-    warnings.push(
-      `\u0414\u043E \u0432\u044B\u043F\u043B\u0430\u0442 \u043F\u043E\xA0\u0441\u0440\u043E\u043A\u0443 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430 \u0435\u0449\u0451 ${result.yearsToPayout} ${yearsWord(result.yearsToPayout)} \u2014 \u0437\u0430\u0431\u0440\u0430\u0442\u044C \u0432\u0441\u0451 \u043C\u043E\u0436\u043D\u043E \u0442\u043E\u043B\u044C\u043A\u043E \u0432\xA055/60\u202F\u043B\u0435\u0442 \u0438\u043B\u0438\xA0\u0432\xA0\u043E\u0441\u043E\u0431\u043E\u0439 \u0436\u0438\u0437\u043D\u0435\u043D\u043D\u043E\u0439 \u0441\u0438\u0442\u0443\u0430\u0446\u0438\u0438`
-    );
-  }
   const taxRate = ndfl(scenario.monthlyIncome * 12) / Math.max(1, scenario.monthlyIncome * 12);
+  const payoutBigger = result.net >= iis.net;
   return /* @__PURE__ */ jsxs14("div", { className: "app pds", children: [
     /* @__PURE__ */ jsx15(Topbar, { variant: "plain", children: /* @__PURE__ */ jsxs14("nav", { className: "topbar__nav", "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B", children: [
       /* @__PURE__ */ jsx15("a", { className: "topbar__link", href: "/", children: "\u0418\u0418\u0421-3" }),
@@ -3210,220 +3210,531 @@ function Pds() {
       /* @__PURE__ */ jsx15("h1", { className: "pds__title", children: "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u041F\u0414\u0421: \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435, \u0432\u044B\u0447\u0435\u0442 \u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B" }),
       /* @__PURE__ */ jsx15("p", { className: "pds__lede", children: "\u041F\u0440\u043E\u0433\u0440\u0430\u043C\u043C\u0430 \u0434\u043E\u043B\u0433\u043E\u0441\u0440\u043E\u0447\u043D\u044B\u0445 \u0441\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u0439: \u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0434\u043E\u0431\u0430\u0432\u0438\u0442 \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E, \u0447\u0442\u043E\xA0\u0432\u0435\u0440\u043D\u0451\u0442 \u043D\u0430\u043B\u043E\u0433\u043E\u0432\u0430\u044F \u0438\xA0\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043E\u0441\u0442\u0430\u043D\u0435\u0442\u0441\u044F \u043A\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u043C. \u041F\u0440\u0430\u0432\u0438\u043B\u0430 2026\u202F\u0433\u043E\u0434\u0430" }),
       /* @__PURE__ */ jsxs14("div", { className: "layout pds__layout", children: [
-        /* @__PURE__ */ jsx15("div", { children: /* @__PURE__ */ jsxs14(Section, { title: "\u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B", children: [
-          /* @__PURE__ */ jsxs14("div", { className: "pds__pair", children: [
-            /* @__PURE__ */ jsxs14("div", { className: "param", children: [
-              /* @__PURE__ */ jsx15("span", { className: "param__label", children: "\u041F\u043E\u043B" }),
-              /* @__PURE__ */ jsx15(
-                Segmented,
-                {
-                  label: "\u041F\u043E\u043B",
-                  value: scenario.gender,
-                  onChange: (value) => {
-                    const payoutAge = value === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
-                    const earliest = Math.min(
-                      PDS_RULES.payoutYears,
-                      Math.max(0, payoutAge - scenario.age)
-                    );
-                    patch({
-                      gender: value,
-                      holdingYears: Math.max(scenario.holdingYears, earliest)
-                    });
-                  },
-                  options: [
-                    { value: "m", label: "\u041C\u0443\u0436\u0441\u043A\u043E\u0439" },
-                    { value: "f", label: "\u0416\u0435\u043D\u0441\u043A\u0438\u0439" }
-                  ]
-                }
-              ),
-              /* @__PURE__ */ jsx15("span", { className: "param__hint", children: "\u0432\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442: 55 \u0438\u043B\u0438\xA060\u202F\u043B\u0435\u0442" })
-            ] }),
-            /* @__PURE__ */ jsx15(
-              Param2,
+        /* @__PURE__ */ jsxs14("div", { className: "layout__main", children: [
+          /* @__PURE__ */ jsx15("div", { className: "tabs", ref: tabsRef, children: /* @__PURE__ */ jsx15("div", { className: "tabs__inner", children: /* @__PURE__ */ jsxs14("div", { className: "segmented", role: "tablist", "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B", children: [
+            thumb ? /* @__PURE__ */ jsx15(
+              "span",
               {
-                label: "\u0412\u043E\u0437\u0440\u0430\u0441\u0442",
-                value: scenario.age,
-                min: 18,
-                max: 70,
-                step: 1,
-                suffix: "\u043B\u0435\u0442",
-                onChange: (value) => {
-                  const payoutAge = scenario.gender === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
-                  const earliest = Math.min(
-                    PDS_RULES.payoutYears,
-                    Math.max(0, payoutAge - value)
-                  );
-                  patch({ age: value, holdingYears: Math.max(scenario.holdingYears, earliest) });
+                className: "segmented__thumb",
+                "aria-hidden": "true",
+                style: {
+                  transform: `translate(${thumb.left}px, ${thumb.top}px)`,
+                  width: thumb.width,
+                  height: thumb.height
                 }
               }
-            )
-          ] }),
-          /* @__PURE__ */ jsx15(
-            Param2,
-            {
-              label: "\u0414\u043E\u0445\u043E\u0434 \u0432\xA0\u043C\u0435\u0441\u044F\u0446",
-              hint: "\u0434\u043E\xA0\u0432\u044B\u0447\u0435\u0442\u0430 \u041D\u0414\u0424\u041B",
-              value: scenario.monthlyIncome,
-              min: 2e4,
-              max: 5e5,
-              step: 1e4,
-              suffix: "\u20BD",
-              onChange: (value) => patch({ monthlyIncome: value })
-            }
-          ),
-          /* @__PURE__ */ jsx15(
-            Param2,
-            {
-              label: "\u0412\u0437\u043D\u043E\u0441 \u0432\xA0\u0433\u043E\u0434",
-              hint: "\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u043D\u043E\u0441\u0438\u0442\u0435 \u043D\u0430\xA0\u0441\u0447\u0451\u0442",
-              value: scenario.annualContribution,
-              min: 0,
-              max: 4e5,
-              step: 1e4,
-              suffix: "\u20BD",
-              onChange: (value) => patch({ annualContribution: value })
-            }
-          ),
-          /* @__PURE__ */ jsxs14("div", { className: "pds__pair", children: [
-            /* @__PURE__ */ jsx15(
-              Param2,
+            ) : null,
+            [
+              ["params", "\u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B"],
+              ["compare", "\u0421\u0440\u0430\u0432\u043D\u0435\u043D\u0438\u0435"],
+              ["rules", "\u041F\u0440\u0430\u0432\u0438\u043B\u0430"]
+            ].map(([value, label]) => /* @__PURE__ */ jsx15(
+              "button",
               {
-                label: "\u0421\u0440\u043E\u043A \u043F\u043E\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F",
-                hint: "\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043B\u0435\u0442 \u0432\u043D\u043E\u0441\u0438\u0442\u0435 \u0432\u0437\u043D\u043E\u0441\u044B",
-                value: scenario.contributionYears,
-                min: 1,
-                max: 20,
-                step: 1,
-                suffix: "\u043B\u0435\u0442",
-                onChange: (value) => patch({
-                  contributionYears: value,
-                  holdingYears: Math.max(scenario.holdingYears, value)
-                })
-              }
-            ),
-            /* @__PURE__ */ jsx15(
-              Param2,
+                type: "button",
+                role: "tab",
+                "aria-selected": tab === value,
+                className: "segmented__item" + (tab === value ? " is-active" : ""),
+                onClick: () => setTab(value),
+                children: label
+              },
+              value
+            ))
+          ] }) }) }),
+          /* @__PURE__ */ jsx15(AnimatedHeight, { children: /* @__PURE__ */ jsxs14("div", { className: "appear", children: [
+            tab === "params" ? /* @__PURE__ */ jsxs14(
+              Section,
               {
-                label: "\u0421\u0440\u043E\u043A \u0434\u043E\xA0\u0432\u044B\u043F\u043B\u0430\u0442",
-                hint: `\u043D\u0435\xA0\u0440\u0430\u043D\u044C\u0448\u0435 ${result.earliestYears} \u043B\u0435\u0442: \u0432\u043E\u0437\u0440\u0430\u0441\u0442 ${result.payoutAge} \u0438\u043B\u0438\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430`,
-                value: scenario.holdingYears,
-                min: Math.max(1, result.earliestYears),
-                max: 40,
-                step: 1,
-                suffix: "\u043B\u0435\u0442",
-                onChange: (value) => patch({
-                  holdingYears: Math.max(value, result.earliestYears, scenario.contributionYears)
-                })
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsxs14("div", { className: "pds__pair", children: [
-            /* @__PURE__ */ jsx15(
-              Param2,
-              {
-                label: "\u0414\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C",
-                value: scenario.returnPct,
-                min: 0,
-                max: 25,
-                step: 1,
-                suffix: "%",
-                onChange: (value) => patch({ returnPct: value })
-              }
-            ),
-            /* @__PURE__ */ jsx15(
-              Param2,
-              {
-                label: "\u0418\u043D\u0444\u043B\u044F\u0446\u0438\u044F",
-                value: scenario.inflationPct,
-                min: 0,
-                max: 15,
-                step: 1,
-                suffix: "%",
-                onChange: (value) => patch({ inflationPct: value })
-              }
-            )
-          ] }),
-          /* @__PURE__ */ jsx15(
-            Param2,
-            {
-              label: "\u0412\u0437\u043D\u043E\u0441\u044B \u043D\u0430\xA0\u0418\u0418\u0421-3 \u0432\xA0\u0433\u043E\u0434",
-              hint: "\u043B\u0438\u043C\u0438\u0442 \u0432\u044B\u0447\u0435\u0442\u0430 400 000\u202F\u20BD \u043E\u0431\u0449\u0438\u0439",
-              value: scenario.iis3Contribution,
-              min: 0,
-              max: 4e5,
-              step: 1e4,
-              suffix: "\u20BD",
-              onChange: (value) => patch({ iis3Contribution: value })
-            }
-          ),
-          /* @__PURE__ */ jsxs14("div", { className: "param", children: [
-            /* @__PURE__ */ jsx15("span", { className: "param__label", children: "\u0412\u0430\u0440\u0438\u0430\u043D\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B" }),
-            /* @__PURE__ */ jsx15(
-              Segmented,
-              {
-                label: "\u0412\u0430\u0440\u0438\u0430\u043D\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B",
-                value: scenario.payoutType,
-                onChange: (value) => patch({ payoutType: value }),
-                options: [
-                  { value: "term1", label: "1\u202F\u0433\u043E\u0434" },
-                  { value: "term5", label: "5\u202F\u043B\u0435\u0442" },
-                  { value: "term10", label: "10\u202F\u043B\u0435\u0442" },
-                  { value: "lifetime", label: "\u041F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u043E" },
-                  { value: "lump", label: "\u0420\u0430\u0437\u043E\u043C" }
+                title: "\u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B",
+                aside: /* @__PURE__ */ jsx15(
+                  "button",
+                  {
+                    type: "button",
+                    className: "btn btn--ghost btn--sm",
+                    onClick: () => setScenario(PDS_DEFAULTS),
+                    children: "\u0421\u0431\u0440\u043E\u0441\u0438\u0442\u044C"
+                  }
+                ),
+                children: [
+                  /* @__PURE__ */ jsxs14("div", { className: "param", children: [
+                    /* @__PURE__ */ jsx15("span", { className: "param__label", children: "\u041F\u043E\u043B" }),
+                    /* @__PURE__ */ jsx15(
+                      Segmented,
+                      {
+                        label: "\u041F\u043E\u043B",
+                        value: scenario.gender,
+                        onChange: (value) => {
+                          const payoutAge = value === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
+                          const earliest = Math.min(
+                            PDS_RULES.payoutYears,
+                            Math.max(0, payoutAge - scenario.age)
+                          );
+                          patch({
+                            gender: value,
+                            holdingYears: Math.max(scenario.holdingYears, earliest)
+                          });
+                        },
+                        options: [
+                          { value: "m", label: "\u041C\u0443\u0436\u0441\u043A\u043E\u0439" },
+                          { value: "f", label: "\u0416\u0435\u043D\u0441\u043A\u0438\u0439" }
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsx15("span", { className: "param__hint", children: "\u043E\u0442\xA0\u043F\u043E\u043B\u0430 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u0432\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442: 60\u202F\u043B\u0435\u0442 \u043C\u0443\u0436\u0447\u0438\u043D\u0430\u043C \u0438\xA055 \u0436\u0435\u043D\u0449\u0438\u043D\u0430\u043C" })
+                  ] }),
+                  /* @__PURE__ */ jsx15(
+                    Param2,
+                    {
+                      label: "\u0412\u043E\u0437\u0440\u0430\u0441\u0442",
+                      hint: "\u043F\u0440\u0430\u0432\u043E \u043D\u0430\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B\xA0\u2014 55/60\u202F\u043B\u0435\u0442 \u0438\u043B\u0438\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430",
+                      value: scenario.age,
+                      min: 18,
+                      max: 70,
+                      step: 1,
+                      suffix: "\u043B\u0435\u0442",
+                      onChange: (value) => {
+                        const payoutAge = scenario.gender === "f" ? PDS_RULES.payoutAgeWomen : PDS_RULES.payoutAgeMen;
+                        const earliest = Math.min(
+                          PDS_RULES.payoutYears,
+                          Math.max(0, payoutAge - value)
+                        );
+                        patch({ age: value, holdingYears: Math.max(scenario.holdingYears, earliest) });
+                      }
+                    }
+                  ),
+                  /* @__PURE__ */ jsx15(
+                    Param2,
+                    {
+                      label: "\u0414\u043E\u0445\u043E\u0434 \u0432\xA0\u043C\u0435\u0441\u044F\u0446",
+                      hint: "\u0434\u043E\xA0\u0432\u044B\u0447\u0435\u0442\u0430 \u041D\u0414\u0424\u041B, \u043E\u0442\xA0\u043D\u0435\u0433\u043E \u0437\u0430\u0432\u0438\u0441\u044F\u0442 \u0433\u043E\u0441\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430 \u0438\xA0\u0441\u0442\u0430\u0432\u043A\u0430",
+                      value: scenario.monthlyIncome,
+                      min: 2e4,
+                      max: 5e5,
+                      step: 1e4,
+                      suffix: "\u20BD",
+                      onChange: (value) => patch({ monthlyIncome: value })
+                    }
+                  ),
+                  /* @__PURE__ */ jsx15(
+                    Param2,
+                    {
+                      label: "\u0412\u0437\u043D\u043E\u0441 \u0432\xA0\u0433\u043E\u0434",
+                      hint: "\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u0432\u043D\u043E\u0441\u0438\u0442\u0435 \u043D\u0430\xA0\u0441\u0447\u0451\u0442; \u043E\u0442\xA02 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434 \u0434\u0430\u044E\u0442 \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435",
+                      value: scenario.annualContribution,
+                      min: 0,
+                      max: 4e5,
+                      step: 1e4,
+                      suffix: "\u20BD",
+                      onChange: (value) => patch({ annualContribution: value })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxs14("div", { className: "pds__row", children: [
+                    /* @__PURE__ */ jsx15(
+                      Param2,
+                      {
+                        label: "\u0421\u0440\u043E\u043A \u043F\u043E\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F",
+                        hint: "\u0441\u043A\u043E\u043B\u044C\u043A\u043E \u043B\u0435\u0442 \u0432\u043D\u043E\u0441\u0438\u0442\u0435 \u0432\u0437\u043D\u043E\u0441\u044B",
+                        value: scenario.contributionYears,
+                        min: 1,
+                        max: 20,
+                        step: 1,
+                        suffix: "\u043B\u0435\u0442",
+                        onChange: (value) => patch({
+                          contributionYears: value,
+                          holdingYears: Math.max(scenario.holdingYears, value)
+                        })
+                      }
+                    ),
+                    /* @__PURE__ */ jsx15(
+                      Param2,
+                      {
+                        label: "\u0421\u0440\u043E\u043A \u0434\u043E\xA0\u0432\u044B\u043F\u043B\u0430\u0442",
+                        hint: `\u043D\u0435\xA0\u0440\u0430\u043D\u044C\u0448\u0435 ${result.earliestYears} \u043B\u0435\u0442: \u0432\u043E\u0437\u0440\u0430\u0441\u0442 ${result.payoutAge} \u0438\u043B\u0438\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430`,
+                        value: scenario.holdingYears,
+                        min: Math.max(1, result.earliestYears),
+                        max: 40,
+                        step: 1,
+                        suffix: "\u043B\u0435\u0442",
+                        onChange: (value) => patch({
+                          holdingYears: Math.max(value, result.earliestYears, scenario.contributionYears)
+                        })
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsxs14("div", { className: "pds__row", children: [
+                    /* @__PURE__ */ jsx15(
+                      Param2,
+                      {
+                        label: "\u0414\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C",
+                        hint: "\u0447\u0442\u043E\xA0\u0444\u043E\u043D\u0434 \u0437\u0430\u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0441\u0432\u0435\u0440\u0445 \u0438\u043D\u0444\u043B\u044F\u0446\u0438\u0438",
+                        value: scenario.returnPct,
+                        min: 0,
+                        max: 25,
+                        step: 1,
+                        suffix: "%",
+                        onChange: (value) => patch({ returnPct: value })
+                      }
+                    ),
+                    /* @__PURE__ */ jsx15(
+                      Param2,
+                      {
+                        label: "\u0418\u043D\u0444\u043B\u044F\u0446\u0438\u044F",
+                        hint: "\u0434\u043B\u044F\xA0\u043F\u0435\u0440\u0435\u0441\u0447\u0451\u0442\u0430 \u0432\xA0\u0441\u0435\u0433\u043E\u0434\u043D\u044F\u0448\u043D\u0438\u0435 \u0446\u0435\u043D\u044B",
+                        value: scenario.inflationPct,
+                        min: 0,
+                        max: 15,
+                        step: 1,
+                        suffix: "%",
+                        onChange: (value) => patch({ inflationPct: value })
+                      }
+                    )
+                  ] }),
+                  /* @__PURE__ */ jsx15(
+                    Param2,
+                    {
+                      label: "\u0412\u0437\u043D\u043E\u0441\u044B \u043D\u0430\xA0\u0418\u0418\u0421-3 \u0432\xA0\u0433\u043E\u0434",
+                      hint: "\u043B\u0438\u043C\u0438\u0442 \u0432\u044B\u0447\u0435\u0442\u0430 400 000\u202F\u20BD \u043E\u0431\u0449\u0438\u0439 \u0441\xA0\u0418\u0418\u0421-3 \u0438\xA0\u041D\u041F\u041E",
+                      value: scenario.iis3Contribution,
+                      min: 0,
+                      max: 4e5,
+                      step: 1e4,
+                      suffix: "\u20BD",
+                      onChange: (value) => patch({ iis3Contribution: value })
+                    }
+                  ),
+                  /* @__PURE__ */ jsxs14("div", { className: "param", children: [
+                    /* @__PURE__ */ jsx15("span", { className: "param__label", children: "\u0412\u0430\u0440\u0438\u0430\u043D\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B" }),
+                    /* @__PURE__ */ jsx15(
+                      Segmented,
+                      {
+                        label: "\u0412\u0430\u0440\u0438\u0430\u043D\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B",
+                        value: scenario.payoutType,
+                        onChange: (value) => patch({ payoutType: value }),
+                        options: [
+                          { value: "term1", label: "1\u202F\u0433\u043E\u0434" },
+                          { value: "term5", label: "5\u202F\u043B\u0435\u0442" },
+                          { value: "term10", label: "10\u202F\u043B\u0435\u0442" },
+                          { value: "lifetime", label: "\u041F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u043E" },
+                          { value: "lump", label: "\u0420\u0430\u0437\u043E\u043C" }
+                        ]
+                      }
+                    ),
+                    /* @__PURE__ */ jsx15("span", { className: "param__hint", children: "\u0441\u0440\u043E\u0447\u043D\u0430\u044F \u0432\u044B\u043F\u043B\u0430\u0442\u0430\xA0\u2014 \u043D\u0435\xA0\u043C\u0435\u043D\u044C\u0448\u0435 10\u202F\u043B\u0435\u0442 \u043F\u043E\xA0\u0437\u0430\u043A\u043E\u043D\u0443; \u043A\u043E\u0440\u043E\u0447\u0435 \u043C\u043E\u0436\u043D\u043E, \u0435\u0441\u043B\u0438 \u0444\u043E\u043D\u0434 \u0440\u0430\u0437\u0440\u0435\u0448\u0430\u0435\u0442" })
+                  ] }),
+                  /* @__PURE__ */ jsx15("div", { className: "param", children: /* @__PURE__ */ jsx15(
+                    Toggle,
+                    {
+                      checked: scenario.useOps,
+                      onChange: (value) => patch({ useOps: value }),
+                      label: "\u0423\u0447\u0438\u0442\u044B\u0432\u0430\u0442\u044C \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u041E\u041F\u0421",
+                      hint: "\u043F\u0435\u0440\u0435\u0432\u0435\u0434\u0451\u043D\u043D\u0430\u044F \u043D\u0430\u043A\u043E\u043F\u0438\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0447\u0430\u0441\u0442\u044C \u0440\u0430\u0441\u0442\u0451\u0442 \u0432\u043C\u0435\u0441\u0442\u0435 \u0441\u043E\xA0\u0441\u0447\u0451\u0442\u043E\u043C, \u043D\u043E\xA0\u043D\u0435\xA0\u0434\u0430\u0451\u0442 \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438\xA0\u0432\u044B\u0447\u0435\u0442\u0430"
+                    }
+                  ) }),
+                  scenario.useOps ? /* @__PURE__ */ jsx15(
+                    Param2,
+                    {
+                      label: "\u041D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u041E\u041F\u0421",
+                      hint: "\u0441\u0443\u043C\u043C\u0443 \u043C\u043E\u0436\u043D\u043E \u0443\u0437\u043D\u0430\u0442\u044C \u043D\u0430\xA0\u0413\u043E\u0441\u0443\u0441\u043B\u0443\u0433\u0430\u0445 \u0432\xA0\u0440\u0430\u0437\u0434\u0435\u043B\u0435 \u043F\u0435\u043D\u0441\u0438\u043E\u043D\u043D\u044B\u0445 \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u0439",
+                      value: scenario.opsAmount,
+                      min: 0,
+                      max: 3e6,
+                      step: 5e4,
+                      suffix: "\u20BD",
+                      onChange: (value) => patch({ opsAmount: value })
+                    }
+                  ) : null,
+                  /* @__PURE__ */ jsxs14("div", { className: "pds__toggles", children: [
+                    /* @__PURE__ */ jsx15(
+                      Toggle,
+                      {
+                        checked: scenario.reinvestRefunds,
+                        onChange: (value) => patch({ reinvestRefunds: value }),
+                        label: "\u0412\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0442\u044C \u0432\u044B\u0447\u0435\u0442 \u043D\u0430\xA0\u0441\u0447\u0451\u0442",
+                        hint: "\u0432\u044B\u0447\u0435\u0442 \u043F\u0440\u0438\u0445\u043E\u0434\u0438\u0442 \u0434\u0435\u043D\u044C\u0433\u0430\u043C\u0438 \u0438\u043B\u0438\xA0\u0441\u0440\u0430\u0437\u0443 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u043D\u0430\xA0\u0441\u0447\u0451\u0442\u0435"
+                      }
+                    ),
+                    /* @__PURE__ */ jsx15(
+                      Toggle,
+                      {
+                        checked: scenario.ownContract,
+                        onChange: (value) => patch({ ownContract: value }),
+                        label: "\u0414\u043E\u0433\u043E\u0432\u043E\u0440 \u0432\xA0\u0441\u0432\u043E\u044E \u043F\u043E\u043B\u044C\u0437\u0443 \u0438\u043B\u0438\xA0\u0431\u043B\u0438\u0437\u043A\u043E\u0433\u043E \u0440\u043E\u0434\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A\u0430"
+                      }
+                    ),
+                    /* @__PURE__ */ jsx15(
+                      Toggle,
+                      {
+                        checked: scenario.fewContracts,
+                        onChange: (value) => patch({ fewContracts: value }),
+                        label: "\u0414\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u0432 \u041F\u0414\u0421 \u043D\u0435\xA0\u0431\u043E\u043B\u044C\u0448\u0435 \u0442\u0440\u0451\u0445"
+                      }
+                    )
+                  ] })
                 ]
               }
-            ),
-            /* @__PURE__ */ jsx15("span", { className: "param__hint", children: "\u0441\u0440\u043E\u0447\u043D\u0430\u044F \u0432\u044B\u043F\u043B\u0430\u0442\u0430\xA0\u2014 \u043D\u0435\xA0\u043C\u0435\u043D\u044C\u0448\u0435 10\u202F\u043B\u0435\u0442 \u043F\u043E\xA0\u0437\u0430\u043A\u043E\u043D\u0443; \u043A\u043E\u0440\u043E\u0447\u0435 \u043C\u043E\u0436\u043D\u043E, \u0435\u0441\u043B\u0438 \u0444\u043E\u043D\u0434 \u0440\u0430\u0437\u0440\u0435\u0448\u0430\u0435\u0442" })
-          ] }),
-          /* @__PURE__ */ jsx15("div", { className: "param", children: /* @__PURE__ */ jsx15(
-            Toggle,
-            {
-              checked: scenario.useOps,
-              onChange: (value) => patch({ useOps: value }),
-              label: "\u0423\u0447\u0438\u0442\u044B\u0432\u0430\u0442\u044C \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u041E\u041F\u0421",
-              hint: "\u043F\u0435\u0440\u0435\u0432\u0435\u0434\u0451\u043D\u043D\u0430\u044F \u043D\u0430\u043A\u043E\u043F\u0438\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0447\u0430\u0441\u0442\u044C \u0440\u0430\u0441\u0442\u0451\u0442 \u0432\u043C\u0435\u0441\u0442\u0435 \u0441\u043E\xA0\u0441\u0447\u0451\u0442\u043E\u043C, \u043D\u043E\xA0\u043D\u0435\xA0\u0434\u0430\u0451\u0442 \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438\xA0\u0432\u044B\u0447\u0435\u0442\u0430"
-            }
-          ) }),
-          scenario.useOps ? /* @__PURE__ */ jsx15(
-            Param2,
-            {
-              label: "\u041D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u041E\u041F\u0421",
-              hint: "\u0441\u0443\u043C\u043C\u0443 \u043C\u043E\u0436\u043D\u043E \u0443\u0437\u043D\u0430\u0442\u044C \u043D\u0430\xA0\u0413\u043E\u0441\u0443\u0441\u043B\u0443\u0433\u0430\u0445 \u0432\xA0\u0440\u0430\u0437\u0434\u0435\u043B\u0435 \u043F\u0435\u043D\u0441\u0438\u043E\u043D\u043D\u044B\u0445 \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u0439",
-              value: scenario.opsAmount,
-              min: 0,
-              max: 3e6,
-              step: 5e4,
-              suffix: "\u20BD",
-              onChange: (value) => patch({ opsAmount: value })
-            }
-          ) : null,
-          /* @__PURE__ */ jsxs14("div", { className: "pds__toggles", children: [
-            /* @__PURE__ */ jsx15(
-              Toggle,
-              {
-                checked: scenario.reinvestRefunds,
-                onChange: (value) => patch({ reinvestRefunds: value }),
-                label: "\u0412\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0442\u044C \u0432\u044B\u0447\u0435\u0442 \u043D\u0430\xA0\u0441\u0447\u0451\u0442"
-              }
-            ),
-            /* @__PURE__ */ jsx15(
-              Toggle,
-              {
-                checked: scenario.ownContract,
-                onChange: (value) => patch({ ownContract: value }),
-                label: "\u0414\u043E\u0433\u043E\u0432\u043E\u0440 \u0432\xA0\u0441\u0432\u043E\u044E \u043F\u043E\u043B\u044C\u0437\u0443 \u0438\u043B\u0438\xA0\u0431\u043B\u0438\u0437\u043A\u043E\u0433\u043E \u0440\u043E\u0434\u0441\u0442\u0432\u0435\u043D\u043D\u0438\u043A\u0430"
-              }
-            ),
-            /* @__PURE__ */ jsx15(
-              Toggle,
-              {
-                checked: scenario.fewContracts,
-                onChange: (value) => patch({ fewContracts: value }),
-                label: "\u0414\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u0432 \u041F\u0414\u0421 \u043D\u0435\xA0\u0431\u043E\u043B\u044C\u0448\u0435 \u0442\u0440\u0451\u0445"
-              }
-            )
-          ] })
-        ] }) }),
+            ) : null,
+            tab === "params" ? /* @__PURE__ */ jsx15(Section, { title: "\u0420\u0430\u0441\u0447\u0451\u0442 \u043F\u043E\xA0\u0433\u043E\u0434\u0430\u043C", children: /* @__PURE__ */ jsx15("div", { className: "table__wrap", children: /* @__PURE__ */ jsxs14("table", { className: "table", children: [
+              /* @__PURE__ */ jsx15("thead", { children: /* @__PURE__ */ jsxs14("tr", { children: [
+                /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u0413\u043E\u0434" }),
+                /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u0412\u0437\u043D\u043E\u0441" }),
+                /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u0413\u043E\u0441\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430" }),
+                /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u0412\u044B\u0447\u0435\u0442" }),
+                /* @__PURE__ */ jsx15("th", { scope: "col", className: "table__hide-sm", children: "\u0414\u043E\u0445\u043E\u0434 \u0437\u0430\xA0\u0433\u043E\u0434" }),
+                /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u041A\u0430\u043F\u0438\u0442\u0430\u043B" })
+              ] }) }),
+              /* @__PURE__ */ jsx15("tbody", { children: result.rows.map((row) => /* @__PURE__ */ jsxs14("tr", { children: [
+                /* @__PURE__ */ jsx15("td", { children: row.year }),
+                /* @__PURE__ */ jsx15("td", { children: rub(row.contribution) }),
+                /* @__PURE__ */ jsx15("td", { className: "table__refund", children: row.cofinancing > 0 ? rub(row.cofinancing) : "\u2014" }),
+                /* @__PURE__ */ jsx15("td", { children: row.refund > 0 ? rub(row.refund) : "\u2014" }),
+                /* @__PURE__ */ jsx15("td", { className: "table__hide-sm", children: rub(row.growth) }),
+                /* @__PURE__ */ jsx15("td", { className: "table__capital", children: rub(row.capital) })
+              ] }, row.year)) }),
+              /* @__PURE__ */ jsx15("tfoot", { children: /* @__PURE__ */ jsxs14("tr", { children: [
+                /* @__PURE__ */ jsx15("td", { children: "\u0418\u0442\u043E\u0433\u043E" }),
+                /* @__PURE__ */ jsx15("td", { children: rub(result.contributions) }),
+                /* @__PURE__ */ jsx15("td", { className: "table__refund", children: rub(result.cofinancing) }),
+                /* @__PURE__ */ jsx15("td", { children: rub(result.refunds) }),
+                /* @__PURE__ */ jsx15("td", { className: "table__hide-sm", children: rub(result.profit - result.cofinancing) }),
+                /* @__PURE__ */ jsx15("td", { className: "table__capital", children: rub(result.capital) })
+              ] }) })
+            ] }) }) }) : null,
+            tab === "compare" ? /* @__PURE__ */ jsxs14("div", { className: "pds-compare", children: [
+              /* @__PURE__ */ jsx15("p", { className: "compare__lead", children: "\u041E\u0434\u043D\u0438 \u0438\xA0\u0442\u0435 \u0436\u0435\xA0\u0432\u0437\u043D\u043E\u0441\u044B \u0438\xA0\u0441\u0440\u043E\u043A: \u0447\u0442\u043E\xA0\u0434\u0430\u0441\u0442 \u041F\u0414\u0421, \u0430\xA0\u0447\u0442\u043E\xA0\u0418\u0418\u0421-3" }),
+              /* @__PURE__ */ jsxs14("div", { className: "pds-compare__cards", children: [
+                /* @__PURE__ */ jsxs14("article", { className: "pds-compare__card" + (payoutBigger ? " is-best" : ""), children: [
+                  /* @__PURE__ */ jsxs14("span", { className: "card__head", children: [
+                    /* @__PURE__ */ jsx15("span", { className: "card__name", children: "\u041F\u0414\u0421" }),
+                    payoutBigger ? /* @__PURE__ */ jsx15("span", { className: "chip chip--best", children: "\u0432\u044B\u0433\u043E\u0434\u043D\u0435\u0435" }) : null
+                  ] }),
+                  /* @__PURE__ */ jsx15("span", { className: "card__net", children: /* @__PURE__ */ jsx15(RollingNumber, { value: result.net, format: (n) => rub(n) }) }),
+                  /* @__PURE__ */ jsxs14("span", { className: "card__note", children: [
+                    "\u0433\u043E\u0441\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430 ",
+                    compactRub(result.cofinancing),
+                    ", \u0432\u044B\u0447\u0435\u0442",
+                    " ",
+                    compactRub(result.refunds),
+                    "; \u0434\u0435\u043D\u044C\u0433\u0438 \u0437\u0430\u043F\u0435\u0440\u0442\u044B \u0434\u043E ",
+                    scenario.holdingYears,
+                    " ",
+                    "\u043B\u0435\u0442"
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxs14("article", { className: "pds-compare__card" + (!payoutBigger ? " is-best" : ""), children: [
+                  /* @__PURE__ */ jsxs14("span", { className: "card__head", children: [
+                    /* @__PURE__ */ jsx15("span", { className: "card__name", children: "\u0418\u0418\u0421-3" }),
+                    !payoutBigger ? /* @__PURE__ */ jsx15("span", { className: "chip chip--best", children: "\u0432\u044B\u0433\u043E\u0434\u043D\u0435\u0435" }) : null
+                  ] }),
+                  /* @__PURE__ */ jsx15("span", { className: "card__net", children: /* @__PURE__ */ jsx15(RollingNumber, { value: iis.net, format: (n) => rub(n) }) }),
+                  /* @__PURE__ */ jsxs14("span", { className: "card__note", children: [
+                    "\u0432\u044B\u0447\u0435\u0442 ",
+                    compactRub(iis.refunds),
+                    "; \u0441\u0447\u0451\u0442 \u043C\u043E\u0436\u043D\u043E \u0437\u0430\u043A\u0440\u044B\u0442\u044C \u0447\u0435\u0440\u0435\u0437",
+                    " ",
+                    iis.minHolding,
+                    " ",
+                    yearsWord(iis.minHolding),
+                    " \u0431\u0435\u0437 \u043F\u043E\u0442\u0435\u0440\u0438 \u043B\u044C\u0433\u043E\u0442"
+                  ] })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsx15("table", { className: "pds-compare__table", children: /* @__PURE__ */ jsxs14("tbody", { children: [
+                /* @__PURE__ */ jsxs14("tr", { children: [
+                  /* @__PURE__ */ jsx15("th", { scope: "row", children: "\u0413\u043E\u0441\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430" }),
+                  /* @__PURE__ */ jsx15("td", { className: "is-ok", children: rub(result.cofinancing) }),
+                  /* @__PURE__ */ jsx15("td", { children: "\u043D\u0435\u0442" })
+                ] }),
+                /* @__PURE__ */ jsxs14("tr", { children: [
+                  /* @__PURE__ */ jsx15("th", { scope: "row", children: "\u0412\u044B\u0447\u0435\u0442 \u041D\u0414\u0424\u041B" }),
+                  /* @__PURE__ */ jsx15("td", { children: rub(result.refunds) }),
+                  /* @__PURE__ */ jsx15("td", { children: rub(iis.refunds) })
+                ] }),
+                /* @__PURE__ */ jsxs14("tr", { children: [
+                  /* @__PURE__ */ jsx15("th", { scope: "row", children: "\u041D\u0430\u043B\u043E\u0433 \u043F\u0440\u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u0445" }),
+                  /* @__PURE__ */ jsx15("td", { children: result.exitTax > 0 ? rub(result.exitTax) : "0 \u20BD" }),
+                  /* @__PURE__ */ jsx15("td", { children: iis.exitTax > 0 ? rub(iis.exitTax) : "0 \u20BD" })
+                ] }),
+                /* @__PURE__ */ jsxs14("tr", { children: [
+                  /* @__PURE__ */ jsx15("th", { scope: "row", children: "\u041D\u0430 \u0440\u0443\u043A\u0438" }),
+                  /* @__PURE__ */ jsx15("td", { children: rub(result.net) }),
+                  /* @__PURE__ */ jsx15("td", { children: rub(iis.net) })
+                ] }),
+                /* @__PURE__ */ jsxs14("tr", { children: [
+                  /* @__PURE__ */ jsx15("th", { scope: "row", children: "\u041A\u043E\u0433\u0434\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B \u0434\u0435\u043D\u044C\u0433\u0438" }),
+                  /* @__PURE__ */ jsxs14("td", { children: [
+                    "15 \u043B\u0435\u0442 \u0438\u043B\u0438 ",
+                    result.payoutAge,
+                    " \u043B\u0435\u0442"
+                  ] }),
+                  /* @__PURE__ */ jsxs14("td", { children: [
+                    "\u0447\u0435\u0440\u0435\u0437 ",
+                    iis.minHolding,
+                    " ",
+                    yearsWord(iis.minHolding)
+                  ] })
+                ] }),
+                /* @__PURE__ */ jsxs14("tr", { children: [
+                  /* @__PURE__ */ jsx15("th", { scope: "row", children: "\u041D\u0430\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u0435" }),
+                  /* @__PURE__ */ jsx15("td", { children: "\u0434\u0430, \u043A\u0440\u043E\u043C\u0435 \u043F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u044B\u0445 \u0432\u044B\u043F\u043B\u0430\u0442" }),
+                  /* @__PURE__ */ jsx15("td", { children: "\u043D\u0435\u0442" })
+                ] })
+              ] }) }),
+              /* @__PURE__ */ jsxs14("div", { className: "callout callout--" + (payoutBigger ? "info" : "warn"), children: [
+                /* @__PURE__ */ jsx15("span", { className: "callout__title", children: payoutBigger ? `\u041F\u0414\u0421 \u0434\u0430\u0451\u0442 \u043D\u0430 ${rub(result.net - iis.net)} \u0431\u043E\u043B\u044C\u0448\u0435` : `\u0418\u0418\u0421-3 \u0434\u0430\u0451\u0442 \u043D\u0430 ${rub(iis.net - result.net)} \u0431\u043E\u043B\u044C\u0448\u0435` }),
+                /* @__PURE__ */ jsx15("span", { className: "callout__text", children: payoutBigger ? "\u041D\u043E \u0434\u0435\u043D\u044C\u0433\u0438 \u0437\u0430\u043F\u0435\u0440\u0442\u044B \u0434\u043E\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430 \u0438\u043B\u0438\xA055/60\u202F\u043B\u0435\u0442, \u0430\xA0\u0418\u0418\u0421-3 \u043C\u043E\u0436\u043D\u043E \u0437\u0430\u043A\u0440\u044B\u0442\u044C \u0440\u0430\u043D\u044C\u0448\u0435 \u0431\u0435\u0437\xA0\u043F\u043E\u0442\u0435\u0440\u0438 \u043B\u044C\u0433\u043E\u0442" : "\u041F\u0414\u0421 \u043F\u0440\u043E\u0438\u0433\u0440\u044B\u0432\u0430\u0435\u0442 \u043D\u0430\xA0\u044D\u0442\u0438\u0445 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0430\u0445, \u043D\u043E\xA0\u0434\u0435\u043D\u044C\u0433\u0438 \u043C\u043E\u0436\u043D\u043E \u0437\u0430\u0431\u0440\u0430\u0442\u044C \u0440\u0430\u043D\u044C\u0448\u0435 \u0438\xA0\u0434\u043E\xA036 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434 \u0434\u0430\u0451\u0442 \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E" })
+              ] }),
+              /* @__PURE__ */ jsxs14("a", { className: "pds-cta", href: "/", children: [
+                /* @__PURE__ */ jsxs14("span", { className: "pds-cta__body", children: [
+                  /* @__PURE__ */ jsx15("span", { className: "pds-cta__title", children: "\u041F\u043E\u0441\u0447\u0438\u0442\u0430\u0442\u044C \u0418\u0418\u0421-3" }),
+                  /* @__PURE__ */ jsx15("span", { className: "pds-cta__text", children: "\u0422\u0440\u0438 \u0442\u0438\u043F\u0430 \u0441\u0447\u0451\u0442\u0430, \u0432\u044B\u0447\u0435\u0442\u044B, \u043D\u0430\u043B\u043E\u0433 \u043F\u0440\u0438\xA0\u0437\u0430\u043A\u0440\u044B\u0442\u0438\u0438 \u0438\xA0\u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C \u0441\xA0\u043F\u043E\u043F\u0440\u0430\u0432\u043A\u043E\u0439 \u043D\u0430\xA0\u0438\u043D\u0444\u043B\u044F\u0446\u0438\u044E" })
+                ] }),
+                /* @__PURE__ */ jsx15("span", { className: "pds-cta__arrow", "aria-hidden": "true", children: "\u2192" })
+              ] })
+            ] }) : null,
+            tab === "rules" ? /* @__PURE__ */ jsxs14("article", { className: "rules", children: [
+              /* @__PURE__ */ jsx15("p", { className: "rules__lead", children: "\u041F\u0440\u0430\u0432\u0438\u043B\u0430 \u041F\u0414\u0421 \u043D\u0430\xA02026\u202F\u0433\u043E\u0434: \u0447\u0442\u043E\xA0\u0434\u0430\u0451\u0442 \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E, \u0447\u0442\u043E\xA0\u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442 \u043D\u0430\u043B\u043E\u0433\u043E\u0432\u0430\u044F \u0438\xA0\u043A\u043E\u0433\u0434\u0430 \u043E\u0442\u0434\u0430\u044E\u0442 \u0434\u0435\u043D\u044C\u0433\u0438" }),
+              /* @__PURE__ */ jsxs14("section", { className: "rules__block", children: [
+                /* @__PURE__ */ jsx15("h3", { children: "\u0421\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435" }),
+                /* @__PURE__ */ jsxs14("ul", { children: [
+                  /* @__PURE__ */ jsxs14("li", { children: [
+                    "\u0414\u043E ",
+                    /* @__PURE__ */ jsx15("b", { children: "36 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434" }),
+                    " \u0434\u0435\u0441\u044F\u0442\u044C \u043B\u0435\u0442 \u043F\u043E\u0434\u0440\u044F\u0434, \u0435\u0441\u043B\u0438 \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u043D\u0435\xA0\u043C\u0435\u043D\u044C\u0448\u0435 2 000\u202F\u20BD \u0437\u0430\xA0\u0433\u043E\u0434"
+                  ] }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u041A\u043E\u044D\u0444\u0444\u0438\u0446\u0438\u0435\u043D\u0442 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u043E\u0442\xA0\u0441\u0440\u0435\u0434\u043D\u0435\u043C\u0435\u0441\u044F\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0445\u043E\u0434\u0430: \u0434\u043E\xA080 000\u202F\u20BD \u2014 1:1, \u043E\u0442\xA080 000 \u0434\u043E\xA0150 000\u202F\u20BD \u2014 1:2, \u0432\u044B\u0448\u0435\xA0\u2014 1:4" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u041B\u0438\u043C\u0438\u0442 \u043E\u0431\u0449\u0438\u0439 \u043F\u043E\xA0\u0432\u0441\u0435\u043C \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430\u043C \u041F\u0414\u0421, \u0432\u043A\u043B\u044E\u0447\u0430\u044F \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u044B \u0432\xA0\u0434\u0440\u0443\u0433\u0438\u0445 \u0444\u043E\u043D\u0434\u0430\u0445" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u0421\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u0440\u0435\u043A\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u043F\u0440\u0438\xA0\u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0438 \u0432\u044B\u043F\u043B\u0430\u0442\u044B \u0438\u043B\u0438\xA0\u0432\u044B\u043A\u0443\u043F\u043D\u043E\u0439 \u0441\u0443\u043C\u043C\u044B, \u043A\u0440\u043E\u043C\u0435 \u043E\u0441\u043E\u0431\u044B\u0445 \u0436\u0438\u0437\u043D\u0435\u043D\u043D\u044B\u0445 \u0441\u0438\u0442\u0443\u0430\u0446\u0438\u0439" })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs14("section", { className: "rules__block", children: [
+                /* @__PURE__ */ jsx15("h3", { children: "\u041D\u0430\u043B\u043E\u0433\u043E\u0432\u044B\u0439 \u0432\u044B\u0447\u0435\u0442" }),
+                /* @__PURE__ */ jsxs14("ul", { children: [
+                  /* @__PURE__ */ jsxs14("li", { children: [
+                    "\u0411\u0430\u0437\u0430\xA0\u2014 ",
+                    /* @__PURE__ */ jsx15("b", { children: "400 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434" }),
+                    " \u043B\u0438\u0447\u043D\u044B\u0445 \u0432\u0437\u043D\u043E\u0441\u043E\u0432, \u043E\u0431\u0449\u0430\u044F \u0441\xA0\u0418\u0418\u0421-3 \u0438\xA0\u041D\u041F\u041E"
+                  ] }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u0412\u043E\u0437\u0432\u0440\u0430\u0442\xA0\u2014 52 000\u202F\u20BD \u043F\u0440\u0438\xA0\u0441\u0442\u0430\u0432\u043A\u0435 13%, \u0434\u043E\xA088 000\u202F\u20BD \u043F\u0440\u0438\xA022%, \u043D\u043E\xA0\u043D\u0435\xA0\u0431\u043E\u043B\u044C\u0448\u0435 \u0443\u043F\u043B\u0430\u0447\u0435\u043D\u043D\u043E\u0433\u043E \u041D\u0414\u0424\u041B" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u0414\u043B\u044F \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u0432 2024\u20132026 \u0433\u043E\u0434\u043E\u0432 \u043D\u0443\u0436\u043D\u043E \u043F\u0440\u043E\u0434\u0435\u0440\u0436\u0430\u0442\u044C 5\u202F\u043B\u0435\u0442, \u0434\u0430\u043B\u044C\u0448\u0435 \u0441\u0440\u043E\u043A \u0440\u0430\u0441\u0442\u0451\u0442 \u0434\u043E\xA010\u202F\u043B\u0435\u0442 \u043A\xA02031 \u0433\u043E\u0434\u0443" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u041E\u0434\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u043E \u043D\u0435\xA0\u0431\u043E\u043B\u044C\u0448\u0435 \u0442\u0440\u0451\u0445 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u043E\u0432 \u041F\u0414\u0421, \u0438\u043D\u0430\u0447\u0435 \u0432\u044B\u0447\u0435\u0442 \u043D\u0435\xA0\u0434\u0430\u0434\u0443\u0442" })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs14("section", { className: "rules__block", children: [
+                /* @__PURE__ */ jsx15("h3", { children: "\u041A\u043E\u0433\u0434\u0430 \u043C\u043E\u0436\u043D\u043E \u0437\u0430\u0431\u0440\u0430\u0442\u044C" }),
+                /* @__PURE__ */ jsxs14("ul", { children: [
+                  /* @__PURE__ */ jsxs14("li", { children: [
+                    /* @__PURE__ */ jsx15("b", { children: "55\u202F\u043B\u0435\u0442 \u0436\u0435\u043D\u0449\u0438\u043D\u0430\u043C \u0438\xA060 \u043C\u0443\u0436\u0447\u0438\u043D\u0430\u043C" }),
+                    " \u0438\u043B\u0438\xA015\u202F\u043B\u0435\u0442 \u0441\xA0\u0434\u0430\u0442\u044B \u043F\u0435\u0440\u0432\u043E\u0433\u043E \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430\xA0\u2014 \u0447\u0442\u043E\xA0\u043D\u0430\u0441\u0442\u0443\u043F\u0438\u0442 \u0440\u0430\u043D\u044C\u0448\u0435"
+                  ] }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u041B\u0438\u0447\u043D\u044B\u0435 \u0432\u0437\u043D\u043E\u0441\u044B \u043C\u043E\u0436\u043D\u043E \u0437\u0430\u0431\u0440\u0430\u0442\u044C \u0438\xA0\u0440\u0430\u043D\u044C\u0448\u0435, \u043D\u043E\xA0\u0432\xA0\u0440\u0430\u0437\u043C\u0435\u0440\u0435 \u043F\u043E\xA0\u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0443; \u0444\u043E\u043D\u0434 \u043C\u043E\u0436\u0435\u0442 \u043F\u0440\u0438\u043C\u0435\u043D\u0438\u0442\u044C \u043F\u043E\u043D\u0438\u0436\u0430\u044E\u0449\u0438\u0435 \u043A\u043E\u044D\u0444\u0444\u0438\u0446\u0438\u0435\u043D\u0442\u044B" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u0421\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435, \u043F\u0435\u0440\u0435\u0432\u0435\u0434\u0451\u043D\u043D\u044B\u0435 \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u0438\xA0\u0434\u043E\u0445\u043E\u0434 \u043E\u0442\xA0\u043D\u0438\u0445 \u043E\u0441\u0442\u0430\u044E\u0442\u0441\u044F \u043D\u0430\xA0\u0441\u0447\u0451\u0442\u0435 \u0434\u043E\xA0\u0441\u0440\u043E\u043A\u0430 \u0432\u044B\u043F\u043B\u0430\u0442" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u041E\u0441\u043E\u0431\u044B\u0435 \u0436\u0438\u0437\u043D\u0435\u043D\u043D\u044B\u0435 \u0441\u0438\u0442\u0443\u0430\u0446\u0438\u0438\xA0\u2014 \u0434\u043E\u0440\u043E\u0433\u043E\u0441\u0442\u043E\u044F\u0449\u0435\u0435 \u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u0438\xA0\u043F\u043E\u0442\u0435\u0440\u044F \u043A\u043E\u0440\u043C\u0438\u043B\u044C\u0446\u0430: \u0434\u043E\xA0100% \u0431\u0435\u0437\xA0\u043F\u043E\u0442\u0435\u0440\u0438 \u043B\u044C\u0433\u043E\u0442" })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs14("section", { className: "rules__block", children: [
+                /* @__PURE__ */ jsx15("h3", { children: "\u0412\u044B\u043F\u043B\u0430\u0442\u044B \u0438\xA0\u043D\u0430\u043B\u043E\u0433 \u043D\u0430\xA0\u0434\u043E\u0445\u043E\u0434" }),
+                /* @__PURE__ */ jsxs14("ul", { children: [
+                  /* @__PURE__ */ jsx15("li", { children: "\u0421\u0440\u043E\u0447\u043D\u0430\u044F\xA0\u2014 \u043E\u0442\xA010\u202F\u043B\u0435\u0442, \u043F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u0430\u044F \u0438\u043B\u0438\xA0\u0435\u0434\u0438\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u0430\u044F" }),
+                  /* @__PURE__ */ jsxs14("li", { children: [
+                    "\u0414\u043E\u0445\u043E\u0434 \u043D\u0435\xA0\u043E\u0431\u043B\u0430\u0433\u0430\u0435\u0442\u0441\u044F \u041D\u0414\u0424\u041B \u0432\xA0\u043F\u0440\u0435\u0434\u0435\u043B\u0430\u0445 ",
+                    /* @__PURE__ */ jsx15("b", { children: "30\u202F\u043C\u043B\u043D \u20BD" }),
+                    " \u043D\u0430\xA0\u0434\u043E\u0433\u043E\u0432\u043E\u0440, \u0435\u0441\u043B\u0438 \u0432\u044B\u043F\u043B\u0430\u0442\u044B \u043D\u0435\xA0\u0440\u0430\u043D\u044C\u0448\u0435 10\u202F\u043B\u0435\u0442, \u0434\u043E\u0433\u043E\u0432\u043E\u0440 \u0432\xA0\u0441\u0432\u043E\u044E \u043F\u043E\u043B\u044C\u0437\u0443 \u0438\xA0\u0441\u0447\u0435\u0442\u043E\u0432 \u043D\u0435\xA0\u0431\u043E\u043B\u044C\u0448\u0435 \u0442\u0440\u0451\u0445"
+                  ] }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u041F\u0440\u0438 \u0434\u043E\u0441\u0440\u043E\u0447\u043D\u043E\u043C \u0440\u0430\u0441\u0442\u043E\u0440\u0436\u0435\u043D\u0438\u0438 \u0444\u043E\u043D\u0434 \u0443\u0434\u0435\u0440\u0436\u0438\u0442 \u041D\u0414\u0424\u041B \u0441\xA0\u0434\u043E\u0445\u043E\u0434\u0430 \u0438\xA0\u0441\xA0\u0432\u0437\u043D\u043E\u0441\u043E\u0432, \u043F\u043E\xA0\u043A\u043E\u0442\u043E\u0440\u044B\u043C \u0432\u044B\xA0\u043F\u043E\u043B\u0443\u0447\u0430\u043B\u0438 \u0432\u044B\u0447\u0435\u0442" })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs14("section", { className: "rules__block", children: [
+                /* @__PURE__ */ jsx15("h3", { children: "\u041E\u041F\u0421: \u043D\u0430\u043A\u043E\u043F\u0438\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0447\u0430\u0441\u0442\u044C" }),
+                /* @__PURE__ */ jsxs14("ul", { children: [
+                  /* @__PURE__ */ jsx15("li", { children: "\u041D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F 2002\u20132013 \u0433\u043E\u0434\u043E\u0432 \u043C\u043E\u0436\u043D\u043E \u043F\u0435\u0440\u0435\u0432\u0435\u0441\u0442\u0438 \u043D\u0430\xA0\u0441\u0447\u0451\u0442 \u041F\u0414\u0421 \u0435\u0434\u0438\u043D\u043E\u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u043C \u0432\u0437\u043D\u043E\u0441\u043E\u043C" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u041E\u043D\u0438 \u043D\u0435\xA0\u0434\u0430\u044E\u0442 \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438\xA0\u0432\u044B\u0447\u0435\u0442\u0430, \u0437\u0430\u0442\u043E \u0433\u0430\u0440\u0430\u043D\u0442\u0438\u0440\u0443\u044E\u0442\u0441\u044F \u0433\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E\u043C \u0431\u0435\u0437\xA0\u043B\u0438\u043C\u0438\u0442\u0430 2,8\u202F\u043C\u043B\u043D \u20BD" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u0414\u043E\u0441\u0440\u043E\u0447\u043D\u043E \u0438\u0445\xA0\u043D\u0435\xA0\u0432\u044B\u0434\u0430\u044E\u0442\xA0\u2014 \u0442\u043E\u043B\u044C\u043A\u043E \u0432\u043C\u0435\u0441\u0442\u0435 \u0441\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u043C\u0438" })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs14("section", { className: "rules__block", children: [
+                /* @__PURE__ */ jsx15("h3", { children: "\u0413\u0430\u0440\u0430\u043D\u0442\u0438\u0438 \u0438\xA0\u043D\u0430\u0441\u043B\u0435\u0434\u0441\u0442\u0432\u043E" }),
+                /* @__PURE__ */ jsxs14("ul", { children: [
+                  /* @__PURE__ */ jsxs14("li", { children: [
+                    "\u0412\u0437\u043D\u043E\u0441\u044B \u0438\xA0\u0434\u043E\u0445\u043E\u0434 \u0437\u0430\u0441\u0442\u0440\u0430\u0445\u043E\u0432\u0430\u043D\u044B \u0410\u0421\u0412 \u043D\u0430\xA0",
+                    /* @__PURE__ */ jsx15("b", { children: "2,8\u202F\u043C\u043B\u043D \u20BD" }),
+                    "; \u0441\u043E\u0444\u0438\u043D\u0430\u043D\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438\xA0\u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u041E\u041F\u0421\xA0\u2014 \u0431\u0435\u0437\xA0\u043E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u0438\u044F"
+                  ] }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u0421\u0431\u0435\u0440\u0435\u0436\u0435\u043D\u0438\u044F \u043D\u0430\u0441\u043B\u0435\u0434\u0443\u044E\u0442\u0441\u044F, \u043A\u0440\u043E\u043C\u0435 \u0441\u043B\u0443\u0447\u0430\u044F \u043F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u044B\u0445 \u0432\u044B\u043F\u043B\u0430\u0442" }),
+                  /* @__PURE__ */ jsx15("li", { children: "\u041F\u0440\u0430\u0432\u043E\u043F\u0440\u0435\u0435\u043C\u043D\u0438\u043A\u0430\u043C \u043D\u0443\u0436\u043D\u043E \u043E\u0431\u0440\u0430\u0442\u0438\u0442\u044C\u0441\u044F \u0432\xA0\u0444\u043E\u043D\u0434 \u0432\xA0\u0442\u0435\u0447\u0435\u043D\u0438\u0435 \u0448\u0435\u0441\u0442\u0438 \u043C\u0435\u0441\u044F\u0446\u0435\u0432" })
+                ] })
+              ] }),
+              /* @__PURE__ */ jsxs14("section", { className: "rules__block", children: [
+                /* @__PURE__ */ jsx15("h3", { children: "\u0427\u0430\u0441\u0442\u044B\u0435 \u0432\u043E\u043F\u0440\u043E\u0441\u044B" }),
+                /* @__PURE__ */ jsx15("div", { className: "faq", children: PDS_FAQ.map((item, index) => {
+                  const open = openFaq === index;
+                  return /* @__PURE__ */ jsxs14("div", { className: "faq__item" + (open ? " is-open" : ""), children: [
+                    /* @__PURE__ */ jsx15("h3", { className: "faq__heading", children: /* @__PURE__ */ jsxs14(
+                      "button",
+                      {
+                        type: "button",
+                        className: "faq__toggle",
+                        "aria-expanded": open,
+                        "aria-controls": `pds-faq-panel-${index}`,
+                        onClick: () => setOpenFaq(open ? null : index),
+                        children: [
+                          /* @__PURE__ */ jsx15("span", { className: "faq__question", children: item.question }),
+                          /* @__PURE__ */ jsx15(
+                            "svg",
+                            {
+                              className: "faq__chevron",
+                              width: "18",
+                              height: "18",
+                              viewBox: "0 0 24 24",
+                              "aria-hidden": "true",
+                              children: /* @__PURE__ */ jsx15(
+                                "path",
+                                {
+                                  d: "M6 9l6 6 6-6",
+                                  fill: "none",
+                                  stroke: "currentColor",
+                                  strokeWidth: "2",
+                                  strokeLinecap: "round",
+                                  strokeLinejoin: "round"
+                                }
+                              )
+                            }
+                          )
+                        ]
+                      }
+                    ) }),
+                    /* @__PURE__ */ jsx15(Collapse, { open, children: /* @__PURE__ */ jsx15("p", { className: "faq__answer", id: `pds-faq-panel-${index}`, children: item.answer }) })
+                  ] }, item.question);
+                }) })
+              ] }),
+              /* @__PURE__ */ jsxs14("p", { className: "rules__sources", children: [
+                "\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0438:",
+                " ",
+                /* @__PURE__ */ jsx15(
+                  "a",
+                  {
+                    href: "https://www.cbr.ru/faq/pens_k_inv/program/",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    children: "\u0411\u0430\u043D\u043A \u0420\u043E\u0441\u0441\u0438\u0438 \u043E\xA0\u041F\u0414\u0421"
+                  }
+                ),
+                " ",
+                "\u0438",
+                " ",
+                /* @__PURE__ */ jsx15(
+                  "a",
+                  {
+                    href: "https://www.nalog.gov.ru/rn38/news/activities_fts/16549792/",
+                    target: "_blank",
+                    rel: "noopener noreferrer",
+                    children: "\u0424\u041D\u0421 \u043E\xA0\u0432\u044B\u0447\u0435\u0442\u0435"
+                  }
+                ),
+                ". \u041F\u0440\u0430\u0432\u0438\u043B\u0430 \u0437\u0430\u0444\u0438\u043A\u0441\u0438\u0440\u043E\u0432\u0430\u043D\u044B \u043D\u0430\xA02026\u202F\u0433\u043E\u0434, \u044D\u0442\u043E\xA0\u043D\u0435\xA0\u0438\u043D\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u043E\u043D\u043D\u0430\u044F \u0440\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0430\u0446\u0438\u044F"
+              ] })
+            ] }) : null
+          ] }, tab) })
+        ] }),
         /* @__PURE__ */ jsx15("aside", { className: "layout__aside", children: /* @__PURE__ */ jsxs14("div", { className: "summary", children: [
           /* @__PURE__ */ jsxs14("div", { className: "summary__hero", children: [
             /* @__PURE__ */ jsx15("span", { className: "summary__hero-label", children: "\u041D\u0430 \u0441\u0447\u0451\u0442\u0435 \u043A\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u043C" }),
@@ -3474,7 +3785,7 @@ function Pds() {
               rub(iis.net)
             ] }),
             /* @__PURE__ */ jsxs14("span", { className: "callout__text", children: [
-              result.net >= iis.net ? `\u041F\u0414\u0421 \u0434\u0430\u0451\u0442 \u043D\u0430 ${rub(result.net - iis.net)} \u0431\u043E\u043B\u044C\u0448\u0435` : `\u041F\u0414\u0421 \u0434\u0430\u0451\u0442 \u043D\u0430 ${rub(iis.net - result.net)} \u043C\u0435\u043D\u044C\u0448\u0435`,
+              payoutBigger ? `\u041F\u0414\u0421 \u0434\u0430\u0451\u0442 \u043D\u0430 ${rub(result.net - iis.net)} \u0431\u043E\u043B\u044C\u0448\u0435` : `\u041F\u0414\u0421 \u0434\u0430\u0451\u0442 \u043D\u0430 ${rub(iis.net - result.net)} \u043C\u0435\u043D\u044C\u0448\u0435`,
               " ",
               "\u2014 \u043D\u043E \u0434\u0435\u043D\u044C\u0433\u0438 \u0437\u0430\u043F\u0435\u0440\u0442\u044B \u0434\u043E ",
               PDS_RULES.payoutYears,
@@ -3495,84 +3806,6 @@ function Pds() {
             ] })
           ] })
         ] }) })
-      ] }),
-      /* @__PURE__ */ jsx15(Section, { title: "\u0420\u0430\u0441\u0447\u0451\u0442 \u043F\u043E\xA0\u0433\u043E\u0434\u0430\u043C", children: /* @__PURE__ */ jsx15("div", { className: "table__wrap", children: /* @__PURE__ */ jsxs14("table", { className: "table", children: [
-        /* @__PURE__ */ jsx15("thead", { children: /* @__PURE__ */ jsxs14("tr", { children: [
-          /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u0413\u043E\u0434" }),
-          /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u0412\u0437\u043D\u043E\u0441" }),
-          /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u0413\u043E\u0441\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430" }),
-          /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u0412\u044B\u0447\u0435\u0442" }),
-          /* @__PURE__ */ jsx15("th", { scope: "col", className: "table__hide-sm", children: "\u0414\u043E\u0445\u043E\u0434 \u0437\u0430\xA0\u0433\u043E\u0434" }),
-          /* @__PURE__ */ jsx15("th", { scope: "col", children: "\u041A\u0430\u043F\u0438\u0442\u0430\u043B" })
-        ] }) }),
-        /* @__PURE__ */ jsx15("tbody", { children: result.rows.map((row) => /* @__PURE__ */ jsxs14("tr", { children: [
-          /* @__PURE__ */ jsx15("td", { children: row.year }),
-          /* @__PURE__ */ jsx15("td", { children: rub(row.contribution) }),
-          /* @__PURE__ */ jsx15("td", { className: "table__refund", children: row.cofinancing > 0 ? rub(row.cofinancing) : "\u2014" }),
-          /* @__PURE__ */ jsx15("td", { children: row.refund > 0 ? rub(row.refund) : "\u2014" }),
-          /* @__PURE__ */ jsx15("td", { className: "table__hide-sm", children: rub(row.growth) }),
-          /* @__PURE__ */ jsx15("td", { className: "table__capital", children: rub(row.capital) })
-        ] }, row.year)) }),
-        /* @__PURE__ */ jsx15("tfoot", { children: /* @__PURE__ */ jsxs14("tr", { children: [
-          /* @__PURE__ */ jsx15("td", { children: "\u0418\u0442\u043E\u0433\u043E" }),
-          /* @__PURE__ */ jsx15("td", { children: rub(result.contributions) }),
-          /* @__PURE__ */ jsx15("td", { className: "table__refund", children: rub(result.cofinancing) }),
-          /* @__PURE__ */ jsx15("td", { children: rub(result.refunds) }),
-          /* @__PURE__ */ jsx15("td", { className: "table__hide-sm", children: rub(result.profit - result.cofinancing) }),
-          /* @__PURE__ */ jsx15("td", { className: "table__capital", children: rub(result.capital) })
-        ] }) })
-      ] }) }) }),
-      /* @__PURE__ */ jsxs14("section", { className: "about", "aria-labelledby": "pds-about", children: [
-        /* @__PURE__ */ jsxs14("div", { className: "about__col", children: [
-          /* @__PURE__ */ jsx15("h2", { className: "about__title", id: "pds-about", children: "\u041A\u0430\u043A \u044D\u0442\u043E\xA0\u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442" }),
-          /* @__PURE__ */ jsx15("p", { className: "about__text", children: "\u0413\u043E\u0441\u0443\u0434\u0430\u0440\u0441\u0442\u0432\u043E \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u0435\u0442 \u0434\u043E\xA036 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434 \u0434\u0435\u0441\u044F\u0442\u044C \u043B\u0435\u0442 \u043F\u043E\u0434\u0440\u044F\u0434, \u0435\u0441\u043B\u0438 \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u043D\u0435\xA0\u043C\u0435\u043D\u044C\u0448\u0435 2 000\u202F\u20BD \u0437\u0430\xA0\u0433\u043E\u0434. \u041A\u043E\u044D\u0444\u0444\u0438\u0446\u0438\u0435\u043D\u0442 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u043E\u0442\xA0\u0441\u0440\u0435\u0434\u043D\u0435\u043C\u0435\u0441\u044F\u0447\u043D\u043E\u0433\u043E \u0434\u043E\u0445\u043E\u0434\u0430: \u0434\u043E\xA080 000\u202F\u20BD \u2014 \u0440\u0443\u0431\u043B\u044C \u043D\u0430\xA0\u0440\u0443\u0431\u043B\u044C, \u0434\u043E\xA0150 000\u202F\u20BD \u2014 \u043F\u043E\u043B\u043E\u0432\u0438\u043D\u0430, \u0432\u044B\u0448\u0435\xA0\u2014 \u0447\u0435\u0442\u0432\u0435\u0440\u0442\u044C" }),
-          /* @__PURE__ */ jsx15("p", { className: "about__text", children: "\u0412\u044B\u0447\u0435\u0442 \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0441\xA0\u043B\u0438\u0447\u043D\u044B\u0445 \u0432\u0437\u043D\u043E\u0441\u043E\u0432 \u0432\xA0\u043F\u0440\u0435\u0434\u0435\u043B\u0430\u0445 400 000\u202F\u20BD \u0432\xA0\u0433\u043E\u0434 \u0438\xA0\u043D\u0435\xA0\u0431\u043E\u043B\u044C\u0448\u0435 \u0443\u043F\u043B\u0430\u0447\u0435\u043D\u043D\u043E\u0433\u043E \u041D\u0414\u0424\u041B. \u041B\u0438\u043C\u0438\u0442 \u043E\u0431\u0449\u0438\u0439 \u0441\xA0\u0418\u0418\u0421-3 \u0438\xA0\u041D\u041F\u041E, \u043F\u043E\u044D\u0442\u043E\u043C\u0443 \u0447\u0430\u0441\u0442\u044C \u0432\u0437\u043D\u043E\u0441\u043E\u0432 \u043C\u043E\u0436\u0435\u0442 \u0443\u0439\u0442\u0438 \u0432\xA0\u0434\u0440\u0443\u0433\u043E\u0439 \u043F\u0440\u043E\u0434\u0443\u043A\u0442\xA0\u2014 \u043A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u044D\u0442\u043E\xA0\u0443\u0447\u0438\u0442\u044B\u0432\u0430\u0435\u0442" }),
-          /* @__PURE__ */ jsx15("p", { className: "about__text", children: "\u041F\u0440\u0430\u0432\u043E \u043D\u0430\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B \u0434\u0430\u0451\u0442 \u0432\u043E\u0437\u0440\u0430\u0441\u0442\xA0\u2014 55\u202F\u043B\u0435\u0442 \u0436\u0435\u043D\u0449\u0438\u043D\u0430\u043C \u0438\xA060 \u043C\u0443\u0436\u0447\u0438\u043D\u0430\u043C\xA0\u2014 \u0438\u043B\u0438\xA015\u202F\u043B\u0435\u0442 \u0441\xA0\u0434\u0430\u0442\u044B \u043F\u0435\u0440\u0432\u043E\u0433\u043E \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430, \u0447\u0442\u043E\xA0\u043D\u0430\u0441\u0442\u0443\u043F\u0438\u0442 \u0440\u0430\u043D\u044C\u0448\u0435. \u0421\u0440\u043E\u043A \u0434\u043E\xA0\u0432\u044B\u043F\u043B\u0430\u0442 \u043A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0441\u0447\u0438\u0442\u0430\u0435\u0442 \u0441\u0430\u043C, \u0430\xA0\u0432\u0430\u0440\u0438\u0430\u043D\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\u044B\xA0\u2014 \u0441\u0440\u043E\u0447\u043D\u044B\u0439, \u043F\u043E\u0436\u0438\u0437\u043D\u0435\u043D\u043D\u044B\u0439 \u0438\u043B\u0438\xA0\u0440\u0430\u0437\u043E\u0432\u044B\u0439\xA0\u2014 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442 \u0440\u0430\u0437\u043C\u0435\u0440 \u043F\u043B\u0430\u0442\u0435\u0436\u0430" }),
-          /* @__PURE__ */ jsx15("p", { className: "about__text about__text--muted", children: "\u0412\u044B\u043F\u043B\u0430\u0442\u044B\xA0\u2014 \u0447\u0435\u0440\u0435\u0437\xA015\u202F\u043B\u0435\u0442 \u0434\u043E\u0433\u043E\u0432\u043E\u0440\u0430 \u0438\u043B\u0438\xA0\u0432\xA055/60\u202F\u043B\u0435\u0442. \u0414\u043E\u0445\u043E\u0434 \u043F\u0440\u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u0430\u0445 \u043D\u0435\xA0\u043E\u0431\u043B\u0430\u0433\u0430\u0435\u0442\u0441\u044F \u041D\u0414\u0424\u041B \u0432\xA0\u043F\u0440\u0435\u0434\u0435\u043B\u0430\u0445 30\u202F\u043C\u043B\u043D \u20BD, \u0435\u0441\u043B\u0438 \u0434\u043E\u0433\u043E\u0432\u043E\u0440 \u0432\xA0\u0441\u0432\u043E\u044E \u043F\u043E\u043B\u044C\u0437\u0443 \u0438\xA0\u0432\u044B\u043F\u043B\u0430\u0442\u044B \u043D\u0435\xA0\u0440\u0430\u043D\u044C\u0448\u0435 \u0447\u0435\u043C \u0447\u0435\u0440\u0435\u0437 10\u202F\u043B\u0435\u0442. \u041F\u0440\u0438 \u0434\u043E\u0441\u0440\u043E\u0447\u043D\u043E\u043C \u0440\u0430\u0441\u0442\u043E\u0440\u0436\u0435\u043D\u0438\u0438 \u043B\u044C\u0433\u043E\u0442\u044B \u0442\u0435\u0440\u044F\u044E\u0442\u0441\u044F" })
-        ] }),
-        /* @__PURE__ */ jsxs14("div", { className: "about__col", children: [
-          /* @__PURE__ */ jsx15("h2", { className: "about__title", id: "pds-faq", children: "\u0427\u0430\u0441\u0442\u044B\u0435 \u0432\u043E\u043F\u0440\u043E\u0441\u044B" }),
-          /* @__PURE__ */ jsx15("div", { className: "faq", children: PDS_FAQ.map((item, index) => {
-            const open = openFaq === index;
-            return /* @__PURE__ */ jsxs14("div", { className: "faq__item" + (open ? " is-open" : ""), children: [
-              /* @__PURE__ */ jsx15("h3", { className: "faq__heading", children: /* @__PURE__ */ jsxs14(
-                "button",
-                {
-                  type: "button",
-                  className: "faq__toggle",
-                  "aria-expanded": open,
-                  "aria-controls": `pds-faq-panel-${index}`,
-                  onClick: () => setOpenFaq(open ? null : index),
-                  children: [
-                    /* @__PURE__ */ jsx15("span", { className: "faq__question", children: item.question }),
-                    /* @__PURE__ */ jsx15(
-                      "svg",
-                      {
-                        className: "faq__chevron",
-                        width: "18",
-                        height: "18",
-                        viewBox: "0 0 24 24",
-                        "aria-hidden": "true",
-                        children: /* @__PURE__ */ jsx15(
-                          "path",
-                          {
-                            d: "M6 9l6 6 6-6",
-                            fill: "none",
-                            stroke: "currentColor",
-                            strokeWidth: "2",
-                            strokeLinecap: "round",
-                            strokeLinejoin: "round"
-                          }
-                        )
-                      }
-                    )
-                  ]
-                }
-              ) }),
-              /* @__PURE__ */ jsx15(Collapse, { open, children: /* @__PURE__ */ jsx15("p", { className: "faq__answer", id: `pds-faq-panel-${index}`, children: item.answer }) })
-            ] }, item.question);
-          }) })
-        ] })
       ] })
     ] }),
     /* @__PURE__ */ jsxs14("footer", { className: "footer", children: [
@@ -3620,7 +3853,7 @@ function renderPrivacyPage() {
 }
 function renderPdsPage() {
   return renderToString(
-    /* @__PURE__ */ jsx16(StrictMode, { children: /* @__PURE__ */ jsx16(Pds, {}) })
+    /* @__PURE__ */ jsx16(StrictMode, { children: /* @__PURE__ */ jsx16(Pds, { initialTab: "rules" }) })
   );
 }
 function pdsFaqJsonLd() {

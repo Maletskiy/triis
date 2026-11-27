@@ -2942,7 +2942,7 @@ a {
 }
 
 /* Два параметра в ряд: подписи, значения и ползунки на одной линии */
-.pds__pair {
+.pds__row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0 24px;
@@ -2950,13 +2950,15 @@ a {
   border-top: 1px solid var(--primary-8);
 }
 
-.pds__pair .param {
+.pds__row > .param,
+.pds__row > .param + .param {
   padding-top: 0;
   border-top: 0;
 }
 
-.pds__pair .param__hint {
-  margin-top: 6px;
+/* подсказка дышит от разделителя снизу */
+.param__hint {
+  margin-top: 4px;
 }
 
 .pds__toggles {
@@ -2975,12 +2977,12 @@ a {
     line-height: 1.1;
   }
 
-  .pds__pair {
+  .pds__row {
     grid-template-columns: minmax(0, 1fr);
     gap: 22px 0;
   }
 
-  .pds__pair .param + .param {
+  .pds__row > .param + .param {
     padding-top: 22px;
     border-top: 1px solid var(--primary-8);
   }
@@ -3085,4 +3087,116 @@ a {
   height: 6px;
   border-radius: 50%;
   background: var(--primary-20);
+}
+
+/* Сравнение ПДС и ИИС-3 */
+.pds-compare {
+  background: var(--background);
+  border: 1px solid var(--primary-10);
+  border-radius: var(--radius-22);
+  padding: 26px;
+}
+
+.pds-compare__cards {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.pds-compare__card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid var(--primary-10);
+  border-radius: var(--radius-18);
+}
+
+.pds-compare__card.is-best {
+  border-color: var(--primary-30);
+  background: var(--primary-4);
+}
+
+.pds-compare__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--subtitle-size);
+  line-height: var(--subtitle-line);
+}
+
+.pds-compare__table th,
+.pds-compare__table td {
+  padding: 10px 8px;
+  text-align: right;
+  border-bottom: 1px solid var(--primary-8);
+  vertical-align: top;
+}
+
+.pds-compare__table th {
+  text-align: left;
+  font-weight: 400;
+  color: var(--primary-50);
+}
+
+.pds-compare__table td.is-ok {
+  color: var(--accent-green);
+}
+
+.pds-compare__table tr:last-child th,
+.pds-compare__table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Переход на калькулятор ИИС-3 */
+.pds-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 20px;
+  padding: 20px 24px;
+  border-radius: var(--radius-22);
+  background: var(--primary);
+  color: var(--white);
+  text-decoration: none;
+  transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.pds-cta:hover {
+  background: var(--primary-80);
+  transform: translateY(-2px);
+}
+
+.pds-cta__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pds-cta__title {
+  font-size: var(--title-20-size);
+  line-height: var(--title-20-line);
+  font-weight: 600;
+}
+
+.pds-cta__text {
+  font-size: var(--subtitle-size);
+  line-height: var(--subtitle-line);
+  color: var(--primary-20);
+}
+
+.pds-cta__arrow {
+  font-size: 22px;
+  transition: transform 0.25s ease;
+}
+
+.pds-cta:hover .pds-cta__arrow {
+  transform: translateX(4px);
+}
+
+@media (max-width: 900px) {
+  .pds-compare__cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
