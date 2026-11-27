@@ -668,7 +668,7 @@ const metrics = (page) =>
     };
   });
   if (Math.round(btnHeight) !== 56) fail(`высота кнопки ${Math.round(btnHeight)}, ожидалась 56`);
-  else if (!reset || reset.text !== "Сбросить" || reset.height > 44 || !reset.sameRow || !reset.atRight) {
+  else if (!reset || reset.text !== "Сбросить" || reset.height !== 32 || !reset.sameRow || !reset.atRight) {
     fail(`кнопка сброса не в шапке блока «Счёт»: ${JSON.stringify(reset)}`);
   } else ok(`кнопки 56 px, «Сбросить» ${reset.height} px в шапке «${reset.title}», справа`);
 
