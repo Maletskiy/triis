@@ -2881,9 +2881,7 @@ a {
 }
 
 /* ------------------------------------------------------------------ */
-/* Калькулятор ПДС                                                     */
-/* ------------------------------------------------------------------ */
-
+/* Переключатель разделов в шапке */
 .topbar__nav {
   display: flex;
   align-items: center;
@@ -2910,359 +2908,86 @@ a {
   color: var(--white);
 }
 
+/* Калькулятор ПДС: только каркас страницы, всё остальное — общая система */
+
 .pds__title {
   margin: 36px 0 14px;
+  max-width: 30ch;
   font-size: var(--title-40-size);
   line-height: 1.06;
   letter-spacing: -0.02em;
-  max-width: 30ch;
 }
 
 .pds__lede {
   margin: 0 0 28px;
   max-width: 64ch;
   color: var(--primary-60);
-  font-size: 18px;
-  line-height: 26px;
+  font-size: var(--subtitle-size);
+  line-height: var(--subtitle-line);
 }
 
-.pds__grid {
+/* Колонки одной высоты: итог тянется до низа блока параметров */
+.pds__layout {
+  align-items: stretch;
+}
+
+.pds__layout .layout__aside {
+  display: flex;
+}
+
+.pds__layout .summary {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.pds__layout .summary__meta {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+/* Два параметра в ряд: подписи, значения и ползунки на одной линии */
+.pds__pair {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
-  gap: 20px;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0 24px;
+  padding-top: 22px;
+  border-top: 1px solid var(--primary-8);
 }
 
-.pds__card {
-  padding: 24px;
-  border-radius: 22px;
-  background: var(--background);
-}
-
-.pds__card-title {
-  margin: 0 0 16px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.pds__field {
-  padding: 14px 0;
-  border-top: 1px solid var(--primary-10);
-}
-
-.pds__field:first-of-type {
-  border-top: 0;
+.pds__pair .param {
   padding-top: 0;
+  border-top: 0;
 }
 
-.pds__label {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
-  font-size: 14px;
-  line-height: 18px;
-  color: var(--primary-60);
-}
-
-.pds__hint {
-  color: var(--primary-40);
-}
-
-.pds__value {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.pds__input {
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: var(--primary);
-  font-size: 28px;
-  line-height: 32px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-.pds__input:focus {
-  outline: none;
-}
-
-.pds__suffix {
-  color: var(--primary-40);
-  font-size: 16px;
-}
-
-.pds__two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+.pds__pair .param__hint {
+  margin-top: 6px;
 }
 
 .pds__toggles {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding-top: 16px;
-  margin-top: 6px;
-  border-top: 1px solid var(--primary-10);
-}
-
-.pds__summary {
-  position: sticky;
-  top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.pds__hero {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 24px;
-  border-radius: 22px;
-  background: var(--background);
-}
-
-.pds__hero-label {
-  font-size: 14px;
-  line-height: 18px;
-  color: var(--primary-50);
-}
-
-.pds__hero-value {
-  font-size: 40px;
-  line-height: 44px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.pds__hero-sub {
-  font-size: 14px;
-  line-height: 18px;
-  color: var(--primary-60);
-}
-
-.pds__stats {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin: 0;
-  padding: 24px;
-  border-radius: 22px;
-  background: var(--background);
-}
-
-.pds__stat dt {
-  font-size: 14px;
-  line-height: 18px;
-  color: var(--primary-50);
-}
-
-.pds__stat dd {
-  margin: 2px 0 0;
-  font-size: 20px;
-  line-height: 24px;
-  font-weight: 600;
-}
-
-.pds__stat dd.is-ok {
-  color: var(--accent-green);
-}
-
-.pds__stat dd.is-warn {
-  color: var(--accent-red);
-}
-
-.pds__stat-sub {
-  display: block;
-  margin-top: 4px;
-  font-size: 13px;
-  line-height: 17px;
-  color: var(--primary-40);
-}
-
-.pds__compare {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 20px 24px;
-  border-radius: 22px;
-  background: var(--background);
-}
-
-.pds__compare-title {
-  font-size: 14px;
-  color: var(--primary-50);
-}
-
-.pds__compare-value {
-  font-size: 24px;
-  line-height: 28px;
-  font-weight: 600;
-}
-
-.pds__compare-sub {
-  font-size: 13px;
-  line-height: 17px;
-  color: var(--primary-60);
-}
-
-.pds__notes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 20px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.pds__note {
-  padding: 8px 12px;
-  border-radius: 12px;
-  background: var(--primary-5);
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--primary-60);
-}
-
-.pds__table {
-  margin-top: 20px;
-}
-
-.pds__table-wrap {
-  overflow-x: auto;
-}
-
-.pds__table-el {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
-  line-height: 18px;
-}
-
-.pds__table-el th,
-.pds__table-el td {
-  padding: 10px 8px;
-  text-align: right;
-  border-bottom: 1px solid var(--primary-8);
-  white-space: nowrap;
-}
-
-.pds__table-el thead th {
-  font-weight: 500;
-  color: var(--primary-50);
-}
-
-.pds__table-el th:first-child,
-.pds__table-el td:first-child {
-  text-align: left;
-}
-
-.pds__table-el tfoot td,
-.pds__table-el tfoot th {
-  font-weight: 600;
-  border-bottom: 0;
-}
-
-.pds__about,
-.pds__faq {
-  margin-top: 40px;
-}
-
-.pds__h2 {
-  margin: 0 0 16px;
-  font-size: var(--title-24-size);
-  line-height: var(--title-24-line);
-}
-
-.pds__cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.pds__cards .pds__card p {
-  margin: 0;
-  font-size: 15px;
-  line-height: 22px;
-  color: var(--primary-70);
-}
-
-.pds__faq-item {
-  padding: 16px 0;
-  border-top: 1px solid var(--primary-10);
-}
-
-.pds__faq-item summary {
-  cursor: pointer;
-  list-style: none;
-  font-size: 16px;
-  line-height: 22px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.pds__faq-item summary::-webkit-details-marker {
-  display: none;
-}
-
-.pds__faq-item summary::after {
-  content: "⌄";
-  font-size: 18px;
-  color: var(--primary-40);
-  transition: transform 0.25s ease;
-}
-
-.pds__faq-item[open] summary::after {
-  transform: rotate(180deg);
-}
-
-.pds__faq-item p {
-  margin: 10px 0 0;
-  max-width: 70ch;
-  color: var(--primary-70);
-  font-size: 15px;
-  line-height: 22px;
-}
-
-.pds__note-inline {
-  margin: 32px 0 0;
-  max-width: 70ch;
-  font-size: 13px;
-  line-height: 18px;
-  color: var(--primary-40);
+  padding-top: 22px;
+  margin-top: 22px;
+  border-top: 1px solid var(--primary-8);
 }
 
 @media (max-width: 900px) {
-  .pds__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pds__summary {
-    position: static;
-  }
-
-  .pds__cards {
-    grid-template-columns: 1fr;
-  }
-
   .pds__title {
-    font-size: 32px;
+    margin-top: 24px;
+    font-size: var(--title-32-size);
     line-height: 1.1;
   }
 
-  .pds__two {
-    grid-template-columns: 1fr;
+  .pds__pair {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px 0;
+  }
+
+  .pds__pair .param + .param {
+    padding-top: 22px;
+    border-top: 1px solid var(--primary-8);
   }
 }
 
@@ -3333,4 +3058,39 @@ a {
   color: var(--primary-50);
   font-size: 14px;
   line-height: 20px;
+}
+
+/* сравнение прижато к низу колонки: высота колонок одинаковая */
+.pds__layout .pds__compare {
+  margin-top: auto;
+}
+
+/* короткие факты в итоге: заполняют колонку до общей высоты */
+.pds__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 20px 0 0;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--primary-10);
+  list-style: none;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--primary-50);
+}
+
+.pds__facts li {
+  position: relative;
+  padding-left: 16px;
+}
+
+.pds__facts li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary-20);
 }

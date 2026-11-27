@@ -839,26 +839,36 @@ const metrics = (page) =>
   const pdsStart = await page.evaluate(() => ({
     title: document.title,
     h1: document.querySelector("h1")?.textContent?.trim(),
-    rows: document.querySelectorAll(".pds__table-el tbody tr").length,
-    cofinancing: document.querySelectorAll(".pds__stat dd")[0]?.textContent?.trim(),
+    rows: document.querySelectorAll(".table tbody tr").length,
+    cofinancing: document.querySelectorAll(".stat dd")[0]?.textContent?.trim(),
     linkHome: document.querySelector('.topbar__nav a[href="/"]') !== null,
-    hasFaq: document.querySelectorAll(".pds__faq-item").length,
+    hasFaq: document.querySelectorAll(".faq__item").length,
+    columnsAligned: (() => {
+      const left = document.querySelector(".pds__layout > div")?.getBoundingClientRect();
+      const right = document.querySelector(".pds__layout .layout__aside")?.getBoundingClientRect();
+      return !!left && !!right && Math.abs(left.height - right.height) < 2;
+    })(),
+    font: getComputedStyle(document.querySelector(".param__input")).fontFamily,
   }));
   if (!pdsStart.title.includes("ПДС") || !pdsStart.h1?.includes("ПДС")) {
     fail(`страница ПДС: заголовки ${JSON.stringify({ title: pdsStart.title, h1: pdsStart.h1 })}`);
   } else if (pdsStart.rows !== 15 || pdsStart.hasFaq < 5 || !pdsStart.linkHome) {
     fail(`страница ПДС: ${JSON.stringify(pdsStart)}`);
-  } else ok(`страница ПДС: ${pdsStart.rows} строк, ${pdsStart.hasFaq} вопросов, ссылка на ИИС есть`);
+  } else if (!pdsStart.columnsAligned) {
+    fail("страница ПДС: колонки разной высоты");
+  } else if (!/SB Sans Interface/.test(pdsStart.font)) {
+    fail(`страница ПДС: шрифт не из системы — ${pdsStart.font}`);
+  } else ok(`страница ПДС: ${pdsStart.rows} строк, ${pdsStart.hasFaq} вопросов, колонки вровень, шрифт системный`);
 
   // сумма софинансирования не должна превышать 36 000 ₽ в год
   const pdsMax = await page.evaluate(() => {
-    const input = document.querySelectorAll(".pds__input")[1];
+    const input = document.querySelectorAll(".param__input")[0];
     const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set;
     setter.call(input, "400000");
     input.dispatchEvent(new Event("input", { bubbles: true }));
     return new Promise((resolve) =>
       setTimeout(() => {
-        const rows = [...document.querySelectorAll(".pds__table-el tbody tr")];
+        const rows = [...document.querySelectorAll(".table tbody tr")];
         const max = Math.max(...rows.map((row) => Number((row.children[2].textContent || "0").replace(/\D/g, ""))));
         resolve(max);
       }, 300),
