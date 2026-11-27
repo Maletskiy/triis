@@ -1499,11 +1499,11 @@ function LikeButton({ hint }) {
 // src/components/Topbar.tsx
 import { jsx as jsx7, jsxs as jsxs6 } from "react/jsx-runtime";
 function Topbar({
-  tagline = "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440\u044B \u0418\u0418\u0421 \u0438 \u041F\u0414\u0421",
+  tagline = "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440\u044B \u0418\u0418\u0421 \u0438\xA0\u041F\u0414\u0421",
   children
 }) {
   return /* @__PURE__ */ jsxs6("header", { className: "topbar", children: [
-    /* @__PURE__ */ jsxs6("a", { className: "topbar__brand", href: "/", "aria-label": "\u0422\u0420\u0418\u0418\u0421 \u2014 \u043D\u0430 \u0433\u043B\u0430\u0432\u043D\u0443\u044E", children: [
+    /* @__PURE__ */ jsxs6("a", { className: "topbar__brand", href: "/", "aria-label": "\u0422\u0420\u0418\u0418\u0421\xA0\u2014 \u043D\u0430\xA0\u0433\u043B\u0430\u0432\u043D\u0443\u044E", children: [
       /* @__PURE__ */ jsx7("img", { className: "topbar__mark", src: "/logo.svg", alt: "", "aria-hidden": "true" }),
       /* @__PURE__ */ jsxs6("span", { className: "topbar__title", children: [
         /* @__PURE__ */ jsx7("span", { className: "topbar__name", children: "\u0422\u0420\u0418\u0418\u0421" }),
@@ -2582,7 +2582,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:40:42.112Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:41:24.851Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -2649,7 +2649,7 @@ ${body}`], { type: "text/csv;charset=utf-8" });
     ] }) }),
     /* @__PURE__ */ jsxs13("div", { className: "page-head", children: [
       /* @__PURE__ */ jsx14("h1", { className: "page-title", children: "\u041A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0418\u0418\u0421-3: \u0432\u044B\u0447\u0435\u0442\u044B, \u043D\u0430\u043B\u043E\u0433\u0438, \u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C" }),
-      /* @__PURE__ */ jsx14("p", { className: "page-lede", children: "\u0422\u0440\u0438 \u0442\u0438\u043F\u0430 \u0441\u0447\u0451\u0442\u0430 \u043D\u0430 \u043E\u0434\u043D\u043E\u043C \u043D\u0430\u0431\u043E\u0440\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432: \u0432\u044B\u0447\u0435\u0442\u044B \u043F\u043E \u0433\u043E\u0434\u0430\u043C, \u043D\u0430\u043B\u043E\u0433 \u043F\u0440\u0438 \u0437\u0430\u043A\u0440\u044B\u0442\u0438\u0438 \u0438 \u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C \u0441 \u043F\u043E\u043F\u0440\u0430\u0432\u043A\u043E\u0439 \u043D\u0430 \u0438\u043D\u0444\u043B\u044F\u0446\u0438\u044E. \u041F\u0440\u0430\u0432\u0438\u043B\u0430 2026 \u0433\u043E\u0434\u0430" })
+      /* @__PURE__ */ jsx14("p", { className: "page-lede", children: "\u0422\u0440\u0438 \u0442\u0438\u043F\u0430 \u0441\u0447\u0451\u0442\u0430 \u043D\u0430\xA0\u043E\u0434\u043D\u043E\u043C \u043D\u0430\u0431\u043E\u0440\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432: \u0432\u044B\u0447\u0435\u0442\u044B \u043F\u043E\xA0\u0433\u043E\u0434\u0430\u043C, \u043D\u0430\u043B\u043E\u0433 \u043F\u0440\u0438\xA0\u0437\u0430\u043A\u0440\u044B\u0442\u0438\u0438 \u0438\xA0\u0434\u043E\u0445\u043E\u0434\u043D\u043E\u0441\u0442\u044C \u0441\xA0\u043F\u043E\u043F\u0440\u0430\u0432\u043A\u043E\u0439 \u043D\u0430\xA0\u0438\u043D\u0444\u043B\u044F\u0446\u0438\u044E. \u041F\u0440\u0430\u0432\u0438\u043B\u0430 2026\u202F\u0433\u043E\u0434\u0430" })
     ] }),
     /* @__PURE__ */ jsxs13("div", { className: "print-head", children: [
       /* @__PURE__ */ jsxs13("div", { children: [
@@ -3130,7 +3130,7 @@ function Pds({ initialTab = "params" }) {
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:40:42.112Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:41:24.851Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",

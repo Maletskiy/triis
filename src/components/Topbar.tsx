@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
  * чтобы h1 всегда был один и нёс ключевой запрос конкретной страницы.
  */
 export default function Topbar({
-  tagline = "Калькуляторы ИИС и ПДС",
+  tagline = "Калькуляторы ИИС и ПДС",
   children,
 }: {
   tagline?: string;
@@ -14,7 +14,7 @@ export default function Topbar({
 }) {
   return (
     <header className="topbar">
-      <a className="topbar__brand" href="/" aria-label="ТРИИС — на главную">
+      <a className="topbar__brand" href="/" aria-label="ТРИИС — на главную">
         <img className="topbar__mark" src="/logo.svg" alt="" aria-hidden="true" />
         <span className="topbar__title">
           <span className="topbar__name">ТРИИС</span>
