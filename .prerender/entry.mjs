@@ -2572,7 +2572,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.href;
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T21:51:45.624Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T21:57:01.501Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
