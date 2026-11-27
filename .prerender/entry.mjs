@@ -2595,7 +2595,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:07:32.227Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:09:32.337Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3135,7 +3135,7 @@ function Pds() {
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:07:32.227Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:09:32.337Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3236,7 +3236,7 @@ function Pds() {
                   ]
                 }
               ),
-              /* @__PURE__ */ jsx15("span", { className: "param__hint", children: "\u043E\u0442\xA0\u043F\u043E\u043B\u0430 \u0437\u0430\u0432\u0438\u0441\u0438\u0442 \u0432\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442\xA0\u2014 60 \u0438\u043B\u0438\xA055\u202F\u043B\u0435\u0442" })
+              /* @__PURE__ */ jsx15("span", { className: "param__hint", children: "\u0432\u043E\u0437\u0440\u0430\u0441\u0442 \u0432\u044B\u043F\u043B\u0430\u0442: 55 \u0438\u043B\u0438\xA060\u202F\u043B\u0435\u0442" })
             ] }),
             /* @__PURE__ */ jsx15(
               Param2,

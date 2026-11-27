@@ -265,7 +265,7 @@ export default function Pds() {
                       { value: "f", label: "Женский" },
                     ]}
                   />
-                  <span className="param__hint">от пола зависит возраст выплат — 60 или 55 лет</span>
+                  <span className="param__hint">возраст выплат: 55 или 60 лет</span>
                 </div>
                 <Param
                   label="Возраст"
