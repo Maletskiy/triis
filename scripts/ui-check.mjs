@@ -654,9 +654,23 @@ const metrics = (page) =>
   else ok(`плашка табов серая: ${thumbColor}, текст ${activeColor}`);
 
   const btnHeight = await page.$eval(".actions .btn", (el) => el.getBoundingClientRect().height);
-  const resetHeight = await page.$eval(".topbar__actions .btn", (el) => el.getBoundingClientRect().height);
+  const reset = await page.evaluate(() => {
+    const button = document.querySelector(".section__head .btn--sm");
+    if (!button) return null;
+    const box = button.getBoundingClientRect();
+    const title = button.closest(".section__head").querySelector(".section__title").getBoundingClientRect();
+    return {
+      height: Math.round(box.height),
+      text: button.textContent.trim(),
+      sameRow: Math.abs(box.top + box.height / 2 - (title.top + title.height / 2)) < 8,
+      atRight: box.right > title.right,
+      title: button.closest(".section__head").querySelector(".section__title").textContent.trim(),
+    };
+  });
   if (Math.round(btnHeight) !== 56) fail(`высота кнопки ${Math.round(btnHeight)}, ожидалась 56`);
-  else ok(`высота кнопок 56 px, «Сбросить» — ${Math.round(resetHeight)} px`);
+  else if (!reset || reset.text !== "Сбросить" || reset.height > 44 || !reset.sameRow || !reset.atRight) {
+    fail(`кнопка сброса не в шапке блока «Счёт»: ${JSON.stringify(reset)}`);
+  } else ok(`кнопки 56 px, «Сбросить» ${reset.height} px в шапке «${reset.title}», справа`);
 
   // PDF собирается в приложении: без браузерных колонтитулов и ссылок
   const pdfDir = `${SHOTS}pdf-check`;

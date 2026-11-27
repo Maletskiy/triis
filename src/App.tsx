@@ -218,11 +218,12 @@ export default function App() {
   return (
     <div className="app">
       <Topbar variant="hero">
-        <div className="topbar__actions">
-          <button type="button" className="btn btn--ghost" onClick={reset}>
-            Сбросить
-          </button>
-        </div>
+        <nav className="topbar__nav" aria-label="Разделы">
+          <span className="topbar__link is-current">ИИС-3</span>
+          <a className="topbar__link" href="/pds">
+            ПДС
+          </a>
+        </nav>
       </Topbar>
 
       <div className="print-head">
@@ -285,6 +286,7 @@ export default function App() {
                 onChange={patchScenario}
                 account={state.account}
                 onAccountChange={pickAccount}
+                onReset={reset}
               />
             ) : null}
 

@@ -3315,3 +3315,14 @@ a {
   transform: translateX(4px);
   color: var(--primary);
 }
+
+/* Компактная кнопка в заголовке секции */
+.btn--sm {
+  min-height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+}
+
+.section__head .btn--sm {
+  margin-left: auto;
+}

@@ -1017,7 +1017,13 @@ function Param({
     hint ? /* @__PURE__ */ jsx4("span", { className: "param__hint", children: hint }) : null
   ] });
 }
-function Inputs({ scenario, onChange, account, onAccountChange }) {
+function Inputs({
+  scenario,
+  onChange,
+  account,
+  onAccountChange,
+  onReset
+}) {
   const contributionLimit = account === "iis3" ? void 0 : OLD_IIS_CONTRIBUTION_LIMIT;
   const overLimit = contributionLimit !== void 0 && scenario.annualContribution > contributionLimit;
   const openYear = yearOf(scenario.openDate);
@@ -1052,49 +1058,56 @@ function Inputs({ scenario, onChange, account, onAccountChange }) {
     onChange({ contributions: next });
   };
   return /* @__PURE__ */ jsxs3("div", { className: "inputs", children: [
-    /* @__PURE__ */ jsxs3(Section, { title: "\u0421\u0447\u0451\u0442", children: [
-      /* @__PURE__ */ jsx4(
-        Segmented,
-        {
-          label: "\u0422\u0438\u043F \u0441\u0447\u0451\u0442\u0430",
-          value: account,
-          onChange: onAccountChange,
-          options: [
-            { value: "iis3", label: "\u0418\u0418\u0421-3", title: "\u041E\u0431\u0430 \u0432\u044B\u0447\u0435\u0442\u0430: \u0432\u0437\u043D\u043E\u0441 \u0438\xA0\u0434\u043E\u0445\u043E\u0434" },
-            { value: "iis1", label: "\u0422\u0438\u043F \u0410", title: "\u0412\u044B\u0447\u0435\u0442 \u043D\u0430\xA0\u0432\u0437\u043D\u043E\u0441, \u0434\u043E\u0445\u043E\u0434 \u043E\u0431\u043B\u0430\u0433\u0430\u0435\u0442\u0441\u044F" },
-            { value: "iis2", label: "\u0422\u0438\u043F \u0411", title: "\u0414\u043E\u0445\u043E\u0434 \u0431\u0435\u0437\xA0\u043D\u0430\u043B\u043E\u0433\u0430, \u0432\u044B\u0447\u0435\u0442\u0430 \u043D\u0430\xA0\u0432\u0437\u043D\u043E\u0441 \u043D\u0435\u0442" }
-          ]
-        }
-      ),
-      /* @__PURE__ */ jsx4("p", { className: "inputs__note", children: account === "iis3" ? "\u0418\u0418\u0421-3\xA0\u2014 \u043E\u0431\u0430 \u0432\u044B\u0447\u0435\u0442\u0430 \u0441\u0440\u0430\u0437\u0443: \u0432\u043E\u0437\u0432\u0440\u0430\u0442 \u041D\u0414\u0424\u041B \u0437\u0430\xA0\u0432\u0437\u043D\u043E\u0441\u044B \u0438\xA0\u043E\u0441\u0432\u043E\u0431\u043E\u0436\u0434\u0435\u043D\u0438\u0435 \u0434\u043E\u0445\u043E\u0434\u0430 \u043E\u0442\xA0\u043D\u0430\u043B\u043E\u0433\u0430" : account === "iis1" ? "\u0422\u0438\u043F \u0410\xA0\u2014 \u0432\u043E\u0437\u0432\u0440\u0430\u0442 \u041D\u0414\u0424\u041B \u0441\xA0\u0432\u0437\u043D\u043E\u0441\u043E\u0432. \u0414\u043E\u0445\u043E\u0434 \u043D\u0430\xA0\u0441\u0447\u0451\u0442\u0435 \u043E\u0431\u043B\u0430\u0433\u0430\u0435\u0442\u0441\u044F \u043D\u0430\u043B\u043E\u0433\u043E\u043C \u043F\u0440\u0438\xA0\u0437\u0430\u043A\u0440\u044B\u0442\u0438\u0438" : "\u0422\u0438\u043F \u0411\xA0\u2014 \u0434\u043E\u0445\u043E\u0434 \u043E\u0441\u0432\u043E\u0431\u043E\u0436\u0434\u0451\u043D \u043E\u0442\xA0\u041D\u0414\u0424\u041B, \u043D\u043E\xA0\u0432\u044B\u0447\u0435\u0442\u0430 \u043D\u0430\xA0\u0432\u0437\u043D\u043E\u0441 \u043D\u0435\u0442" }),
-      /* @__PURE__ */ jsxs3("div", { className: "inputs__date", children: [
-        /* @__PURE__ */ jsx4("span", { className: "param__label", children: "\u0414\u0430\u0442\u0430 \u043E\u0442\u043A\u0440\u044B\u0442\u0438\u044F" }),
-        /* @__PURE__ */ jsx4(
-          DatePicker,
-          {
-            label: "\u0414\u0430\u0442\u0430 \u043E\u0442\u043A\u0440\u044B\u0442\u0438\u044F \u0441\u0447\u0451\u0442\u0430",
-            value: scenario.openDate,
-            onChange: (iso) => onChange({ openDate: iso })
-          }
-        ),
-        /* @__PURE__ */ jsx4("p", { className: "inputs__note", children: account === "iis3" ? /* @__PURE__ */ jsxs3(Fragment3, { children: [
-          "\u0421\u0440\u043E\u043A \u0432\u043B\u0430\u0434\u0435\u043D\u0438\u044F \u0434\u043B\u044F\xA0\u044D\u0442\u043E\u0433\u043E \u0441\u0447\u0451\u0442\u0430\xA0\u2014 ",
-          /* @__PURE__ */ jsxs3("b", { children: [
-            minHolding,
-            " ",
-            yearsWord(minHolding)
-          ] }),
-          ", \u0437\u0430\u043A\u0440\u044B\u0442\u044C \u0431\u0435\u0437\xA0\u043F\u043E\u0442\u0435\u0440\u0438 \u043B\u044C\u0433\u043E\u0442 \u043C\u043E\u0436\u043D\u043E \u0441",
-          " ",
-          /* @__PURE__ */ jsx4("b", { children: formatHuman(addYears(scenario.openDate, minHolding)) }),
-          "."
-        ] }) : /* @__PURE__ */ jsxs3(Fragment3, { children: [
-          "\u0421 2024\u202F\u0433\u043E\u0434\u0430 \u043D\u043E\u0432\u044B\u0435 \u0441\u0447\u0435\u0442\u0430 \u0442\u0438\u043F\u0430 \u0410 \u0438\xA0\u0411 \u043D\u0435\xA0\u043E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\xA0\u2014 \u0437\u0434\u0435\u0441\u044C \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0443\u0436\u0435 \u043E\u0442\u043A\u0440\u044B\u0442\u044B\u0439, \u0435\u0433\u043E\xA0\u043C\u0438\u043D\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0441\u0440\u043E\u043A\xA0\u2014 ",
-          /* @__PURE__ */ jsx4("b", { children: "3\u202F\u0433\u043E\u0434\u0430" }),
-          "."
-        ] }) })
-      ] })
-    ] }),
+    /* @__PURE__ */ jsxs3(
+      Section,
+      {
+        title: "\u0421\u0447\u0451\u0442",
+        aside: /* @__PURE__ */ jsx4("button", { type: "button", className: "btn btn--ghost btn--sm", onClick: onReset, children: "\u0421\u0431\u0440\u043E\u0441\u0438\u0442\u044C" }),
+        children: [
+          /* @__PURE__ */ jsx4(
+            Segmented,
+            {
+              label: "\u0422\u0438\u043F \u0441\u0447\u0451\u0442\u0430",
+              value: account,
+              onChange: onAccountChange,
+              options: [
+                { value: "iis3", label: "\u0418\u0418\u0421-3", title: "\u041E\u0431\u0430 \u0432\u044B\u0447\u0435\u0442\u0430: \u0432\u0437\u043D\u043E\u0441 \u0438\xA0\u0434\u043E\u0445\u043E\u0434" },
+                { value: "iis1", label: "\u0422\u0438\u043F \u0410", title: "\u0412\u044B\u0447\u0435\u0442 \u043D\u0430\xA0\u0432\u0437\u043D\u043E\u0441, \u0434\u043E\u0445\u043E\u0434 \u043E\u0431\u043B\u0430\u0433\u0430\u0435\u0442\u0441\u044F" },
+                { value: "iis2", label: "\u0422\u0438\u043F \u0411", title: "\u0414\u043E\u0445\u043E\u0434 \u0431\u0435\u0437\xA0\u043D\u0430\u043B\u043E\u0433\u0430, \u0432\u044B\u0447\u0435\u0442\u0430 \u043D\u0430\xA0\u0432\u0437\u043D\u043E\u0441 \u043D\u0435\u0442" }
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsx4("p", { className: "inputs__note", children: account === "iis3" ? "\u0418\u0418\u0421-3\xA0\u2014 \u043E\u0431\u0430 \u0432\u044B\u0447\u0435\u0442\u0430 \u0441\u0440\u0430\u0437\u0443: \u0432\u043E\u0437\u0432\u0440\u0430\u0442 \u041D\u0414\u0424\u041B \u0437\u0430\xA0\u0432\u0437\u043D\u043E\u0441\u044B \u0438\xA0\u043E\u0441\u0432\u043E\u0431\u043E\u0436\u0434\u0435\u043D\u0438\u0435 \u0434\u043E\u0445\u043E\u0434\u0430 \u043E\u0442\xA0\u043D\u0430\u043B\u043E\u0433\u0430" : account === "iis1" ? "\u0422\u0438\u043F \u0410\xA0\u2014 \u0432\u043E\u0437\u0432\u0440\u0430\u0442 \u041D\u0414\u0424\u041B \u0441\xA0\u0432\u0437\u043D\u043E\u0441\u043E\u0432. \u0414\u043E\u0445\u043E\u0434 \u043D\u0430\xA0\u0441\u0447\u0451\u0442\u0435 \u043E\u0431\u043B\u0430\u0433\u0430\u0435\u0442\u0441\u044F \u043D\u0430\u043B\u043E\u0433\u043E\u043C \u043F\u0440\u0438\xA0\u0437\u0430\u043A\u0440\u044B\u0442\u0438\u0438" : "\u0422\u0438\u043F \u0411\xA0\u2014 \u0434\u043E\u0445\u043E\u0434 \u043E\u0441\u0432\u043E\u0431\u043E\u0436\u0434\u0451\u043D \u043E\u0442\xA0\u041D\u0414\u0424\u041B, \u043D\u043E\xA0\u0432\u044B\u0447\u0435\u0442\u0430 \u043D\u0430\xA0\u0432\u0437\u043D\u043E\u0441 \u043D\u0435\u0442" }),
+          /* @__PURE__ */ jsxs3("div", { className: "inputs__date", children: [
+            /* @__PURE__ */ jsx4("span", { className: "param__label", children: "\u0414\u0430\u0442\u0430 \u043E\u0442\u043A\u0440\u044B\u0442\u0438\u044F" }),
+            /* @__PURE__ */ jsx4(
+              DatePicker,
+              {
+                label: "\u0414\u0430\u0442\u0430 \u043E\u0442\u043A\u0440\u044B\u0442\u0438\u044F \u0441\u0447\u0451\u0442\u0430",
+                value: scenario.openDate,
+                onChange: (iso) => onChange({ openDate: iso })
+              }
+            ),
+            /* @__PURE__ */ jsx4("p", { className: "inputs__note", children: account === "iis3" ? /* @__PURE__ */ jsxs3(Fragment3, { children: [
+              "\u0421\u0440\u043E\u043A \u0432\u043B\u0430\u0434\u0435\u043D\u0438\u044F \u0434\u043B\u044F\xA0\u044D\u0442\u043E\u0433\u043E \u0441\u0447\u0451\u0442\u0430\xA0\u2014 ",
+              /* @__PURE__ */ jsxs3("b", { children: [
+                minHolding,
+                " ",
+                yearsWord(minHolding)
+              ] }),
+              ", \u0437\u0430\u043A\u0440\u044B\u0442\u044C \u0431\u0435\u0437\xA0\u043F\u043E\u0442\u0435\u0440\u0438 \u043B\u044C\u0433\u043E\u0442 \u043C\u043E\u0436\u043D\u043E \u0441",
+              " ",
+              /* @__PURE__ */ jsx4("b", { children: formatHuman(addYears(scenario.openDate, minHolding)) }),
+              "."
+            ] }) : /* @__PURE__ */ jsxs3(Fragment3, { children: [
+              "\u0421 2024\u202F\u0433\u043E\u0434\u0430 \u043D\u043E\u0432\u044B\u0435 \u0441\u0447\u0435\u0442\u0430 \u0442\u0438\u043F\u0430 \u0410 \u0438\xA0\u0411 \u043D\u0435\xA0\u043E\u0442\u043A\u0440\u044B\u0432\u0430\u044E\u0442\xA0\u2014 \u0437\u0434\u0435\u0441\u044C \u0441\u0447\u0438\u0442\u0430\u0435\u0442\u0441\u044F \u0443\u0436\u0435 \u043E\u0442\u043A\u0440\u044B\u0442\u044B\u0439, \u0435\u0433\u043E\xA0\u043C\u0438\u043D\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0441\u0440\u043E\u043A\xA0\u2014 ",
+              /* @__PURE__ */ jsx4("b", { children: "3\u202F\u0433\u043E\u0434\u0430" }),
+              "."
+            ] }) })
+          ] })
+        ]
+      }
+    ),
     /* @__PURE__ */ jsxs3(
       Section,
       {
@@ -2582,7 +2595,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T22:31:15.134Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T22:45:18.168Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -2643,7 +2656,10 @@ ${body}`], { type: "text/csv;charset=utf-8" });
     ] });
   }
   return /* @__PURE__ */ jsxs13("div", { className: "app", children: [
-    /* @__PURE__ */ jsx14(Topbar, { variant: "hero", children: /* @__PURE__ */ jsx14("div", { className: "topbar__actions", children: /* @__PURE__ */ jsx14("button", { type: "button", className: "btn btn--ghost", onClick: reset, children: "\u0421\u0431\u0440\u043E\u0441\u0438\u0442\u044C" }) }) }),
+    /* @__PURE__ */ jsx14(Topbar, { variant: "hero", children: /* @__PURE__ */ jsxs13("nav", { className: "topbar__nav", "aria-label": "\u0420\u0430\u0437\u0434\u0435\u043B\u044B", children: [
+      /* @__PURE__ */ jsx14("span", { className: "topbar__link is-current", children: "\u0418\u0418\u0421-3" }),
+      /* @__PURE__ */ jsx14("a", { className: "topbar__link", href: "/pds", children: "\u041F\u0414\u0421" })
+    ] }) }),
     /* @__PURE__ */ jsxs13("div", { className: "print-head", children: [
       /* @__PURE__ */ jsxs13("div", { children: [
         /* @__PURE__ */ jsx14("strong", { children: "\u0422\u0420\u0418\u0418\u0421\xA0\u2014 \u043A\u0430\u043B\u044C\u043A\u0443\u043B\u044F\u0442\u043E\u0440 \u0418\u0418\u0421" }),
@@ -2694,7 +2710,8 @@ ${body}`], { type: "text/csv;charset=utf-8" });
               scenario: state.scenario,
               onChange: patchScenario,
               account: state.account,
-              onAccountChange: pickAccount
+              onAccountChange: pickAccount,
+              onReset: reset
             }
           ) : null,
           tab === "compare" ? /* @__PURE__ */ jsx14(

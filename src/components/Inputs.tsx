@@ -17,6 +17,7 @@ type Props = {
   onChange: (patch: Partial<Scenario>) => void;
   account: AccountType;
   onAccountChange: (type: AccountType) => void;
+  onReset: () => void;
 };
 
 const money = (value: number) => (value > 0 ? value.toLocaleString("ru-RU") : "");
@@ -96,7 +97,13 @@ function Param({
   );
 }
 
-export default function Inputs({ scenario, onChange, account, onAccountChange }: Props) {
+export default function Inputs({
+  scenario,
+  onChange,
+  account,
+  onAccountChange,
+  onReset,
+}: Props) {
   const contributionLimit = account === "iis3" ? undefined : OLD_IIS_CONTRIBUTION_LIMIT;
   const overLimit =
     contributionLimit !== undefined && scenario.annualContribution > contributionLimit;
@@ -145,7 +152,14 @@ export default function Inputs({ scenario, onChange, account, onAccountChange }:
 
   return (
     <div className="inputs">
-      <Section title="Счёт">
+      <Section
+        title="Счёт"
+        aside={
+          <button type="button" className="btn btn--ghost btn--sm" onClick={onReset}>
+            Сбросить
+          </button>
+        }
+      >
         <Segmented
           label="Тип счёта"
           value={account}
