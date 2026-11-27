@@ -460,7 +460,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 0;
+  padding: 0 0 20px;
   background: none;
   border: 0;
 }

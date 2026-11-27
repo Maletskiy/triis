@@ -63,12 +63,15 @@ const metrics = (page) =>
   else ok(`нет горизонтального переполнения (${m.docWidth} ≤ ${m.innerWidth})`);
 
   // Заголовок страницы — единственный h1 в теле, шапка несёт бренд и общее описание.
-  const heading = await page.evaluate(() => ({
-    name: document.querySelector(".page-title")?.textContent?.trim() ?? "",
-    lede: document.querySelector(".page-lede")?.textContent?.trim() ?? "",
-    brand: document.querySelector(".topbar__lede")?.textContent?.trim() ?? "",
-    count: document.querySelectorAll("h1").length,
-  }));
+  const heading = await page.evaluate(() => {
+    const flat = (value) => value.replace(/[\u00A0\u202F]/g, " ").trim();
+    return {
+      name: flat(document.querySelector(".page-title")?.textContent ?? ""),
+      lede: flat(document.querySelector(".page-lede")?.textContent ?? ""),
+      brand: flat(document.querySelector(".topbar__lede")?.textContent ?? ""),
+      count: document.querySelectorAll("h1").length,
+    };
+  });
   if (heading.count !== 1) fail(`на странице ${heading.count} заголовков h1`);
   else ok("h1 на странице один");
   if (!heading.name.includes("Калькулятор ИИС")) fail(`h1 без запроса: "${heading.name}"`);

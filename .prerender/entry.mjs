@@ -2582,7 +2582,7 @@ function App() {
   }, []);
   const shareUrl = () => window.location.origin + window.location.pathname + writeState(state);
   const updatedLabel = useMemo4(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:41:24.851Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:45:37.518Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
@@ -3130,7 +3130,7 @@ function Pds({ initialTab = "params" }) {
   const patch = (next) => setScenario((current) => ({ ...current, ...next }));
   const result = useMemo5(() => simulatePds(scenario), [scenario]);
   const updatedLabel = useMemo5(() => {
-    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:41:24.851Z");
+    const stamp = /* @__PURE__ */ new Date("2026-11-27T23:45:37.518Z");
     const date = new Intl.DateTimeFormat("ru-RU", {
       timeZone: "Europe/Moscow",
       day: "numeric",
